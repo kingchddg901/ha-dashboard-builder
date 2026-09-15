@@ -230,12 +230,43 @@ mechanism as Spike C, but *inside* your own tree, where it is guaranteed rather 
 grows the matching editor UI with no editor-code change. That is the whole thesis, demonstrated
 in the shortest possible loop — and it is the no-YAML path for re-theming.
 
-**One trap, already defended.** The theme tab is a descendant of its own preview target, so
-editing a token restyles the editor too — a user can set a hostile value and lose the ability to
-see the control that would undo it. The kit already handles this: its chrome styles itself off
-`--tk-fg` / `--tk-line` / `--tk-warn` with literal fallbacks, deliberately *not* off the tokens
-being edited. Keep that separation when writing a custom view; VA's hardcoded `MODAL_HOST_STYLES`
-fallbacks exist for the same reason.
+**One trap, and the kit does NOT currently defend it.** Measured 2026-09-15, correcting an earlier
+claim in this file that said it did.
+
+The theme tab is a descendant of its own preview target, so editing a token restyles the editor.
+That part is fine — it is live WYSIWYG preview, it is the point, and VA has shipped it for months.
+**The problem is the escape hatch being themed too.**
+
+`<theme-kit-editor>`'s whole chrome is `:host { color: var(--tk-fg, inherit); font: inherit; }`.
+Two exposures:
+
+- `--tk-fg` falls back to **`inherit`**, not a literal. Unset — the default — the editor's text
+  colour is whatever the themed panel paints.
+- There is **no background declaration at all**. The only `background` in the file is
+  `background: none` on the colour swatch. The editor's backdrop *is* the themed surface.
+
+`--tk-line` / `--tk-dim` / `--tk-warn` / `--tk-error` do carry literal fallbacks, so fieldset
+outlines survive. You get empty boxes.
+
+**Bite test:** set the dashboard's text colour equal to its surface colour — one slider drag in a
+live editor. The editor goes invisible including the control that would undo it, and the value is
+**persisted** through the adapter, so it survives a reload. Not a discardable hard-to-reach input:
+one gesture from unrecoverable without editing storage.
+
+**Fix — two literals, in the kit, so every consumer gets it:**
+
+```css
+:host { color: var(--tk-fg, #e6edf3); background: var(--tk-bg, #0d1117); }
+```
+
+Immune by default; a host that wants transparency opts in with `--tk-bg: transparent`. VA does the
+equivalent already — `MODAL_HOST_STYLES` carries `var(--evcc-modal-bg, #1c2127)` as a floor.
+
+**The general rule this is an instance of:** a live editor may theme itself, but whatever recovers
+from a bad value must not be reachable by that value.
+
+**Open, unmeasured:** whether VA's own theme editor has the same hole. It sits inside the card on
+`--evcc-surface-*`, which are themeable, so it may. Needs driving, not reasoning about.
 
 **Shape:** N tabs of controls (light → remote → fan → VA, per §4) + a final theme tab. Each
 torture test becomes a tab. The dashboard is its own test harness.
