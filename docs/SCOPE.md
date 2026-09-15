@@ -148,6 +148,43 @@ in the right place.
 
 ---
 
+## 2.6 What the payoff actually is — and what is optional
+
+His words, 2026-09-15: *"the neat part for me is the full control of the dashboard, to make it
+look how i want. not build everything piecemeal from whatever card i can find or make, like my
+fan card."*
+
+That is the requirement, and it is worth separating from the architecture around it.
+
+**What delivers it:**
+
+| | |
+|---|---|
+| the panel owns the whole area | layout is his, not negotiated with a stack of cards |
+| one shared token vocabulary | everything matches because it speaks one language |
+| renderers he authors | nothing is "whatever I could find" |
+
+**What does not:** the semantic capability layer. Capability normalization and automatic
+renderer-selection buy **discovery and config economy** — they place an entity you have not placed
+by hand. They do nothing for how the dashboard looks.
+
+So the whole payoff is reachable by building the panel, the layout engine, the token system, the
+theme tab and hand-authored LCARS controls, placing them by hand, and **never building the
+capability layer at all.** It earns its keep the day there are thirty similar entities and
+hand-placing each is the annoyance. Not before.
+
+**This revises §4 and §5.** Spike B — one renderer-selection rule covering both the remote and the
+compound fan — kills the *capability layer*, not the dashboard, so it is **no longer a gate**. The
+real question is whether panel + tokens + his own renderers give him the control he wants, and
+that is answered by building, not by a spike. Run B when and if the capability layer is actually
+wanted.
+
+**The fan card is the problem in one object.** `my-cards` in his community directory is the HACS
+"My Cards" bundle, not his; the compound fan is assembled from button-card templates and card_mod.
+Six entities, one appliance, and the relationship exists only in hand-written YAML.
+
+---
+
 ## 3. What would kill the architecture
 
 One thing: **if renderer selection needs a per-entity special case more often than not.**
