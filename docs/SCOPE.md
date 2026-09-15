@@ -256,7 +256,24 @@ one gesture from unrecoverable without editing storage.
 **The general rule this is an instance of:** a live editor may theme itself, but whatever recovers
 from a bad value must not be reachable by that value.
 
-### The reset must hold contrast at all times — and fixed literals are the wrong fix
+### RESOLVED 2026-09-15 — built in the kit, `token-theme-kit@8ea5bf8` (local, unpushed)
+
+Three-tier reset — per token, per group, total — ported from VA's editor, which has run that
+shape in production. A reset **removes the override** so the token falls back through resolution;
+it never stores a copy of the default. `reset-all` is `#000000` / `#ffffff` with a white outline,
+literals only, no `var()` in the rule, guarded by `test/reset.test.mjs`.
+
+**The finding that made it urgent:** the editor had **no reset of any kind**, while `_onChange`
+persisted on every change. `createPreview` has exposed `commit()`/`revert()` all along and the
+editor never called either. There was no way back, including across a reload.
+
+Chris's call on the colour was right and the analysis below is left standing because it is what
+the decision was made against — note that it argued for derive-by-luminance and that **a literal
+pair with no inputs is the better engineering for a last resort**, because it cannot be poisoned.
+
+---
+
+### The analysis this replaced — contrast at all times, and why fixed literals looked wrong
 
 Two literals (`--tk-fg: #e6edf3` / `--tk-bg: #0d1117`) were proposed here and are **withdrawn**:
 an absolute pair makes the editor a dark island on a light dashboard.
