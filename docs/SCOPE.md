@@ -253,17 +253,45 @@ live editor. The editor goes invisible including the control that would undo it,
 **persisted** through the adapter, so it survives a reload. Not a discardable hard-to-reach input:
 one gesture from unrecoverable without editing storage.
 
-**Fix — two literals, in the kit, so every consumer gets it:**
-
-```css
-:host { color: var(--tk-fg, #e6edf3); background: var(--tk-bg, #0d1117); }
-```
-
-Immune by default; a host that wants transparency opts in with `--tk-bg: transparent`. VA does the
-equivalent already — `MODAL_HOST_STYLES` carries `var(--evcc-modal-bg, #1c2127)` as a floor.
-
 **The general rule this is an instance of:** a live editor may theme itself, but whatever recovers
 from a bad value must not be reachable by that value.
+
+### The reset must hold contrast at all times — and fixed literals are the wrong fix
+
+Two literals (`--tk-fg: #e6edf3` / `--tk-bg: #0d1117`) were proposed here and are **withdrawn**:
+an absolute pair makes the editor a dark island on a light dashboard.
+
+**VA's existing answer, and exactly what it covers.** `src/styles/rooms.js`, the FLOOR-TEXTURE
+LEGIBILITY block, states the principle outright: *"CSS cannot sample an image's luminance to pick
+a contrasting color, so rather than tune any single color we composite each chip OVER AN OPAQUE
+SURFACE."* Three variants ship:
+
+- **chips** — re-emit the translucent tint as a gradient *image* layer stacked on opaque
+  `var(--evcc-surface-card)`; hue and intensity unchanged, legibility now independent of the backdrop
+- **bare text** (room name, `#N`) — a `text-shadow` halo in that same surface colour, which
+  "self-outlines correctly on both light and dark themes" because the halo tracks the theme
+- **bare coloured text** (estimate notes) — a self-hugging pill on `--evcc-surface-card`
+
+**What it does NOT cover.** This defends against an *unknown backdrop* — a texture of any
+luminance behind the card. It does not defend against *adversarial paired values*:
+`--evcc-surface-card` and `--evcc-text-primary` are both themeable, so setting them equal breaks
+VA's labels too. The reset has the second problem, not the first.
+
+| approach | unknown backdrop | adversarial pair | cost |
+|---|---|---|---|
+| **derive fg from resolved bg by luminance, at render** | yes | **yes** | needs the math — `token-theme-kit/src/color.js` already has WCAG contrast |
+| VA's self-supplied opaque pair | yes | no | CSS only |
+| fixed literal pair | yes | yes | becomes an island on the opposite scheme |
+
+Only the first is literally *at all times*. **The reset control computes its own foreground from
+its own resolved background**, so no combination of user values can hide it. The primitive exists;
+this is wiring, not new math.
+
+**Corroboration that this bug class is real and recurring.** The same VA file records the `#N`
+order chip having *"inherited a fixed pale colour that vanished on light themes — it fell through
+to a near-white cascade value."* That is the identical failure as the 14 dark-assuming seeds in
+`foundation.js` (SCOPE §7), found twice independently in one codebase. Argues for making
+derive-don't-assume structural here from the start rather than retrofitting it.
 
 **Open, unmeasured:** whether VA's own theme editor has the same hole. It sits inside the card on
 `--evcc-surface-*`, which are themeable, so it may. Needs driving, not reasoning about.
