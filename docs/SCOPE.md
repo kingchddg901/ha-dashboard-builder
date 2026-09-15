@@ -355,6 +355,39 @@ torture test becomes a tab. The dashboard is its own test harness.
 
 ---
 
+## 5.7 The share / local split — and what it rescues
+
+His framing, 2026-09-15: the semantic part *would be great to share*; the custom cards and
+controls are *the HA thing*, local, made how he wants them.
+
+That is a better boundary than §2.6's, and it corrects it. §2.6 demoted the capability layer
+because it does not serve the look, which is true and is not the whole picture. The layer is the
+**generalizable** piece — "HA gives you no capability model" is everyone's problem. Nobody else
+wants an LCARS fan control; anyone writing an HA card wants *this light has brightness and colour
+temperature and not RGB* without decoding a per-domain bitmask.
+
+So the two statements stand together:
+
+| | serves the look? | worth sharing? | lives |
+|---|---|---|---|
+| panel + layout engine | **yes** | no — it is his LCARS | private |
+| his LCARS renderers | **yes** | no | private |
+| token vocabulary / kit | yes | **yes** | public (`token-theme-kit`) |
+| **capability layer** | no | **yes** | public, its own package |
+
+Optional *for his dashboard*, and the piece with a reason to exist outside it. §2.6 collapsed
+those into one verdict; they are separate questions with separate answers.
+
+**It already has a shape.** `ha-adapter-pattern` is the published write-up of exactly this —
+runtime-configurable adapter registries, capability gating (§8), entity resolution by role (§5),
+vocabulary registries (§6), extracted from VA. The semantic layer is that guide's implementation.
+The prose has shipped; the code does not exist.
+
+**What this does not change:** build order. The payoff is still panel → tokens → theme tab → one
+real control, and none of it waits on the capability layer.
+
+---
+
 ## 6. Repo and licensing
 
 - **Dashboard → new private repo.** Correct call. Personal, exploratory, and the layout/LCARS
