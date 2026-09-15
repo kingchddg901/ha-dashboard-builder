@@ -3,7 +3,7 @@
 Adjudication of the GPT handoff against what is actually on disk. The handoff is the design;
 this is the delta. Nothing here restates it — read it alongside.
 
-**Status:** scoping only. Nothing built, no repo created.
+**Status:** repo stood up 2026-09-15. Design and measurement only — no dashboard code yet.
 
 **Framing (2026-09-15).** A fun pastime while VA 2.2.0 soaks — not a deadline project. And the
 cards get **rebuilt as LCARS-native first-class citizens** rather than wrapped. See §2.5, which
