@@ -1,0 +1,19 @@
+# ha-state-timeline-card
+# 2026-09-15T22:58:31Z from ha-state-timeline-card.js
+# 12 read, 1 card-owned, 11 shared/HA
+
+## card-owned -- these are what a mapping targets
+--code-font-family
+
+## shared -- the dashboard sets these globally; never map them per-card
+--card-background-color
+--disabled-color
+--divider-color
+--error-color
+--primary-color
+--primary-text-color
+--secondary-background-color
+--secondary-text-color
+--success-color
+--text-primary-color
+--warning-color

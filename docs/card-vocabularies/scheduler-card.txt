@@ -1,0 +1,49 @@
+# scheduler-card
+# 2026-09-15T22:58:46Z from scheduler-card.js
+# 42 read, 16 card-owned, 26 shared/HA
+
+## card-owned -- these are what a mapping targets
+--background-opacity
+--chip-border-radius
+--chip-color
+--chip-font-size
+--chip-height
+--direction
+--float-end
+--icon-primary-color
+--input-fill-color
+--safe-area-inset-bottom
+--safe-area-inset-left
+--safe-area-inset-right
+--safe-area-inset-top
+--select-menu-width
+--settings-row-content-width
+--sidebar-selected-text-color
+
+## shared -- the dashboard sets these globally; never map them per-card
+--card-background-color
+--disabled-text-color
+--divider-color
+--error-color
+--ha-border-radius-sm
+--ha-border-radius-square
+--ha-color-border-neutral-loud
+--ha-color-fill-primary-loud-hover
+--ha-color-fill-primary-loud-resting
+--ha-color-form-background
+--ha-color-form-background-disabled
+--ha-color-neutral-40
+--ha-color-neutral-60
+--ha-color-primary-50
+--ha-color-text-secondary
+--ha-line-height-normal
+--ha-space-1
+--mdc-shape-small
+--mdc-theme-surface
+--primary-color
+--primary-text-color
+--rgb-primary-color
+--rgb-secondary-text-color
+--secondary-text-color
+--state-icon-color
+--text-primary-color

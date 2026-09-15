@@ -1,0 +1,10 @@
+# lovelace-auto-entities
+# 2026-09-15T22:58:32Z from auto-entities.js
+# 3 read, 0 card-owned, 3 shared/HA
+
+## card-owned -- these are what a mapping targets
+
+## shared -- the dashboard sets these globally; never map them per-card
+--error-color
+--primary-color
+--secondary-text-color

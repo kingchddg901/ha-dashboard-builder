@@ -1,0 +1,61 @@
+# lovelace-big-slider-card
+# 2026-09-15T22:58:33Z from big-slider-card.js
+# 54 read, 34 card-owned, 20 shared/HA
+
+## card-owned -- these are what a mapping targets
+--bsc-active-color
+--bsc-background
+--bsc-border-color
+--bsc-border-radius
+--bsc-border-style
+--bsc-border-width
+--bsc-brightness-ui
+--bsc-color
+--bsc-color-transition
+--bsc-default-slider-color
+--bsc-entity-color
+--bsc-half-pressed-transform
+--bsc-height
+--bsc-icon-background
+--bsc-icon-box-size
+--bsc-icon-brightness
+--bsc-icon-color
+--bsc-icon-off-background
+--bsc-icon-size
+--bsc-icon-transition
+--bsc-off-color
+--bsc-opacity
+--bsc-percent
+--bsc-press-transition
+--bsc-pressed-transform
+--bsc-primary-text-color
+--bsc-secondary-text-color
+--bsc-secondary-text-size
+--bsc-slider-color
+--bsc-slider-opacity
+--bsc-slider-transition
+--bsc-text-size
+--bsc-vertical-slider-transition
+--bsc-width
+
+## shared -- the dashboard sets these globally; never map them per-card
+--card-background-color
+--divider-color
+--ha-border-radius-lg
+--ha-border-radius-pill
+--ha-card-border-color
+--ha-card-border-radius
+--ha-card-border-style
+--ha-card-border-width
+--ha-font-size-m
+--ha-font-size-s
+--ha-line-height-condensed
+--ha-line-height-normal
+--ha-tile-icon-border-radius
+--paper-slider-active-color
+--primary-text-color
+--secondary-text-color
+--state-active-color
+--state-inactive-color
+--state-light-active-color
+--state-light-on-color

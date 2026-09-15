@@ -1,0 +1,11 @@
+# my-cards
+# 2026-09-15T22:58:44Z from my-button.js
+# 4 read, 0 card-owned, 4 shared/HA
+
+## card-owned -- these are what a mapping targets
+
+## shared -- the dashboard sets these globally; never map them per-card
+--card-background-color
+--paper-item-icon-active-color
+--paper-item-icon-color
+--primary-text-color

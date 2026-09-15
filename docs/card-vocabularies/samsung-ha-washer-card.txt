@@ -1,0 +1,12 @@
+# samsung-ha-washer-card
+# 2026-09-15T22:58:45Z from samsung-washer-card.js
+# 5 read, 1 card-owned, 4 shared/HA
+
+## card-owned -- these are what a mapping targets
+--progress-color
+
+## shared -- the dashboard sets these globally; never map them per-card
+--accent-color
+--card-background-color
+--primary-text-color
+--warning-color

@@ -1,0 +1,18 @@
+# cb-lcars
+# 2026-09-15T22:58:27Z from cb-lcars.js
+# 11 read, 2 card-owned, 9 shared/HA
+
+## card-owned -- these are what a mapping targets
+--aspect-ratio
+--chip-background-color
+
+## shared -- the dashboard sets these globally; never map them per-card
+--card-background-color
+--error-color
+--error-color-background
+--ha-card-background
+--ha-card-border-radius
+--paper-item-icon-color
+--primary-text-color
+--state-inactive-color
+--state-unavailable-color

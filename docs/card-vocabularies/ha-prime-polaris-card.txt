@@ -1,0 +1,9 @@
+# ha-prime-polaris-card
+# 2026-09-15T22:58:30Z from ha-prime-polaris-card.js
+# 2 read, 0 card-owned, 2 shared/HA
+
+## card-owned -- these are what a mapping targets
+
+## shared -- the dashboard sets these globally; never map them per-card
+--error-color
+--paper-font-body1_-_font-family

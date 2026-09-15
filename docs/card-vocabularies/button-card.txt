@@ -1,0 +1,66 @@
+# button-card
+# 2026-09-15T22:58:26Z from button-card.js
+# 59 read, 34 card-owned, 25 shared/HA
+
+## card-owned -- these are what a mapping targets
+--aspect-ratio
+--button-card-color
+--button-card-ripple-color
+--button-card-ripple-hover-color
+--button-card-ripple-hover-opacity
+--button-card-ripple-icon-border-radius
+--button-card-ripple-icon-color
+--button-card-ripple-icon-inset
+--button-card-ripple-pressed-color
+--button-card-ripple-pressed-opacity
+--button-card-spinner-background-color
+--button-card-spinner-background-opacity
+--button-card-spinner-color
+--button-card-spinner-size
+--button-card-tooltip-arrow-size
+--button-card-tooltip-background-color
+--button-card-tooltip-border-color
+--button-card-tooltip-border-style
+--button-card-tooltip-border-width
+--button-card-tooltip-box-shadow
+--button-card-tooltip-content-color
+--button-card-tooltip-font-family
+--button-card-tooltip-font-size
+--button-card-tooltip-font-weight
+--button-card-tooltip-hide-duration
+--button-card-tooltip-max-width
+--button-card-tooltip-opacity
+--button-card-tooltip-overflow-wrap
+--button-card-tooltip-padding
+--button-card-tooltip-show-duration
+--button-card-tooltip-text-align
+--button-card-tooltip-text-decoration
+--button-card-tooltip-text-transform
+--dynamic-ripple-icon-inset
+
+## shared -- the dashboard sets these globally; never map them per-card
+--card-background-color
+--ha-border-radius-sm
+--ha-card-border-radius
+--ha-card-box-shadow
+--ha-font-family-body
+--ha-font-size-s
+--ha-font-weight-normal
+--ha-line-height-condensed
+--ha-ripple-color
+--ha-ripple-hover-color
+--ha-ripple-hover-opacity
+--ha-ripple-pressed-color
+--ha-ripple-pressed-opacity
+--ha-tooltip-arrow-size
+--ha-tooltip-border-radius
+--ha-tooltip-font-family
+--ha-tooltip-font-size
+--ha-tooltip-font-weight
+--ha-tooltip-line-height
+--primary-color
+--primary-text-color
+--secondary-background-color
+--state-icon-color
+--state-inactive-color
+--state-unavailable-color

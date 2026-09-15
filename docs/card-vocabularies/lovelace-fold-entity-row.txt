@@ -1,0 +1,9 @@
+# lovelace-fold-entity-row
+# 2026-09-15T22:58:35Z from fold-entity-row.js
+# 2 read, 1 card-owned, 1 shared/HA
+
+## card-owned -- these are what a mapping targets
+--toggle-icon-width
+
+## shared -- the dashboard sets these globally; never map them per-card
+--divider-color
