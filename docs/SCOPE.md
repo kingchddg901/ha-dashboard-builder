@@ -185,6 +185,41 @@ Six entities, one appliance, and the relationship exists only in hand-written YA
 
 ---
 
+## 2.7 Sequencing, decided 2026-09-15: the house first, a composer later
+
+His call, and the right one — a composer built before living with the thing composes the wrong
+primitives.
+
+**The one condition that keeps it from becoming a rewrite: renderers read a DECLARATION, never
+hardcoded entities.** Hand-write the declaration for one fan if that is all there is. But if the
+renderer takes `{entity, capabilities, layout}` as data, a composer is later just something that
+*writes* that data. If it inlines `fan.ceiling_fan`, the composer has nothing to target and the
+renderers get rebuilt.
+
+Same seam as the token system: the thing is data, the editor is optional and arrives after. It
+costs almost nothing up front and it is the difference between a second project and a second
+afternoon.
+
+**Where the migration actually starts, from his own config.** `lcars_test` already runs
+**one card per view** — four `sidebar` views with `cards=1`, the layout built inside from nested
+stack-in-cards — because HA's layout engine cannot express a frame that spans cards. Meanwhile his
+main dashboard runs `sections` views with up to seven sections, where YAML grid layout is
+genuinely sufficient.
+
+So the line is drawn by what HA can express:
+
+| | stock HA |
+|---|---|
+| a grid of rectangles with column spans | **`sections` — YAML, fine, leave it alone** |
+| a frame containing a group of controls | **not expressible** — collapse to one card |
+
+Which makes this an upgrade rather than a migration. He is already on the one-card-per-view
+pattern; the project is making that card better than a hand-assembled pile of
+`vertical-stack-in-card`, and the `panel_custom` registration is a further step that drops HA's
+remaining chrome. **One view at a time, and the `sections` views stay as they are.**
+
+---
+
 ## 3. What would kill the architecture
 
 One thing: **if renderer selection needs a per-entity special case more often than not.**
