@@ -113,7 +113,7 @@ cloud and no Home Assistant.
 00 01 01 3e 01 06 00 00 00 00 00 64 00 00
       ^^ ^^    ^^ ^^                ^^
       |  |     |  |                 [11] brightness, 0-100
-      |  |     |  [6] minute
+      |  |     |  [6] not the minute — see below
       |  |     [5] hour, raw 0-23
       |  [3] weekday bitmask, bit0=Sun .. bit6=Sat
       [2] enabled
@@ -139,6 +139,14 @@ from the alarm time.
 *Unconfirmed:* `[4]` is `01` in both DPs, and both have 5-minute fades. Leading
 hypothesis is fade duration in 5-minute units. Discriminator: set fade to 30
 minutes — `06` means units of 5, `0x1e` means raw minutes.
+
+*Byte `[6]` is not the minute.* It read `00` on both DPs for most of the mapping
+work, which is consistent with the minute of an on-the-hour alarm and made that
+the obvious reading. It later moved to `01` on Wake Up and `02` on Bedtime while
+both routines were still set to whole hours, which rules the minute out. Two
+samples is not enough to name what it is; a counter or revision marker fits the
+shape, but so would other things. Where the minute is stored is therefore also
+open — no routine has yet been set to anything but a whole hour.
 
 ## DP 210 `randomized_schedule` — and a second time encoding
 
