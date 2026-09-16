@@ -1,0 +1,162 @@
+{
+ "slug": "stvp-{id}",
+ "regions": {
+  "us": {
+   "name": "United States",
+   "channels": {
+    "USBA370000104": {
+     "name": "CBS News 24/7",
+     "chno": 1110,
+     "group": "News & Opinion",
+     "logo": "https://tvpnlogopus.samsungcloud.tv/platform/image/sourcelogo/vc/00/02/34/USBA370000104_20260826T013607SQUARE.png",
+     "programs": [
+      [
+       1789520400,
+       "The Daily Report"
+      ],
+      [
+       1789524000,
+       "CBS Evening News"
+      ],
+      [
+       1789525800,
+       "24/7 Primetime"
+      ],
+      [
+       1789527600,
+       "CBS Evening News"
+      ],
+      [
+       1789529400,
+       "24/7 Primetime"
+      ],
+      [
+       1789531200,
+       "CBS Evening News"
+      ]
+     ]
+    },
+    "USBA3000041ZP": {
+     "name": "Movie Hub",
+     "chno": 1200,
+     "group": "Movies",
+     "logo": "https://tvpnlogopus.samsungcloud.tv/platform/image/sourcelogo/vc/00/02/34/USBA3000041ZP_20260907T200424SQUARE.png",
+     "programs": [
+      [
+       1789516651,
+       "Spare Parts"
+      ],
+      [
+       1789524375,
+       "How to Be a Latin Lover"
+      ],
+      [
+       1789532653,
+       "Resurrecting the Champ"
+      ],
+      [
+       1789540393,
+       "He Got Game"
+      ]
+     ]
+    },
+    "US700010XK": {
+     "name": "Witness to Justice",
+     "chno": 1833,
+     "group": "Crime",
+     "logo": "https://tvpnlogopus.samsungcloud.tv/platform/image/sourcelogo/vc/00/02/34/US700010XK_20250915T233927SQUARE.png",
+     "programs": [
+      [
+       1789521276,
+       "Court Cam"
+      ],
+      [
+       1789522946,
+       "Court Cam"
+      ],
+      [
+       1789524620,
+       "Court Cam"
+      ],
+      [
+       1789526263,
+       "Court Cam"
+      ],
+      [
+       1789527917,
+       "Court Cam"
+      ],
+      [
+       1789529581,
+       "Court Cam"
+      ]
+     ]
+    },
+    "USBC3600013PC": {
+     "name": "PBS Kids",
+     "chno": 3614,
+     "group": "Kids",
+     "logo": "https://tvpnlogopus.samsungcloud.tv/platform/image/sourcelogo/vc/00/02/34/USBC3600013PC_20260421T142214SQUARE.png",
+     "programs": [
+      [
+       1789520400,
+       "Cyberchase: Clean-Up on Isle 8"
+      ],
+      [
+       1789522200,
+       "Let's Go Luna!"
+      ],
+      [
+       1789524000,
+       "Rosie's Rules"
+      ],
+      [
+       1789525800,
+       "Arthur"
+      ],
+      [
+       1789527600,
+       "Rosie's Rules"
+      ],
+      [
+       1789529400,
+       "Alma's Way"
+      ]
+     ]
+    },
+    "US4100025G5": {
+     "name": "Peppa Pig & Friends",
+     "chno": 3615,
+     "group": "Kids",
+     "logo": "https://tvpnlogopus.samsungcloud.tv/platform/image/sourcelogo/vc/00/02/34/US4100025G5_20260421T141728SQUARE.png",
+     "programs": [
+      [
+       1789520194,
+       "Peppa Pig Tales / Peppa Pig / Ben & Holly's Little Kingdom"
+      ],
+      [
+       1789522285,
+       "Peppa Pig Tales / Peppa Pig / Peppa Pig Rhymes"
+      ],
+      [
+       1789523635,
+       "Peppa Pig Tales / Peppa Pig / Ben & Holly's Little Kingdom"
+      ],
+      [
+       1789525737,
+       "Peppa Pig Tales / Peppa Pig / Peppa Pig Toys"
+      ],
+      [
+       1789527202,
+       "Peppa Pig Tales / Peppa Pig / Ben & Holly's Little Kingdom"
+      ],
+      [
+       1789529281,
+       "Peppa Pig Tales / Peppa Pig / Peppa Pig Rhymes / Peppa Pig Toys"
+      ]
+     ]
+    }
+   }
+  }
+ }
+}

@@ -8,6 +8,10 @@
  * Everything this card claims was measured against a real set on 2026-09-15; the
  * reasoning behind each rule is in ../../docs/samsung-tv-local-control.md.
  *
+ * The logic lives in ./tvplus-core.js — no DOM, no Home Assistant — so the same
+ * rules can sit behind a dashboard renderer later. THIS file is the Lovelace
+ * adapter and is the disposable half.
+ *
  * type: custom:samsung-tvplus-card
  * remote: remote.big_tv_un55au8000fxza
  * channels:
@@ -16,9 +20,7 @@
  *   - Movie Hub
  */
 
-const LINEUP = "https://i.mjh.nz/SamsungTVPlus/.channels.json";
-const CACHE  = "stvp-lineup-v1";
-const MAXAGE = 6 * 3600 * 1000;   // the file regenerates daily; 6h is plenty
+import { loadLineup, airing, tuneCommand } from "./tvplus-core.js";
 
 class SamsungTvPlusCard extends HTMLElement {
   constructor() {
@@ -46,39 +48,21 @@ class SamsungTvPlusCard extends HTMLElement {
     return { remote: "", channels: ["CBS News 24/7", "Movie Hub"] };
   }
 
-  /* ---------------- lineup ----------------
-     Channels are keyed by NAME, never by number. Samsung renumbers — the entire
-     Kids block moved recently, so a favourite saved as 3695 = Pokémon now tunes
-     Kidoodle.TV. The number is resolved at press time and is a cache, not the
-     saved thing, so a renumber heals on the next refresh. */
+  /* The core owns fetching, caching and the name→number rule. */
   async _load() {
-    const cached = this._readCache();
-    if (cached) { this._channels = cached; this._render(); }
-    if (cached && Date.now() - cached.__at < MAXAGE) return;
     try {
-      const res  = await fetch(LINEUP, { cache: "no-cache" });
-      const json = await res.json();
-      const list = json.regions?.[this._config.region]?.channels;
-      if (!list) throw new Error("region '" + this._config.region + "' not in the lineup");
-      const byName = {};
-      for (const c of Object.values(list)) {
-        byName[c.name] = { n: c.chno, g: c.group, p: c.programs || [] };
-      }
-      byName.__at = Date.now();
-      this._channels = byName;
-      this._writeCache(byName);
+      const { index, stale } = await loadLineup({ region: this._config.region });
+      this._channels = index;
       this._render();
+      if (stale) this._retry();
     } catch (e) {
-      if (!cached) this._fail(e.message);
+      this._fail(e.message);
     }
   }
 
-  // localStorage is a per-viewer convenience only; every access is guarded
-  _readCache() {
-    try { return JSON.parse(localStorage.getItem(CACHE)) || null; } catch (e) { return null; }
-  }
-  _writeCache(v) {
-    try { localStorage.setItem(CACHE, JSON.stringify(v)); } catch (e) { /* private window, full quota */ }
+  _retry() {
+    clearTimeout(this._retryT);
+    this._retryT = setTimeout(() => this._load(), 60000);
   }
 
   /* ---------------- tuning ----------------
@@ -88,10 +72,9 @@ class SamsungTvPlusCard extends HTMLElement {
   _tune(name) {
     const ch = this._channels?.[name];
     if (!ch || !this._hass) return;
-    const cmds = String(ch.n).split("").map((d) => "KEY_" + d).concat("KEY_ENTER");
     this._hass.callService("remote", "send_command", {
       entity_id: this._config.remote,
-      command: cmds,
+      command: tuneCommand(ch.n),
       delay_secs: 0.4,
     });
     this._sending = name;
@@ -100,17 +83,6 @@ class SamsungTvPlusCard extends HTMLElement {
     this._ackT = setTimeout(() => { this._sending = null; this._render(); }, 1500);
   }
 
-  _airing(ch) {
-    const now = Date.now() / 1000;
-    let cur = null, next = null;
-    for (let i = 0; i < ch.p.length; i++) {
-      const [ts, title] = ch.p[i];
-      const end = ch.p[i + 1] ? ch.p[i + 1][0] : ts + 3600;
-      if (ts <= now && now < end) cur = { title, end };
-      else if (ts > now && !next) next = { title, ts };
-    }
-    return { cur, next };
-  }
 
   _fail(msg) {
     this.shadowRoot.innerHTML =
@@ -156,7 +128,7 @@ class SamsungTvPlusCard extends HTMLElement {
         continue;
       }
 
-      const { cur, next } = this._airing(ch);
+      const { cur, next } = airing(ch.programs);
       const sending = this._sending === name;
       row.innerHTML = `
         <span class="no">${ch.n}</span>
@@ -167,7 +139,7 @@ class SamsungTvPlusCard extends HTMLElement {
             cur ? `${cur.title} · until ${fmt(cur.end)}` : "no listing"
           }</span>
         </span>
-        <span class="nx">${next ? fmt(next.ts) + " " + next.title : ""}</span>`;
+        <span class="nx">${next ? fmt(next.start) + " " + next.title : ""}</span>`;
       if (sending) row.classList.add("sent");
       row.addEventListener("click", () => this._tune(name));
       rows.appendChild(row);

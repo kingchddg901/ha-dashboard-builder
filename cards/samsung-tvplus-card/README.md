@@ -6,9 +6,20 @@ Pick a few channels, see what is on, tap to tune.
 JSON file the browser fetches directly (CORS is open), and tuning goes through
 `remote.send_command` — a stock Home Assistant service.
 
+## Shape
+
+    tvplus-core.js          the logic — no DOM, no Home Assistant, no Lovelace
+    samsung-tvplus-card.js  the Lovelace adapter, and the disposable half
+    test/core.test.mjs      14 tests, `node --test test/core.test.mjs`
+
+The core is the part worth keeping. It knows about channels and time and nothing
+else, so the same rules can sit behind a dashboard renderer later without the
+Lovelace shape having leaked into them — and it tests in Node with no browser.
+
 ## Install
 
-Copy `samsung-tvplus-card.js` to `config/www/`, then add the resource
+Copy **both** `samsung-tvplus-card.js` and `tvplus-core.js` to `config/www/`
+(the card imports the core relatively), then add the resource
 (Settings → Dashboards → ⋮ → Resources) as a **JavaScript module**:
 
     /local/samsung-tvplus-card.js
