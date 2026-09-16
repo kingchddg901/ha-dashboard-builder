@@ -138,6 +138,39 @@ enumerates apps; both will launch one you name.
 (`com.netflix.ninja`, `com.google.android.youtube.tv`, `com.plexapp.android`). Authored once,
 shared by anyone with that platform. The fifth appearance of the runtime config dict.
 
+### Probed live on Big TV: the flags are wrong in both directions
+
+With permission, two calls against the one television Chris confirmed works.
+
+**Control — it really does drive the hardware.** `media_player.volume_up` on the `samsungtv`
+entity moved `volume_level` 0.21 → 0.22, the entity reported the new value back, and Chris
+confirmed the volume indicator appeared on the screen. Command and observation both real; this is
+not an assumed state.
+
+**Apps — no, and the two failures disagree with the flags:**
+
+| entity | declares `BROWSE_MEDIA`? | result |
+|---|---|---|
+| `media_player.big_tv_un55au8000fxza` (`samsungtv`) | no | **500 Internal Server Error** |
+| `media_player.big_tv_2` (`samsungtv_smart`) | no | **succeeded** — returned HA's own media library |
+
+The second returned `media-source://` — *AI generated images, Camera, Image, Image upload, My
+media, Radio Browser, Text-to-speech*. Home Assistant's generic media registry, answering on the
+TV's behalf. Seven children, zero apps, from a call that looks like it worked.
+
+So Big TV has no apps by any route: `source_list` is `['TV','HDMI']`, which is inputs. The
+app-tile renderer should not be offered here — constrained choice working correctly, answering no.
+
+**But the flags failed in both directions at once.** One entity did not declare the feature and
+threw; another did not declare it and answered with something irrelevant. Neither the presence nor
+the absence of a bit predicted the behaviour.
+
+> **This limits the whole model.** `supported_features` yields a *candidate* set, not a verified
+> one, and nothing on the entity says which. So the designer cannot be purely declarative — it
+> needs a **probe** affordance: offer the renderer, let the user try it once, record the result
+> against that entity. Exactly what was done here by hand. A capability is a claim until something
+> has called it.
+
 ### `assumed_state` is a sixth honesty level
 
 `media_player.android_tv_2` carries `assumed_state: True` — the integration is *inferring*
