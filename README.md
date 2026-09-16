@@ -61,6 +61,7 @@ docs/
   SCOPE.md                the delta: what is reusable, what is unproven, what kills it
   design-rules.md         ten rules, each from a failure mode; three bind the capability layer
   capability-test-2026-09-15.md   can we query an entity for what it can do? partly — measured
+  samsung-tv-local-control.md     the whole TV control surface, local — measured against the set
   card-vocabularies/      measured CSS custom properties of the installed cards
 tools/
   extract-card-vars.sh    regenerates card-vocabularies/ from installed bundles
