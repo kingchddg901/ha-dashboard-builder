@@ -29,6 +29,23 @@ readable — and writable — from then on.
 Corollary: app-side writes propagate to the local connection within seconds. The
 vendor app and local control are not in competition for this device.
 
+### A trap when decoding this way
+
+**The app writes as you adjust, not when you press Save.** Dragging a picker
+emits a DP write for every value it passes, so a captured payload may be a
+value your finger went through rather than the one you settled on.
+
+This is easy to mistake for evidence. A minute field caught mid-scroll at `01`
+and `02`, while the routine list still displayed a whole-hour time, reads as
+proof that the byte is *not* the minute — and it is not proof of anything except
+that the wheel was moving. Take the last write after the UI settles, and prefer
+values that cannot be confused with an intermediate: a 6:03 alarm and a
+70-minute fade each pin a field in one sample, where zeros and round hundreds
+look the same on every candidate scale.
+
+The flip side is that no probe here ever needs Save. Opening the screen makes the
+DP report; touching a control makes it write.
+
 ## Entity / DP table
 
 | DP | Entity | Type | Notes |
@@ -110,24 +127,35 @@ colour temperature and brightness, all held in firmware. It fires with no hub, n
 cloud and no Home Assistant.
 
 ```
-00 01 01 3e 01 06 00 00 00 00 00 64 00 00
-      ^^ ^^    ^^ ^^                ^^
-      |  |     |  |                 [11] brightness, 0-100
-      |  |     |  [6] not the minute — see below
-      |  |     [5] hour, raw 0-23
+00 01 01 3e 0e 06 03 00 00 00 00 64 00 04
+      |  |  |  |  |              |     |
+      |  |  |  |  |              |     [13] turn-off-after, 5-minute units
+      |  |  |  |  |              [11] brightness, 0-100
+      |  |  |  |  [6] minute
+      |  |  |  [5] hour, raw 0-23
+      |  |  [4] fade-in duration, 5-minute units
       |  [3] weekday bitmask, bit0=Sun .. bit6=Sat
-      [2] enabled
+      [2] enable in bit 0
 ```
+
+That sample is a 6:03 alarm, Mon–Fri, 70-minute fade (`0x0e` = 14 × 5), ramping
+to 100% and switching off 20 minutes later (`0x04` = 4 × 5).
+
+`sleep_settings` is 13 bytes to `wake_settings`' 14; the trailing byte that only
+Wake Up carries is the turn-off-after duration.
 
 Confirmed by controlled change against the vendor UI:
 
 | Field | Evidence |
 |---|---|
-| `[2]` enable | toggled six times across three DPs; that byte alone moved |
-| `[3]` weekdays | `0x3e` = `0111110` = Mon–Fri, matching the app's day chips |
+| `[2]` enable | toggled six times across three DPs; that byte alone moved. It is **bit 0**, not the whole byte — DP 210 carries a second flag in bit 1 and moves `02`↔`03` where these move `00`↔`01` |
+| `[3]` weekdays | `0x3e` = `0111110` = Mon–Fri, matching the app's day chips. Selecting all seven days gives `0x7f` |
+| `[4]` fade-in | a 5-minute fade reads `01`; changing it to 1 h 10 min gives `0x0e` = 14 = 70 ÷ 5 |
 | `[5]` hour | 7:00 AM → 6:00 AM moved it `07` → `06` |
 | `[5]` hour, second DP | Bedtime at 10:00 PM reads `0x16` = 22 |
+| `[6]` minute | a 6:03 alarm reads `03`; scrolling the picker writes each value it passes |
 | `[11]` brightness | `0x64` = 100, app shows 100% |
+| `[13]` off-after | 20 minutes reads `0x04` = 4 = 20 ÷ 5, same units as `[4]` |
 
 Note the scale change: brightness here is **0–100**, while the `scene` payload
 uses 0–1000 for the same concept.
@@ -136,17 +164,10 @@ uses 0–1000 for the same concept.
 `05:55–06:00` for a stored `06` with a 5-minute fade — the ramp runs backwards
 from the alarm time.
 
-*Unconfirmed:* `[4]` is `01` in both DPs, and both have 5-minute fades. Leading
-hypothesis is fade duration in 5-minute units. Discriminator: set fade to 30
-minutes — `06` means units of 5, `0x1e` means raw minutes.
-
-*Byte `[6]` is not the minute.* It read `00` on both DPs for most of the mapping
-work, which is consistent with the minute of an on-the-hour alarm and made that
-the obvious reading. It later moved to `01` on Wake Up and `02` on Bedtime while
-both routines were still set to whole hours, which rules the minute out. Two
-samples is not enough to name what it is; a counter or revision marker fits the
-shape, but so would other things. Where the minute is stored is therefore also
-open — no routine has yet been set to anything but a whole hour.
+Note that two durations in this struct use 5-minute units while the times beside
+them are raw hour and minute. The app's own pickers only offer fade and
+turn-off-after in 5-minute steps, so the encoding matches the UI rather than the
+clock.
 
 ## DP 210 `randomized_schedule` — and a second time encoding
 
