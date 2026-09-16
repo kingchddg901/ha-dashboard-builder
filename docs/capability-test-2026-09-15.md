@@ -59,20 +59,132 @@ one worked.
 This is the compound-appliance problem from the other side: not *several entities that are one
 device*, but *several entities that are one device and disagree about what it can do*.
 
-### App launching is not discoverable — and there is no generic mechanism
+### …and they disagree about whether it is even on
 
-The first thing asked for was launching a TV app with one click. It cannot be derived:
+One television, read in a single pass while it was **on**:
 
-- `source_list` on every live TV is `['TV', 'HDMI']` — **inputs, not apps**
-- all six `remote.*` entities have an empty `activity_list` and no attributes at all
-- across **81 service domains** there is no app-launch service. `samsungtv_smart` exposes exactly
-  `select_picture_mode` and `set_art_mode`
+| integration | entity | state | last changed |
+|---|---|---|---|
+| `samsungtv` | `media_player.big_tv_un55au8000fxza` | **on** | 00:27:07 |
+| `samsungtv` | `remote.big_tv_un55au8000fxza` | **on** | 00:27:07 |
+| `samsungtv_smart` | `media_player.big_tv_2` | **off** | 22:58:42 |
+| `samsungtv_smart` | `remote.big_tv` | **unknown** | 22:58:47 |
+| `dlna_dmr` | `media_player.big_tv_3` | **idle** | 00:27:08 |
+| `smartthings` | `media_player.heidi_and_chris_room_big_tv` | **unavailable** | 00:22:15 |
+| `samsungtv` | `media_player.big_tv` | **no state at all** | — |
 
-The only route is `remote.send_command` with a device-specific payload — a string you must already
-know, which HA cannot enumerate for you.
+Simultaneously on, off, unknown, idle, unavailable and nonexistent.
 
-**This is a "not yet" with a named mechanism, not a "no".** The command exists; it is the
-*vocabulary* that is missing.
+**Read the timestamps, not the states.** `samsungtv` updated seconds before the read.
+`samsungtv_smart` last changed 90 minutes earlier and is pinned at `off` while the set is on — it
+is not disagreeing, it has stopped updating. Chris had already said *"`remote.big_tv_un55au8000fxza`
+works, nothing else seems to"*; this is that, measured.
+
+**This is the strongest case for the designer found so far.** *"Put Big TV here"* is not a simple
+request: there are six candidates and five produce a row that lies. HA's own picker lists all six
+alphabetically with no hint which one tracks reality, which is why choosing correctly today is
+folklore.
+
+And the ranking needs no configuration — it is derivable from data already on the entity:
+
+| signal | means |
+|---|---|
+| `last_changed` freshness vs its siblings | is this one still tracking? |
+| `restored: True` | nothing is behind it; its capabilities are fiction |
+| `assumed_state: True` | the state is inferred, not observed |
+| count of decoded `supported_features` | how much can it actually do |
+| absent from `/api/states` | registered, resolves in YAML, has no state |
+
+A designer that says *"use `big_tv_un55au8000fxza` — it updated 3 seconds ago; the other five are
+stale, assumed or dead"* is doing something nothing in Home Assistant does today. That is the
+feature, and it fell out of the measurement rather than the design.
+
+### App launching — the mechanism IS discoverable, the vocabulary is not
+
+> **Corrected.** This section first read "app launching is not discoverable — and there is no
+> generic mechanism." That was wrong, and wrong in the way worth recording: the check looked at
+> `source_list`, `activity_list` and the service registry for something *named* "app", found
+> nothing, and concluded no. The mechanism was `media_player.browse_media`, sitting in the service
+> list the same check had already printed. A wrong "no" needs a mechanism before you believe it.
+
+Measured with an Android TV live (it had earlier been offline):
+
+```
+media_player.android_tv_2   on
+  app_id:        'com.tcl.tv'      <- what is RUNNING, readable
+  app_name:      'com.tcl.tv'      <- a package id, not a label
+  assumed_state: True
+  supported_features: … PLAY_MEDIA, BROWSE_MEDIA
+
+remote.android_tv           on
+  current_activity: 'com.tcl.tv'
+  activity_list:    0 entries      <- what is INSTALLED, empty
+```
+
+So, precisely:
+
+| question | answer |
+|---|---|
+| can I read what is running? | **yes** — `app_id` / `current_activity` |
+| can I launch a known app? | **yes** — `remote.turn_on` with an activity, or `play_media` |
+| can I discover which apps exist? | **no** — `activity_list` is empty |
+| will it give me a display name? | **no** — `app_name` equals `app_id` |
+
+Samsung is the same shape from the other side: `source_list` is `['TV','HDMI']`, and
+`samsungtv_smart` takes an app list the user writes into its configuration. Neither platform
+enumerates apps; both will launch one you name.
+
+**So app tiles need a declared map** — `{label, package, colour}` per platform
+(`com.netflix.ninja`, `com.google.android.youtube.tv`, `com.plexapp.android`). Authored once,
+shared by anyone with that platform. The fifth appearance of the runtime config dict.
+
+### `assumed_state` is a sixth honesty level
+
+`media_player.android_tv_2` carries `assumed_state: True` — the integration is *inferring*
+on/off, not observing it. Given design rule 7's requirement that the row tell you what is real
+without opening the entity, an assumed state is a **claim, not an observation**, and should not
+look identical to a reported one.
+
+### A caution about reading `restored: True`
+
+> **Corrected.** This document first read three entities flipping to `restored: True` at an
+> identical timestamp as "an integration going away rather than a device going offline." Wrong —
+> the Android TV's wifi was off. A device that is unreachable at setup makes its config entry fail,
+> the entities are never created, and HA restores them from the registry. An identical timestamp
+> across several entities means *one setup attempt*, which is equally consistent with one dead
+> device. The restored flag says the integration is not providing the entity. It does not say why.
+
+---
+
+### A restored entity reports capabilities it cannot deliver
+
+Found by asking what one specific Android TV reported. It did not exist — but the three that do,
+all report this:
+
+```
+media_player.android_tv     unavailable   restored: True   supported_features=131968
+media_player.android_tv_2   unavailable   restored: True   supported_features=153529
+remote.android_tv           unavailable   restored: True   supported_features=4
+```
+
+`restored: True` means **no integration is currently providing the entity**. HA recreates it from
+the entity registry so the id keeps resolving, and there is nothing behind it. All three flipped
+at the identical timestamp (`2026-09-13T22:58:44Z`), which is an integration going away rather
+than a device going offline.
+
+**They still report `supported_features`.** Those numbers are restored registry values, not live
+capability. A designer that queries a restored entity gets a confident, detailed, fictional answer
+about what it can do — which is *worse* than `unavailable`, because unavailable admits it knows
+nothing and this does not.
+
+So the capability query needs a guard before it trusts anything: **`restored: True` invalidates
+every capability the entity reports.** Treat it as "unknown capabilities", never as the set it
+claims. Same shape as design rule 7 — distinct causes of absence must not be merged — applied to
+capabilities rather than to state.
+
+It is also the requirement proving itself: three entities died two days before anyone noticed,
+because nothing surfaced it. The row design in rule 7 would have put `3 DOWN` on a section bar
+that evening.
 
 ---
 
