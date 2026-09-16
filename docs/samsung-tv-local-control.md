@@ -73,9 +73,18 @@ So a preset saved as `3695 = Pokémon` now tunes Kidoodle.TV. **Presets store th
 is resolved at press time and is a cache, not the saved thing.** A vendor renumber then heals on
 the next refresh instead of silently tuning you to a cartoon.
 
-Two cautions: the file is a community scrape, accurate enough to rely on but not authoritative;
-and its `Local News N` slots are resolved for wherever the scraper ran (it returns `WSOC Charlotte`
-for 1122), so those entries are regional and should be excluded from presets unless they match.
+Two cautions. The file is a community scrape — accurate enough to rely on, not authoritative.
+
+And **the local slots belong to whoever ran the scraper.** It resolves `1122` to `WSOC Charlotte`;
+on this TV that slot is **NBC San Diego**. So the dictionary splits cleanly:
+
+- **~575 national channels** — correct, shareable with anyone in the US, refreshed daily
+- **`Local News 1`–`5`** — resolved for the scraper's market, wrong everywhere else, and
+  **must be hand-authored per household**
+
+That is the one part of a shared vocabulary that cannot be shared, and it is worth designing for
+rather than discovering: a preset on a local slot needs the user's own label, and inheriting the
+file's value silently gives them another city's news.
 
 ## What this costs the SmartThings paywall
 
