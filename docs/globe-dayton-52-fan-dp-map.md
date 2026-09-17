@@ -156,7 +156,19 @@ Worked example, a 7-step rainbow (`07`, seven steps, Flash):
    645a01 012c 03e8 03e8 00000000   hue 300
 ```
 
-### Two limits worth knowing
+The same rainbow as the app writes it with a white step added and Transition
+set to Fade — every step becomes mode `02`, and the white step zeroes the colour
+triple and fills the white pair:
+
+```
+   585802 0000 03e8 03e8 00000000   hue 0 ... through hue 300, as above
+   585802 0000 0000 0000 03e8 02b7  white, brightness 1000, temperature 695
+```
+
+That capture is what confirms the white half of the step format; before it, the
+white fields had only ever been seen as zero.
+
+### Three limits worth knowing
 
 **9 steps maximum.** The HA text entity caps at 255 characters: `(255 - 2) / 26`.
 
@@ -165,6 +177,14 @@ runs — no per-step colour, nothing. Good for anything long-running (no network
 chatter, survives an HA restart), but a light running a scene will report a stale
 colour. Any card showing that light is showing the last thing HA saw, not what is
 on the ceiling. The same is true of the fan's `nature` preset.
+
+**Colour and white never crossfade.** In a scene where every step is set to
+Fade, colour-to-colour steps interpolate smoothly, but the move from the last
+colour step to the white step is an instant cut — and so is the move from white
+back to the first colour when the loop restarts. The firmware switches between
+the colour and white emitter groups rather than ramping one down while the other
+comes up. A sunrise that should pass from colour into white cannot be written
+as a single fading scene on this fixture; the handover will snap.
 
 ## DP 31 / 32 — Bedtime and Wake Up
 
@@ -323,7 +343,7 @@ stands:
 |---|---|
 | Low saturation in colour mode | **No.** Pastels are made from RGB alone; the white channels stay dark |
 | DP 51 `mix_rgbcw` | **No.** Ignored — see above |
-| A scene step with both halves set | **Accepted.** Output not yet determined |
+| A scene step with both halves set | **Accepted.** Output undetermined, but a blend looks unlikely — see below |
 
 **Low saturation.** Red at 25% saturation, viewed through a CD spectroscope,
 shows distinct red, green and blue bars. White mode shows a broad yellow glow
@@ -355,7 +375,14 @@ for all scenes.
 By eye the output was steady, and whether that is a true blend or the two halves
 alternating faster than can be seen is not something an eye can settle — nor
 does it matter for a light. What remains open is whether both halves were
-present at all. The id byte's meaning is also still unknown; reusing the stored
+present at all.
+
+The strongest evidence on that is indirect. In a fading scene the firmware
+refuses to crossfade between a colour step and a white step in either direction
+(see *Three limits worth knowing*), which is precisely the moment a blending
+controller would have both groups lit. A firmware that will not overlap the two
+for the length of a fade is unlikely to hold them together indefinitely, so the
+test step most probably rendered one half only. Which half is still unobserved. The id byte's meaning is also still unknown; reusing the stored
 one avoided finding out the hard way.
 
 ## Reading the LEDs with a CD
