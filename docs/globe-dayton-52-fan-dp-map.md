@@ -133,8 +133,12 @@ chg  stay mode   hue    sat    val    white   white
 ```
 
 * `mode` — `01` = Flash (jump), `02` = Fade (gradient), `00` = static.
-* `chg` / `stay` — 0x00–0x64 (0–100). Unit unmeasured; playback is not observable
-  from HA (see below), so it cannot be timed by watching state.
+* `chg` / `stay` — 0x00–0x64 (0–100). Playback is not observable from HA (see
+  below), so timing has to be done by eye. One measurement so far: the 8-step
+  rainbow with both bytes at `0x58` (88) loops in roughly 15 s, about 1.9 s per
+  step. That fits both bytes counting in ~10 ms units (88 + 88 → 1.76 s) and one
+  byte counting in ~20 ms units (88 → 1.76 s) equally well. The names are Tuya's
+  standard field order, not something measured here.
 * The hue/sat/val ranges are independently confirmed by the profile's own
   declaration for DP 24 `rgbhsv`, which uses the identical field order and ranges.
 
@@ -459,4 +463,7 @@ impossible to find this profile by the name on the box.
   white pencil waved fast under the light (separate red and white copies mean
   the halves alternate)
 * What the scene id byte controls
-* `chg` / `stay` time units in DP 25
+* `chg` / `stay` — which byte is the fade and which the hold, and so the unit.
+  A two-colour fading scene written once with 100/20 and once with 20/100
+  separates them: one version spends most of each step changing colour, the
+  other mostly holding, and the loop time then fixes the unit
