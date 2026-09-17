@@ -27,7 +27,8 @@ a reload.
 So on this hardware `unavailable` means *untouched*, not *unsupported*. Any DP
 marked `optional: true` in the profile should be assumed reachable until a
 mechanism says otherwise. Touch it once in the vendor app and it becomes
-readable — and writable — from then on.
+readable — and writable — from then on. DP 51 is the one found so far where a
+mechanism does say otherwise: the device never acknowledges it.
 
 Corollary: app-side writes propagate to the local connection within seconds. The
 vendor app and local control are not in competition for this device.
@@ -139,8 +140,9 @@ chg  stay mode   hue    sat    val    white   white
 
 **Every step carries both a colour triple and a white pair.** The vendor app's
 mood editor forces White *or* Colour per step, so both halves are never non-zero
-in a payload it writes — but the structure is there. Whether the firmware blends
-them when both are set is untested.
+in a payload it writes — but the structure is there, and the firmware accepts a
+step with both set. See *Colour and white together* below for what is and is not
+known about the output.
 
 Worked example, a 7-step rainbow (`07`, seven steps, Flash):
 
@@ -304,11 +306,83 @@ second. DP 51 received no echo, and the light's work mode (DP 21) stayed
 the value at +0.7 s — that was the pending value re-rendered by a full poll, per
 the second trap above.
 
-**Not yet established:** whether the fixture changed visibly during the write
-(nobody was watching), and whether `sw = 0x0003` behaves differently from
-`0x0007`. Neither would overturn the missing acknowledgement, but both are cheap
-to check. Whether the fixture blends colour and white *internally* at low
-saturation is a separate question — see the open list.
+**Repeated with an observer, and with `sw = 0x0003`.** Neither value was
+acknowledged, the light's reported state did not move, and nothing visible
+changed. The control in that run was stronger than the first: DP 24 was written
+with the value it *already held*, and the device still echoed it. It
+acknowledges every write it accepts, including no-ops.
+
+DP 51 is ignored by this firmware.
+
+## Colour and white together
+
+Three routes to lighting the RGB and white channels at once, and where each
+stands:
+
+| Route | Result |
+|---|---|
+| Low saturation in colour mode | **No.** Pastels are made from RGB alone; the white channels stay dark |
+| DP 51 `mix_rgbcw` | **No.** Ignored — see above |
+| A scene step with both halves set | **Accepted.** Output not yet determined |
+
+**Low saturation.** Red at 25% saturation, viewed through a CD spectroscope,
+shows distinct red, green and blue bars. White mode shows a broad yellow glow
+from the phosphor instead. Had the white channels joined in, that yellow would
+fill the space between green and red. Red at 100% shows red alone, so pure
+colours use the colour die only.
+
+A side effect is visible without instruments: 25% red reads as lavender rather
+than pale pink. Raising green and blue to about three quarters only produces a
+neutral white if the firmware balances the three emitters, and it evidently does
+not; the result drifts cool. For dashboards this means a swatch of the commanded
+colour will not match the ceiling for pastels on this fixture. Saturated colours
+match.
+
+**Scene step.** Written as a single static step — red at 50%, white at 50%, mid
+temperature — reusing the stored scene id and restoring the stored scene
+afterwards:
+
+```
+05 64 64 00 0000 03e8 01f4 01f4 01f4
+   chg stay static  red  sat  val  white temp
+```
+
+Both the DP 25 write and the switch of DP 21 to `scene` were echoed, and the
+following full status reports carried the step, so the firmware stored and ran
+it. The light entity kept reporting its previous colour throughout, as it does
+for all scenes.
+
+By eye the output was steady, and whether that is a true blend or the two halves
+alternating faster than can be seen is not something an eye can settle — nor
+does it matter for a light. What remains open is whether both halves were
+present at all. The id byte's meaning is also still unknown; reusing the stored
+one avoided finding out the hard way.
+
+## Reading the LEDs with a CD
+
+A CD's data side is a diffraction grating, which makes it a spectroscope good
+enough to tell phosphor white from RGB-synthesised white — the one distinction a
+camera, a colour meter or a "spectrometer" app cannot make, because two lights
+can be the same colour with completely different spectra.
+
+* **Use a slit.** A ceiling fixture is a large source, and a large source smears
+  its own spectrum. Without one, pure red covered about 80% of the length the
+  white spectrum did — enough to blur RGB bands 65–100 nm apart into something
+  that looks continuous. Two cards held about 1 mm apart, backlit by the
+  fixture and viewed in the disc, cut red to a short stripe.
+* **Calibrate with a single colour first.** A saturated colour should be one
+  short band. If it is long, the setup cannot resolve gaps and any test with it
+  cannot fail.
+* **Tilt away from the mirror reflection.** The bright specular image is not the
+  spectrum; the first-order bands sit well to one side.
+* **Trust the eye over the phone.** A camera clips bright pure red and renders
+  it yellow-white, which is exactly the colour that would otherwise be evidence
+  of phosphor.
+* **Magenta is a warning.** It is not a spectral colour, so seeing it in a band
+  means red and blue are overlapping — smear.
+* **Reading it:** white LEDs give a continuous band dominated by yellow, with a
+  bright blue edge and a slightly dimmer cyan patch that is normal for a
+  phosphor LED. RGB gives separate bars with no yellow between green and red.
 
 ## Notes for upstream
 
@@ -351,16 +425,11 @@ impossible to find this profile by the name on the box.
 ## Still open
 
 * `mix_light_scene` (36) — find the app control that writes it
-* DP 51 — a visual check during a write, and the `sw = 0x0003` variant
 * DPs 108, 109 and 111 — what they control
-* Whether colour mode already mixes implicitly: a desaturated colour could be
-  rendered by raising green and blue, or by bringing in the white channels in
-  proportion to `100% − saturation`. At 11% saturation the light stays in `hs`
-  mode rather than handing off to `color_temp`, which rules out a mode switch but
-  does not separate the other two. An eye comparison was inconclusive; a lux
-  reading of colour mode at 0% saturation against white mode at 100% should be
-  decisive, since RGB-synthesised white is far dimmer than the phosphor channels
 * `schedule` (209) and the "Sync with the Sun" circadian routine — untouched, so unreported
-* Fade-duration encoding in DP 31/32, byte `[4]`
-* Whether the firmware blends colour and white when both halves of a scene step are set
+* Whether a scene step with both halves set actually lights both. Two cheap
+  checks: the CD spectroscope (phosphor yellow *and* a red line means both), or a
+  white pencil waved fast under the light (separate red and white copies mean
+  the halves alternate)
+* What the scene id byte controls
 * `chg` / `stay` time units in DP 25
