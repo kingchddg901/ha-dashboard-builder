@@ -19,7 +19,10 @@ Protocol 3.4, local key required.
 Four DPs on this device sat at `unknown` through a full evening of probing and
 then populated within seconds of the corresponding screen being *opened* in the
 vendor app — not saved, opened. `sleep_settings`, `randomized_schedule`,
-`wake_settings` and `scene` all appeared this way.
+`wake_settings` and `scene` all appeared this way. `scene` then behaved
+differently from the other three: once set, it has been present in every full
+status report since (see below), while the routines drop out of view again after
+a reload.
 
 So on this hardware `unavailable` means *untouched*, not *unsupported*. Any DP
 marked `optional: true` in the profile should be assumed reachable until a
@@ -28,6 +31,23 @@ readable — and writable — from then on.
 
 Corollary: app-side writes propagate to the local connection within seconds. The
 vendor app and local control are not in competition for this device.
+
+### What the device reports unprompted
+
+The device's full status report — which `tuya_local` requests every 30 seconds —
+contains DPs 20–26, 34, 53, 101 and 103–111. Nothing else. The configuration
+blobs (31–33, 35, 36, 209, 210) and DPs 51 and 52 appear only when the vendor app
+asks for them.
+
+That membership is what decides whether a value survives a config-entry reload
+or an HA restart. `tuya_local` only knows what it has been sent, so after a
+reload the full-poll DPs repopulate within seconds and everything else reads
+`unknown` until the app is opened again. This is why `scene` (DP 25) kept its
+value through a reload that wiped every routine.
+
+It also means absence from a full poll is not evidence that a DP is
+unimplemented — DPs 31, 32, 33 and 210 are absent from every full poll and
+demonstrably work.
 
 ### A trap when decoding this way
 
@@ -46,6 +66,26 @@ look the same on every candidate scale.
 The flip side is that no probe here ever needs Save. Opening the screen makes the
 DP report; touching a control makes it write.
 
+### A second trap: the integration shows your own write back to you
+
+`tuya_local` displays a written value immediately and keeps displaying it for up
+to five seconds (`_FAKE_IT_TIMEOUT`) whether or not the device accepts it. If an
+unrelated status report arrives inside that window, the entity re-renders with
+the pending value, and a `state_changed` event carrying exactly the bytes you
+sent looks like the device echoing them.
+
+Two tells separate a real acknowledgement from this:
+
+* **The cache never forgets.** Device reports are merged into `tuya_local`'s
+  cache and never removed, so an acknowledged value persists across later polls.
+  A value that drops to `unknown` at the next full poll was never received.
+* **The debug log names the sender.** With debug logging on for the integration,
+  an accepted write is followed within about a second by a
+  `received {...}` line containing the written DP with `"full_poll": false`.
+
+Note that HA's core log endpoint returns only the last 100 lines by default; a
+`Range: entries=:-3000:` header reaches further back.
+
 ## Entity / DP table
 
 | DP | Entity | Type | Notes |
@@ -63,13 +103,17 @@ DP report; touching a control makes it write.
 | 34 | do-not-disturb | bool | its own DP, not a power-on mode |
 | 35 | light switch gradient | base64 | never reported |
 | 36 | `mix_light_scene` | base64 | never reported |
-| 51 | `mix_rgbcw` | base64 | never reported |
+| 51 | `mix_rgbcw` | base64 | write not acknowledged — see below |
 | 52 | `segment_dimming` | base64 | **not present in hardware** — see below |
 | 53 | nightlight | bool | |
 | 101 | fan beep | bool | |
-| 102 | fault | bitfield | |
+| 102 | fault | bitfield | never reported, yet the `problem` sensor reads `on` — see upstream notes |
 | 103 | fan timer | int | seconds (profile says minutes) |
 | 104–107 | fan | | direction, speed 1–6, preset, switch |
+| 108 | — | bool | **not in the profile**; reads `false` |
+| 109 | — | bool | **not in the profile**; reads `false` |
+| 110 | — | string | **not in the profile**; reads `memory` — likely the fan's own power-on behaviour |
+| 111 | — | string | **not in the profile**; reads `010000` |
 | 209 | `schedule` | base64 | never reported |
 | 210 | `randomized_schedule` | base64 | "Vacation / Random On/Off" |
 
@@ -209,10 +253,62 @@ colour at a time rather than travelling colour around the ring: one LED driver
 channel, no per-zone addressing. The DP appears in the profile because Tuya
 products inherit a schema from their product category.
 
-This is the distinction worth preserving: DP 52 has a *mechanism* for its no.
-DP 51 `mix_rgbcw` does not — this fixture demonstrably drives both RGB and
-tunable white, so the capability is physically present and only the command path
-is unfound. Treat it as not-yet, not no.
+DP 51 `mix_rgbcw` is a different case with its own section below. The fixture
+demonstrably drives both RGB and tunable white, so a colour-and-white blend is
+physically plausible even though the DP that names it goes unanswered.
+
+## DP 51 `mix_rgbcw` — a write the firmware does not acknowledge
+
+Tuya defines `mix_rgbcw` as the control for colour and white light on at the
+same time. `tuya_local`'s reference decode (the `ledvance_smart_plabl100x25b`
+profile, used as the template in make-all/tuya-local#4024) is 12 bytes, six
+big-endian 16-bit fields:
+
+```
+sw    h      s       v        wb      wc
+      0-360  0-1000  0-1000   white   colour temp
+```
+
+In that profile bit 0 of `sw` switches the white light and bit 1 the RGB light.
+Other reverse-engineering reports `sw` as 4 = off, 5 = white, 6 = colour,
+7 = both, which is the same two bits over a constant `0x04`; that constant does
+not appear in the template.
+
+The same issue lists this profile as *"a normal rgbcw light without separate
+control"*. In context that concerns fixtures with a physically separate RGB
+backlight and whether to expose it as a second light entity — it is not a
+finding about DP 51.
+
+**Test.** Written: `AAcAAAPoAfQB9AH0` —
+
+```
+0007  0000  03e8  01f4  01f4  01f4
+both  red   sat   RGB     white   mid
+            full  50%     50%     CCT
+```
+
+Result, from the integration's debug log:
+
+```
+sending   {"51": "AAcAAAPoAfQB9AH0"}
+received  {full status, no "51"}                  +0.7 s
+received  {full status, no "51"}                  +32 s
+
+sending   {"22": 320, "23": 533}                  (restoring the light)
+received  {"22": 320, "23": 533, "full_poll": false}   +0.9 s
+```
+
+The restore is the positive control: two standard DPs, echoed back in under a
+second. DP 51 received no echo, and the light's work mode (DP 21) stayed
+`white` with brightness and temperature unchanged. The entity appeared to report
+the value at +0.7 s — that was the pending value re-rendered by a full poll, per
+the second trap above.
+
+**Not yet established:** whether the fixture changed visibly during the write
+(nobody was watching), and whether `sw = 0x0003` behaves differently from
+`0x0007`. Neither would overturn the missing acknowledgement, but both are cheap
+to check. Whether the fixture blends colour and white *internally* at low
+saturation is a separate question — see the open list.
 
 ## Notes for upstream
 
@@ -239,13 +335,24 @@ DP 26 and DP 103 are separate countdowns — one for the light, one for the fan.
 They appear to move together only because the app's timer dialog can target both
 devices at once, setting both to the same value in a single action.
 
+**DP 102 `problem` sensor.** The mapping sends `0` to `false` and everything else
+— including a DP that has never been reported — to `true`. This device never
+reports DP 102, so the sensor reads `on` permanently. The debug log states it
+directly: `Mapped dps 102 value from None to True`. Mapping an absent value to
+`false` (or to unavailable) would make the sensor mean what it says.
+
+**DPs 108–111** appear in every full status report and are not in the profile.
+`110: "memory"` is very likely the fan's power-on behaviour.
+
 **Product identification.** Filling in the commented-out `products:` block with
 the Globe SKU is the change with the most practical value — it is currently
 impossible to find this profile by the name on the box.
 
 ## Still open
 
-* `mix_rgbcw` (51) and `mix_light_scene` (36) — find the app control that writes them
+* `mix_light_scene` (36) — find the app control that writes it
+* DP 51 — a visual check during a write, and the `sw = 0x0003` variant
+* DPs 108, 109 and 111 — what they control
 * Whether colour mode already mixes implicitly: a desaturated colour could be
   rendered by raising green and blue, or by bringing in the white channels in
   proportion to `100% − saturation`. At 11% saturation the light stays in `hs`
