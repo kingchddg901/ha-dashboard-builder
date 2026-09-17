@@ -40,9 +40,14 @@ rule of ours runs, and the user's own disabled set removes more. It is also
 Excellent where an integration uses the field, useless where it doesn't. **Prominence cannot
 come from HA** for a device like Robin or the Grill.
 
-**Where things are is mostly unknown.** Of the 479 visible primary entities, area resolves for
-**159 (33%)** — 158 inherited from the device, 1 set on the entity. The other 320 have no area
-by either route. Across all 1,410: 439 via device, 1 via entity, 970 nothing.
+**Where things are is mostly unknown.** Of the 479 visible primary entities, area resolved for
+**159 (33%)** at the first pass — 158 inherited from the device, 1 set on the entity — leaving
+320 with no area by either route. Across all 1,410: 439 via device, 1 via entity, 970 nothing.
+
+This number is the one that moves, because assigning an area is a two-click job: a re-read a
+few hours later, after some were assigned by hand, gave 162 placed (160 device, 2 entity) and
+317 unplaced. The shape of the problem is what matters, not the exact count — a third placed,
+and every gap fixable by hand.
 
 Primary visible entities by domain: sensor 181, select 75, number 69, switch 41, button 34,
 light 28, text 8, media_player 5, binary_sensor 5, input_boolean 4, automation 4, vacuum 3,
@@ -68,9 +73,10 @@ That matches the hardware (DP 105, range 1–6) without being told.
 
 * `light.ceiling_fan_calibrated` (platform `template`) has **no device**. Group by device and
   you get the uncorrected light and silently miss the calibrated one. Its area had to be set by
-  hand and is now the *only* entity-level area in the house. Anything the user creates —
-  helpers, template entities, exactly the things that carry intent — is born outside the hint
-  graph.
+  hand — it was the first entity-level area in the house, since joined by the bathroom light
+  group. Anything the user creates — helpers, template entities, light groups, exactly the
+  things that carry intent — is born outside the hint graph, and an entity-level area is how it
+  gets back in.
 * The fan's device record has `manufacturer: "Tuya"` and **`model: None`**. HA cannot tell you
   what the product is, which is the same blind spot the DP map notes upstream: nothing in HA or
   the profile names the thing on the box.
@@ -121,6 +127,34 @@ assembled from generic controls, so this device is **excluded** from the builder
 listed here for the two facts it contributes — the open `device_class`, and the 115-primary
 prominence problem — not as a target.
 
+## What groups answer — added after the first pass
+
+A light **group** publishes its own membership in the `entity_id` state attribute, and
+`search/related` returns the reverse edge as `group: [...]`. So for groups, composition is
+navigable in both directions without anyone declaring it — including nesting: this house runs
+`light.main_house` → `light.hall_master` → `light.hall_back` → the bulbs, 8 groups over 29
+light entities, 23 of which are a member of something.
+
+That narrows the declaration. `members` is only needed for a wrapper that publishes **nothing**
+about what it wraps:
+
+| wrapper | composition discoverable? |
+|---|---|
+| group (`light.bathroom`) | **yes** — members in `entity_id`, reverse edge in `search/related` |
+| `switch_as_x` (`light.kitchen`) | keeps the underlying switch's **device** and area, integration named |
+| template (`light.ceiling_fan_calibrated`) | **no** — related returns area and floor, nothing else |
+
+So the template light stays the case that needs a declaration, and it is the one that carries
+the colour correction.
+
+**A group can be placed, and that is a control decision, not a location.** A group has no
+device, so an area reaches it only if one is set on the entity — which HA allows and which
+`light.bathroom` (washroom) now uses. But the reason to place a group is *grouped control* —
+one control for three bulbs, and the voice and area-card behaviour that comes with it. It does
+not make the group the truth about where anything is, and both the group and its members will
+answer the same area query. Which of them becomes the control is the dashboard's policy, to be
+used or overridden per view; the capability layer reports both edges and resolves neither.
+
 ## The unused native surface
 
 **There are 0 labels on this install.** HA's label registry is a first-class, per-entity,
@@ -140,10 +174,12 @@ already carries.
 ```
 appliance:
   id, label                     # the object as a person thinks of it
-  members: [entity_id, …]       # ONLY when not already one device
-  canonical: {light: …}         # which of several similar entities to drive (calibrated vs raw)
+  members: [entity_id, …]       # ONLY when not one device AND not a group -
+                                # groups publish their own membership
+  canonical: {light: …}         # which of several similar entities to drive - the
+                                # template light, whose wrapping is invisible
   area: area_id                 # ONLY when neither entity nor device carries one
-prominence:
+prominence:                     # also settles group-vs-members where they overlap
   hero: entity_id               # what gets the big control
   secondary: [entity_id, …]
   buried: [entity_id, …]        # for integrations that mark 115 of 218 entities primary

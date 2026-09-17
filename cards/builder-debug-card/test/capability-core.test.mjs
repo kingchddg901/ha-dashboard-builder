@@ -15,12 +15,14 @@ import { readFileSync } from "node:fs";
 
 import {
   decodeFeatures, resolveArea, describeEntity, deviceSiblings, selectEntities, domainOf,
+  groupMembers, groupIndex,
 } from "../capability-core.js";
 
 const hass = JSON.parse(readFileSync(new URL("./hass.fixture.json", import.meta.url), "utf8"));
 const { states, entities, devices, areas } = hass;
+const groups = groupIndex(states);
 const describe = (id) => describeEntity({
-  entityId: id, entry: entities[id] || null, state: states[id] || null, devices, areas,
+  entityId: id, entry: entities[id] || null, state: states[id] || null, devices, areas, groups,
 });
 const FAN_DEVICE = entities["fan.ceiling_fan"].device_id;
 
@@ -124,12 +126,55 @@ test("the calibrated light has no device but does have an area", () => {
   assert.equal(r.area.id, "bedroom");
 });
 
-// RED IF: "no device" is assumed to be a template-entity quirk. A light group has none either.
-test("a light group also has no device and no area at all", () => {
+// RED IF: "no device" is assumed to be a template-entity quirk. A light group has none
+// either - but unlike the template light it CAN be placed, and this one was, by hand.
+test("a light group has no device, and an area only because one was set on it", () => {
   const r = describe("light.bathroom");
   assert.equal(r.platform, "group");
   assert.equal(r.device, null);
-  assert.equal(r.area.id, null);
+  assert.equal(r.area.id, "washroom");
+  assert.equal(r.area.via, "entity");
+});
+
+/* ------------------------------------------------------------ grouped control */
+
+// RED IF: a group's membership is treated as undiscoverable. It is published in the
+// `entity_id` attribute - one of the few structural facts HA gives away.
+test("a group publishes its own members", () => {
+  assert.deepEqual(groupMembers(states["light.bathroom"]),
+    ["light.bathroom1", "light.washroom_bathroom2", "light.bathroom3"]);
+  assert.deepEqual(describe("light.bathroom").group.members,
+    ["light.bathroom1", "light.washroom_bathroom2", "light.bathroom3"]);
+});
+
+// RED IF: the reverse edge is missing, or only one level deep. Groups nest here:
+// main_house -> hall_master -> hall_back -> bulbs.
+test("membership is navigable in both directions, including nested groups", () => {
+  assert.deepEqual(describe("light.bathroom1").group.memberOf, ["light.bathroom"]);
+  const master = describe("light.hall_master");
+  assert.deepEqual(master.group.memberOf, ["light.main_house"]);
+  assert.deepEqual(master.group.members,
+    ["light.hall_front_2", "light.hall_middle", "light.hall_back"]);
+  assert.deepEqual(describe("light.hall_back").group.memberOf, ["light.hall_master"]);
+});
+
+// RED IF: a plain light is given phantom group edges.
+test("an ungrouped light has neither edge", () => {
+  const r = describe("light.ceiling_fan_calibrated");
+  assert.deepEqual(r.group.members, []);
+  assert.deepEqual(r.group.memberOf, []);
+});
+
+// RED IF: the core quietly picks a winner. Grouped control is a capability, not a
+// placement, so BOTH the group and its members answer an area query and resolving
+// that overlap is the renderer's policy - it must stay visible here.
+test("an area query returns the group AND its members, unresolved", () => {
+  const ids = selectEntities({ states, entities, devices, areas, area: "washroom" })
+    .map((r) => r.entity_id);
+  assert.ok(ids.includes("light.bathroom"), "the group is in washroom");
+  for (const m of ["light.bathroom1", "light.bathroom3"]) {
+    assert.ok(ids.includes(m), `${m} is in washroom too`);
+  }
 });
 
 /* ------------------------------------------------------- open vocabularies */
@@ -202,8 +247,9 @@ test("an unknown device id has no siblings and does not throw", () => {
 // RED IF: selection leaks other domains, or stops sorting.
 test("lights are selected by domain, sorted", () => {
   const ids = selectEntities({ states, entities, devices, areas }).map((r) => r.entity_id);
-  assert.deepEqual(ids, ["light.bathroom", "light.bathroom1", "light.bathroom3",
-    "light.ceiling_fan", "light.ceiling_fan_calibrated"]);
+  const lights = Object.keys(states).filter((i) => i.startsWith("light.")).sort();
+  assert.deepEqual(ids, lights);
+  assert.ok(!ids.some((i) => !i.startsWith("light.")), "no other domain leaked in");
 });
 
 // RED IF: the area filter uses only one resolution path. These two lights resolve to
@@ -211,7 +257,9 @@ test("lights are selected by domain, sorted", () => {
 test("the area filter honours both resolution routes", () => {
   const ids = selectEntities({ states, entities, devices, areas, area: "bedroom" })
     .map((r) => r.entity_id);
-  assert.deepEqual(ids, ["light.ceiling_fan", "light.ceiling_fan_calibrated"]);
+  assert.ok(ids.includes("light.ceiling_fan"), "resolves via its device");
+  assert.ok(ids.includes("light.ceiling_fan_calibrated"), "resolves via itself, having no device");
+  assert.equal(ids.filter((i) => i.startsWith("light.bathroom")).length, 0, "washroom did not leak in");
 });
 
 // RED IF: an explicit list is reordered by domain rules or silently filtered.

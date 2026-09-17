@@ -5,10 +5,55 @@
    "floor_id": "main_floor",
    "name": "Heidi and chris Room"
   },
+  "dining_room": {
+   "area_id": "dining_room",
+   "floor_id": "main_floor",
+   "name": "dining room"
+  },
+  "entryway": {
+   "area_id": "entryway",
+   "floor_id": "main_floor",
+   "name": "Entryway"
+  },
   "gtill": {
    "area_id": "gtill",
    "floor_id": null,
    "name": "gtill"
+  },
+  "guest_room": {
+   "area_id": "guest_room",
+   "floor_id": "main_floor",
+   "name": "Bryan's room"
+  },
+  "hall_back": {
+   "area_id": "hall_back",
+   "floor_id": "main_floor",
+   "name": "Hall back"
+  },
+  "hall_center": {
+   "area_id": "hall_center",
+   "floor_id": "main_floor",
+   "name": "Hall center"
+  },
+  "hall_front": {
+   "area_id": "hall_front",
+   "floor_id": "main_floor",
+   "name": "Hall front"
+  },
+  "kitchen": {
+   "area_id": "kitchen",
+   "floor_id": "main_floor",
+   "name": "Kitchen"
+  },
+  "living_room": {
+   "area_id": "living_room",
+   "floor_id": "main_floor",
+   "name": "Living Room"
+  },
+  "office": {
+   "area_id": "office",
+   "floor_id": "main_floor",
+   "name": "Office"
   },
   "washroom": {
    "area_id": "washroom",
@@ -25,6 +70,46 @@
    "name": "Local Ceiling fan",
    "name_by_user": null
   },
+  "36a56160749fed62f6483316cee8871b": {
+   "area_id": "hall_front",
+   "id": "36a56160749fed62f6483316cee8871b",
+   "manufacturer": "Leedarson",
+   "model": "Smart RGBTW Bulb",
+   "name": "Smart RGBTW Bulb",
+   "name_by_user": "Hall front2"
+  },
+  "45c7719ef36410fbffcb253e1b38eeeb": {
+   "area_id": "dining_room",
+   "id": "45c7719ef36410fbffcb253e1b38eeeb",
+   "manufacturer": "Leedarson",
+   "model": "Smart RGBTW Bulb",
+   "name": "Smart RGBTW Bulb",
+   "name_by_user": "Dinning room"
+  },
+  "51b9c0f4cf269fd8cd35d49284a5b50e": {
+   "area_id": "office",
+   "id": "51b9c0f4cf269fd8cd35d49284a5b50e",
+   "manufacturer": "Leedarson",
+   "model": "Smart RGBTW Bulb",
+   "name": "Smart RGBTW Bulb",
+   "name_by_user": "Office"
+  },
+  "62029cd02aec5238b8487efbcdd59fbc": {
+   "area_id": "hall_center",
+   "id": "62029cd02aec5238b8487efbcdd59fbc",
+   "manufacturer": "Leedarson",
+   "model": "Smart RGBTW Bulb",
+   "name": "Smart RGBTW Bulb",
+   "name_by_user": "Hall center1"
+  },
+  "625c68c0130e48e68ec9fdd11931395b": {
+   "area_id": "hall_back",
+   "id": "625c68c0130e48e68ec9fdd11931395b",
+   "manufacturer": "Leedarson",
+   "model": "Smart RGBTW Bulb",
+   "name": "Smart RGBTW Bulb",
+   "name_by_user": "Hall back2"
+  },
   "74de75411ff65b7f8ec879d9efe20d74": {
    "area_id": "washroom",
    "id": "74de75411ff65b7f8ec879d9efe20d74",
@@ -33,6 +118,30 @@
    "name": "Smart RGBTW Bulb",
    "name_by_user": "Bathroom3"
   },
+  "8ff226bd8e17f20ff8dedf5dfcbab9fc": {
+   "area_id": "kitchen",
+   "id": "8ff226bd8e17f20ff8dedf5dfcbab9fc",
+   "manufacturer": "Shelly",
+   "model": "Shelly 1 Gen4",
+   "name": "Shelly 1 Gen4",
+   "name_by_user": "Kitchen"
+  },
+  "911866581d1ab52595a3c8b46b2fd717": {
+   "area_id": "entryway",
+   "id": "911866581d1ab52595a3c8b46b2fd717",
+   "manufacturer": "Leedarson",
+   "model": "Smart RGBTW Bulb",
+   "name": "Smart RGBTW Bulb",
+   "name_by_user": "Entryway1"
+  },
+  "9b240f55832510e31ddb4cf289fa650b": {
+   "area_id": "guest_room",
+   "id": "9b240f55832510e31ddb4cf289fa650b",
+   "manufacturer": "Leedarson",
+   "model": "Smart RGBTW Bulb",
+   "name": "Smart RGBTW Bulb",
+   "name_by_user": "Guest room"
+  },
   "a1b4b1f8dc0880af7717a56e86d4018b": {
    "area_id": "gtill",
    "id": "a1b4b1f8dc0880af7717a56e86d4018b",
@@ -40,6 +149,22 @@
    "model": "Pellet Grill",
    "name": "iFireTech1428",
    "name_by_user": "Grill"
+  },
+  "aa4b22953e2b26e463d7b13c8c055d3a": {
+   "area_id": "hall_back",
+   "id": "aa4b22953e2b26e463d7b13c8c055d3a",
+   "manufacturer": "Leedarson",
+   "model": "Smart RGBTW Bulb",
+   "name": "Smart RGBTW Bulb",
+   "name_by_user": "Hall back1"
+  },
+  "b02ec31cfb6fe50da10bc444d1d8800c": {
+   "area_id": "hall_front",
+   "id": "b02ec31cfb6fe50da10bc444d1d8800c",
+   "manufacturer": "Leedarson",
+   "model": "Smart RGBTW Bulb",
+   "name": "Smart RGBTW Bulb",
+   "name_by_user": "Hallfront1"
   },
   "b996d79851ff816836c22b1aed4b6d22": {
    "area_id": "washroom",
@@ -57,6 +182,22 @@
    "name": "Big TV",
    "name_by_user": null
   },
+  "c93423a9f82657c509137d12d4ddf13b": {
+   "area_id": "living_room",
+   "id": "c93423a9f82657c509137d12d4ddf13b",
+   "manufacturer": "Leedarson",
+   "model": "Smart RGBTW Bulb",
+   "name": "Smart RGBTW Bulb",
+   "name_by_user": "Livingroom2"
+  },
+  "caa5c498d5e7ae42e17d4c6341e76078": {
+   "area_id": "washroom",
+   "id": "caa5c498d5e7ae42e17d4c6341e76078",
+   "manufacturer": "Leedarson",
+   "model": "Smart RGBTW Bulb",
+   "name": "Smart RGBTW Bulb",
+   "name_by_user": "Bathroom2"
+  },
   "cc9270da4fba0b21dd7edc178111a065": {
    "area_id": null,
    "id": "cc9270da4fba0b21dd7edc178111a065",
@@ -64,6 +205,38 @@
    "model": "dreame.vacuum.r2469a",
    "name": "Robin",
    "name_by_user": null
+  },
+  "d1250b851e8be54b8850defc71785fe3": {
+   "area_id": "hall_center",
+   "id": "d1250b851e8be54b8850defc71785fe3",
+   "manufacturer": "Leedarson",
+   "model": "Smart RGBTW Bulb",
+   "name": "Smart RGBTW Bulb",
+   "name_by_user": "Hall center2"
+  },
+  "daa6338762c0abdb830952a5556d555a": {
+   "area_id": "entryway",
+   "id": "daa6338762c0abdb830952a5556d555a",
+   "manufacturer": "Leedarson",
+   "model": "Smart RGBTW Bulb",
+   "name": "Smart RGBTW Bulb",
+   "name_by_user": "Entryway2"
+  },
+  "e58e77c19a68d50c21bce18717c4baf9": {
+   "area_id": "living_room",
+   "id": "e58e77c19a68d50c21bce18717c4baf9",
+   "manufacturer": "Leedarson",
+   "model": "Smart RGBTW Bulb",
+   "name": "Smart RGBTW Bulb",
+   "name_by_user": "Livingroom3"
+  },
+  "ec93ab0327befe38e624e3eea299581d": {
+   "area_id": "living_room",
+   "id": "ec93ab0327befe38e624e3eea299581d",
+   "manufacturer": "Leedarson",
+   "model": "Smart RGBTW Bulb",
+   "name": "Smart RGBTW Bulb",
+   "name_by_user": "Livingroom1"
   }
  },
  "entities": {
@@ -92,7 +265,7 @@
    "platform": "tuya_local"
   },
   "light.bathroom": {
-   "area_id": null,
+   "area_id": "washroom",
    "device_id": null,
    "entity_category": null,
    "entity_id": "light.bathroom",
@@ -115,6 +288,14 @@
    "hidden": false,
    "platform": "matter"
   },
+  "light.bryan_s_room": {
+   "area_id": null,
+   "device_id": "9b240f55832510e31ddb4cf289fa650b",
+   "entity_category": null,
+   "entity_id": "light.bryan_s_room",
+   "hidden": false,
+   "platform": "matter"
+  },
   "light.ceiling_fan": {
    "area_id": null,
    "device_id": "2400e48587acb35da89f3cbe9038f888",
@@ -131,6 +312,158 @@
    "hidden": false,
    "platform": "template"
   },
+  "light.dinning_room": {
+   "area_id": null,
+   "device_id": "45c7719ef36410fbffcb253e1b38eeeb",
+   "entity_category": null,
+   "entity_id": "light.dinning_room",
+   "hidden": false,
+   "platform": "matter"
+  },
+  "light.entryway": {
+   "area_id": null,
+   "device_id": null,
+   "entity_category": null,
+   "entity_id": "light.entryway",
+   "hidden": false,
+   "platform": "group"
+  },
+  "light.entryway1": {
+   "area_id": null,
+   "device_id": "911866581d1ab52595a3c8b46b2fd717",
+   "entity_category": null,
+   "entity_id": "light.entryway1",
+   "hidden": false,
+   "platform": "matter"
+  },
+  "light.entryway2": {
+   "area_id": null,
+   "device_id": "daa6338762c0abdb830952a5556d555a",
+   "entity_category": null,
+   "entity_id": "light.entryway2",
+   "hidden": false,
+   "platform": "matter"
+  },
+  "light.hall_back": {
+   "area_id": null,
+   "device_id": null,
+   "entity_category": null,
+   "entity_id": "light.hall_back",
+   "hidden": false,
+   "platform": "group"
+  },
+  "light.hall_back_hall_back1": {
+   "area_id": null,
+   "device_id": "aa4b22953e2b26e463d7b13c8c055d3a",
+   "entity_category": null,
+   "entity_id": "light.hall_back_hall_back1",
+   "hidden": false,
+   "platform": "matter"
+  },
+  "light.hall_back_hall_back2": {
+   "area_id": null,
+   "device_id": "625c68c0130e48e68ec9fdd11931395b",
+   "entity_category": null,
+   "entity_id": "light.hall_back_hall_back2",
+   "hidden": false,
+   "platform": "matter"
+  },
+  "light.hall_center1": {
+   "area_id": null,
+   "device_id": "62029cd02aec5238b8487efbcdd59fbc",
+   "entity_category": null,
+   "entity_id": "light.hall_center1",
+   "hidden": false,
+   "platform": "matter"
+  },
+  "light.hall_center2": {
+   "area_id": null,
+   "device_id": "d1250b851e8be54b8850defc71785fe3",
+   "entity_category": null,
+   "entity_id": "light.hall_center2",
+   "hidden": false,
+   "platform": "matter"
+  },
+  "light.hall_front2": {
+   "area_id": null,
+   "device_id": "36a56160749fed62f6483316cee8871b",
+   "entity_category": null,
+   "entity_id": "light.hall_front2",
+   "hidden": false,
+   "platform": "matter"
+  },
+  "light.hall_front_2": {
+   "area_id": null,
+   "device_id": null,
+   "entity_category": null,
+   "entity_id": "light.hall_front_2",
+   "hidden": false,
+   "platform": "group"
+  },
+  "light.hall_master": {
+   "area_id": null,
+   "device_id": null,
+   "entity_category": null,
+   "entity_id": "light.hall_master",
+   "hidden": false,
+   "platform": "group"
+  },
+  "light.hall_middle": {
+   "area_id": null,
+   "device_id": null,
+   "entity_category": null,
+   "entity_id": "light.hall_middle",
+   "hidden": false,
+   "platform": "group"
+  },
+  "light.hallfront1": {
+   "area_id": null,
+   "device_id": "b02ec31cfb6fe50da10bc444d1d8800c",
+   "entity_category": null,
+   "entity_id": "light.hallfront1",
+   "hidden": false,
+   "platform": "matter"
+  },
+  "light.kitchen": {
+   "area_id": null,
+   "device_id": "8ff226bd8e17f20ff8dedf5dfcbab9fc",
+   "entity_category": null,
+   "entity_id": "light.kitchen",
+   "hidden": false,
+   "platform": "switch_as_x"
+  },
+  "light.living_room": {
+   "area_id": null,
+   "device_id": null,
+   "entity_category": null,
+   "entity_id": "light.living_room",
+   "hidden": false,
+   "platform": "group"
+  },
+  "light.livingroom1": {
+   "area_id": null,
+   "device_id": "ec93ab0327befe38e624e3eea299581d",
+   "entity_category": null,
+   "entity_id": "light.livingroom1",
+   "hidden": false,
+   "platform": "matter"
+  },
+  "light.livingroom2": {
+   "area_id": null,
+   "device_id": "c93423a9f82657c509137d12d4ddf13b",
+   "entity_category": null,
+   "entity_id": "light.livingroom2",
+   "hidden": false,
+   "platform": "matter"
+  },
+  "light.livingroom3": {
+   "area_id": null,
+   "device_id": "e58e77c19a68d50c21bce18717c4baf9",
+   "entity_category": null,
+   "entity_id": "light.livingroom3",
+   "hidden": false,
+   "platform": "matter"
+  },
   "light.local_ceiling_fan_nightlight": {
    "area_id": null,
    "device_id": "2400e48587acb35da89f3cbe9038f888",
@@ -138,6 +471,30 @@
    "entity_id": "light.local_ceiling_fan_nightlight",
    "hidden": false,
    "platform": "tuya_local"
+  },
+  "light.main_house": {
+   "area_id": null,
+   "device_id": null,
+   "entity_category": null,
+   "entity_id": "light.main_house",
+   "hidden": false,
+   "platform": "group"
+  },
+  "light.office": {
+   "area_id": null,
+   "device_id": "51b9c0f4cf269fd8cd35d49284a5b50e",
+   "entity_category": null,
+   "entity_id": "light.office",
+   "hidden": false,
+   "platform": "matter"
+  },
+  "light.washroom_bathroom2": {
+   "area_id": null,
+   "device_id": "caa5c498d5e7ae42e17d4c6341e76078",
+   "entity_category": null,
+   "entity_id": "light.washroom_bathroom2",
+   "hidden": false,
+   "platform": "matter"
   },
   "media_player.big_tv_2": {
    "area_id": null,
@@ -413,6 +770,37 @@
    "entity_id": "light.bathroom3",
    "state": "off"
   },
+  "light.bryan_s_room": {
+   "attributes": {
+    "brightness": 169,
+    "color_mode": "hs",
+    "color_temp_kelvin": null,
+    "friendly_name": "Bryan's room",
+    "hs_color": [
+     347.244,
+     24.803
+    ],
+    "max_color_temp_kelvin": 6535,
+    "min_color_temp_kelvin": 1801,
+    "rgb_color": [
+     255,
+     192,
+     205
+    ],
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "supported_features": 32,
+    "xy_color": [
+     0.393,
+     0.309
+    ]
+   },
+   "entity_id": "light.bryan_s_room",
+   "state": "on"
+  },
   "light.ceiling_fan": {
    "attributes": {
     "brightness": 80,
@@ -485,6 +873,555 @@
    },
    "entity_id": "light.ceiling_fan_calibrated",
    "state": "on"
+  },
+  "light.dinning_room": {
+   "attributes": {
+    "brightness": null,
+    "color_mode": null,
+    "color_temp_kelvin": null,
+    "friendly_name": "Dinning room",
+    "hs_color": null,
+    "max_color_temp_kelvin": 6535,
+    "min_color_temp_kelvin": 1801,
+    "rgb_color": null,
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "supported_features": 32,
+    "xy_color": null
+   },
+   "entity_id": "light.dinning_room",
+   "state": "off"
+  },
+  "light.entryway": {
+   "attributes": {
+    "brightness": null,
+    "color_mode": null,
+    "color_temp_kelvin": null,
+    "entity_id": [
+     "light.entryway1",
+     "light.entryway2"
+    ],
+    "friendly_name": "Entryway",
+    "hs_color": null,
+    "max_color_temp_kelvin": 6535,
+    "min_color_temp_kelvin": 1801,
+    "rgb_color": null,
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "supported_features": 32,
+    "xy_color": null
+   },
+   "entity_id": "light.entryway",
+   "state": "off"
+  },
+  "light.entryway1": {
+   "attributes": {
+    "brightness": null,
+    "color_mode": null,
+    "color_temp_kelvin": null,
+    "friendly_name": "Entryway1",
+    "hs_color": null,
+    "max_color_temp_kelvin": 6535,
+    "min_color_temp_kelvin": 1801,
+    "rgb_color": null,
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "supported_features": 32,
+    "xy_color": null
+   },
+   "entity_id": "light.entryway1",
+   "state": "off"
+  },
+  "light.entryway2": {
+   "attributes": {
+    "brightness": null,
+    "color_mode": null,
+    "color_temp_kelvin": null,
+    "friendly_name": "Entryway2",
+    "hs_color": null,
+    "max_color_temp_kelvin": 6535,
+    "min_color_temp_kelvin": 1801,
+    "rgb_color": null,
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "supported_features": 32,
+    "xy_color": null
+   },
+   "entity_id": "light.entryway2",
+   "state": "off"
+  },
+  "light.hall_back": {
+   "attributes": {
+    "brightness": null,
+    "color_mode": null,
+    "color_temp_kelvin": null,
+    "entity_id": [
+     "light.hall_back_hall_back1",
+     "light.hall_back_hall_back2"
+    ],
+    "friendly_name": "Hall back",
+    "hs_color": null,
+    "max_color_temp_kelvin": 6535,
+    "min_color_temp_kelvin": 1801,
+    "rgb_color": null,
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "supported_features": 32,
+    "xy_color": null
+   },
+   "entity_id": "light.hall_back",
+   "state": "off"
+  },
+  "light.hall_back_hall_back1": {
+   "attributes": {
+    "brightness": null,
+    "color_mode": null,
+    "color_temp_kelvin": null,
+    "friendly_name": "Hall back1",
+    "hs_color": null,
+    "max_color_temp_kelvin": 6535,
+    "min_color_temp_kelvin": 1801,
+    "rgb_color": null,
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "supported_features": 32,
+    "xy_color": null
+   },
+   "entity_id": "light.hall_back_hall_back1",
+   "state": "off"
+  },
+  "light.hall_back_hall_back2": {
+   "attributes": {
+    "brightness": null,
+    "color_mode": null,
+    "color_temp_kelvin": null,
+    "friendly_name": "Hall back2",
+    "hs_color": null,
+    "max_color_temp_kelvin": 6535,
+    "min_color_temp_kelvin": 1801,
+    "rgb_color": null,
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "supported_features": 32,
+    "xy_color": null
+   },
+   "entity_id": "light.hall_back_hall_back2",
+   "state": "off"
+  },
+  "light.hall_center1": {
+   "attributes": {
+    "brightness": null,
+    "color_mode": null,
+    "color_temp_kelvin": null,
+    "friendly_name": "Hall center1",
+    "hs_color": null,
+    "max_color_temp_kelvin": 6535,
+    "min_color_temp_kelvin": 1801,
+    "rgb_color": null,
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "supported_features": 32,
+    "xy_color": null
+   },
+   "entity_id": "light.hall_center1",
+   "state": "off"
+  },
+  "light.hall_center2": {
+   "attributes": {
+    "brightness": null,
+    "color_mode": null,
+    "color_temp_kelvin": null,
+    "friendly_name": "Hall center2",
+    "hs_color": null,
+    "max_color_temp_kelvin": 6535,
+    "min_color_temp_kelvin": 1801,
+    "rgb_color": null,
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "supported_features": 32,
+    "xy_color": null
+   },
+   "entity_id": "light.hall_center2",
+   "state": "off"
+  },
+  "light.hall_front2": {
+   "attributes": {
+    "brightness": null,
+    "color_mode": null,
+    "color_temp_kelvin": null,
+    "friendly_name": "Hall front2",
+    "hs_color": null,
+    "max_color_temp_kelvin": 6535,
+    "min_color_temp_kelvin": 1801,
+    "rgb_color": null,
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "supported_features": 32,
+    "xy_color": null
+   },
+   "entity_id": "light.hall_front2",
+   "state": "off"
+  },
+  "light.hall_front_2": {
+   "attributes": {
+    "brightness": null,
+    "color_mode": null,
+    "color_temp_kelvin": null,
+    "entity_id": [
+     "light.hallfront1",
+     "light.hall_front2"
+    ],
+    "friendly_name": "Hall Front",
+    "hs_color": null,
+    "max_color_temp_kelvin": 6535,
+    "min_color_temp_kelvin": 1801,
+    "rgb_color": null,
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "supported_features": 32,
+    "xy_color": null
+   },
+   "entity_id": "light.hall_front_2",
+   "state": "off"
+  },
+  "light.hall_master": {
+   "attributes": {
+    "brightness": null,
+    "color_mode": null,
+    "color_temp_kelvin": null,
+    "entity_id": [
+     "light.hall_front_2",
+     "light.hall_middle",
+     "light.hall_back"
+    ],
+    "friendly_name": "Hall master",
+    "hs_color": null,
+    "max_color_temp_kelvin": 6535,
+    "min_color_temp_kelvin": 1801,
+    "rgb_color": null,
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "supported_features": 32,
+    "xy_color": null
+   },
+   "entity_id": "light.hall_master",
+   "state": "off"
+  },
+  "light.hall_middle": {
+   "attributes": {
+    "brightness": null,
+    "color_mode": null,
+    "color_temp_kelvin": null,
+    "entity_id": [
+     "light.hall_center1",
+     "light.hall_center2"
+    ],
+    "friendly_name": "Hall middle",
+    "hs_color": null,
+    "max_color_temp_kelvin": 6535,
+    "min_color_temp_kelvin": 1801,
+    "rgb_color": null,
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "supported_features": 32,
+    "xy_color": null
+   },
+   "entity_id": "light.hall_middle",
+   "state": "off"
+  },
+  "light.hallfront1": {
+   "attributes": {
+    "brightness": null,
+    "color_mode": null,
+    "color_temp_kelvin": null,
+    "friendly_name": "Hallfront1",
+    "hs_color": null,
+    "max_color_temp_kelvin": 6535,
+    "min_color_temp_kelvin": 1801,
+    "rgb_color": null,
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "supported_features": 32,
+    "xy_color": null
+   },
+   "entity_id": "light.hallfront1",
+   "state": "off"
+  },
+  "light.kitchen": {
+   "attributes": {
+    "color_mode": "onoff",
+    "friendly_name": "Kitchen",
+    "supported_color_modes": [
+     "onoff"
+    ],
+    "supported_features": 0
+   },
+   "entity_id": "light.kitchen",
+   "state": "on"
+  },
+  "light.living_room": {
+   "attributes": {
+    "brightness": 245,
+    "color_mode": "color_temp",
+    "color_temp_kelvin": 4975,
+    "entity_id": [
+     "light.livingroom1",
+     "light.livingroom2",
+     "light.livingroom3"
+    ],
+    "friendly_name": "Livingroom",
+    "hs_color": [
+     26.976,
+     19.584
+    ],
+    "max_color_temp_kelvin": 6535,
+    "min_color_temp_kelvin": 1801,
+    "rgb_color": [
+     255,
+     228,
+     205
+    ],
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "supported_features": 32,
+    "xy_color": [
+     0.372,
+     0.35
+    ]
+   },
+   "entity_id": "light.living_room",
+   "state": "on"
+  },
+  "light.livingroom1": {
+   "attributes": {
+    "brightness": 245,
+    "color_mode": "color_temp",
+    "color_temp_kelvin": 4975,
+    "friendly_name": "Livingroom1",
+    "hs_color": [
+     26.976,
+     19.584
+    ],
+    "max_color_temp_kelvin": 6535,
+    "min_color_temp_kelvin": 1801,
+    "rgb_color": [
+     255,
+     228,
+     205
+    ],
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "supported_features": 32,
+    "xy_color": [
+     0.372,
+     0.35
+    ]
+   },
+   "entity_id": "light.livingroom1",
+   "state": "on"
+  },
+  "light.livingroom2": {
+   "attributes": {
+    "brightness": 245,
+    "color_mode": "color_temp",
+    "color_temp_kelvin": 4975,
+    "friendly_name": "Livingroom2",
+    "hs_color": [
+     26.976,
+     19.584
+    ],
+    "max_color_temp_kelvin": 6535,
+    "min_color_temp_kelvin": 1801,
+    "rgb_color": [
+     255,
+     228,
+     205
+    ],
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "supported_features": 32,
+    "xy_color": [
+     0.372,
+     0.35
+    ]
+   },
+   "entity_id": "light.livingroom2",
+   "state": "on"
+  },
+  "light.livingroom3": {
+   "attributes": {
+    "brightness": 245,
+    "color_mode": "color_temp",
+    "color_temp_kelvin": 4975,
+    "friendly_name": "Livingroom3",
+    "hs_color": [
+     26.976,
+     19.584
+    ],
+    "max_color_temp_kelvin": 6535,
+    "min_color_temp_kelvin": 1801,
+    "rgb_color": [
+     255,
+     228,
+     205
+    ],
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "supported_features": 32,
+    "xy_color": [
+     0.372,
+     0.35
+    ]
+   },
+   "entity_id": "light.livingroom3",
+   "state": "on"
+  },
+  "light.local_ceiling_fan_nightlight": {
+   "attributes": {
+    "color_mode": null,
+    "friendly_name": "Local Ceiling fan Nightlight",
+    "supported_color_modes": [
+     "onoff"
+    ],
+    "supported_features": 0
+   },
+   "entity_id": "light.local_ceiling_fan_nightlight",
+   "state": "off"
+  },
+  "light.main_house": {
+   "attributes": {
+    "brightness": 245,
+    "color_mode": "color_temp",
+    "color_temp_kelvin": 4975,
+    "entity_id": [
+     "light.entryway",
+     "light.hall_master",
+     "light.kitchen",
+     "light.living_room",
+     "light.office",
+     "light.dinning_room"
+    ],
+    "friendly_name": "Main house",
+    "hs_color": [
+     26.976,
+     19.584
+    ],
+    "max_color_temp_kelvin": 6535,
+    "min_color_temp_kelvin": 1801,
+    "rgb_color": [
+     255,
+     228,
+     205
+    ],
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "supported_features": 32,
+    "xy_color": [
+     0.372,
+     0.35
+    ]
+   },
+   "entity_id": "light.main_house",
+   "state": "on"
+  },
+  "light.office": {
+   "attributes": {
+    "brightness": null,
+    "color_mode": null,
+    "color_temp_kelvin": null,
+    "friendly_name": "Office",
+    "hs_color": null,
+    "max_color_temp_kelvin": 6535,
+    "min_color_temp_kelvin": 1801,
+    "rgb_color": null,
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "supported_features": 32,
+    "xy_color": null
+   },
+   "entity_id": "light.office",
+   "state": "off"
+  },
+  "light.washroom_bathroom2": {
+   "attributes": {
+    "brightness": null,
+    "color_mode": null,
+    "color_temp_kelvin": null,
+    "friendly_name": "Bathroom2",
+    "hs_color": null,
+    "max_color_temp_kelvin": 6535,
+    "min_color_temp_kelvin": 1801,
+    "rgb_color": null,
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "supported_features": 32,
+    "xy_color": null
+   },
+   "entity_id": "light.washroom_bathroom2",
+   "state": "off"
   },
   "media_player.big_tv_2": {
    "attributes": {

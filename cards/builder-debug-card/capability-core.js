@@ -153,7 +153,7 @@ function capabilityAttrs(domain, attrs = {}) {
  * missing — a helper created in YAML has no registry entry at all — and the
  * record still comes back, with the gaps visible rather than thrown.
  */
-export function describeEntity({ entityId, entry = null, state = null, devices = {}, areas = {} }) {
+export function describeEntity({ entityId, entry = null, state = null, devices = {}, areas = {}, groups = {} }) {
   const id = entityId || entry?.entity_id || state?.entity_id;
   const domain = domainOf(id);
   const attrs = state?.attributes || {};
@@ -186,8 +186,39 @@ export function describeEntity({ entityId, entry = null, state = null, devices =
     features: decodeFeatures(domain, attrs.supported_features),
     device_class: classifyDeviceClass(domain, attrs.device_class ?? entry?.device_class ?? null),
     capabilities: capabilityAttrs(domain, attrs),
+    // Grouped control is a CAPABILITY - one control for several lights - not a
+    // statement about where anything is. Both edges are reported and neither is
+    // resolved: whether the group or its members become the control is policy,
+    // and a dashboard may override it either way.
+    group: { members: groupMembers(state), memberOf: groups[id] || [] },
     raw: attrs,
   };
+}
+
+/**
+ * The members a group publishes, from its own state.
+ *
+ * A group light lists its members in the `entity_id` attribute, so group
+ * composition is one of the few structural facts HA hands over for free - unlike
+ * a template light, which publishes nothing about what it wraps.
+ */
+export function groupMembers(state) {
+  const m = state?.attributes?.entity_id;
+  return Array.isArray(m) ? m.slice() : [];
+}
+
+/**
+ * The reverse edge: member entity id -> the groups that contain it.
+ *
+ * Built once over all states; groups nest, so a group can appear on both sides.
+ */
+export function groupIndex(states = {}) {
+  const out = {};
+  for (const [id, st] of Object.entries(states)) {
+    for (const m of groupMembers(st)) (out[m] = out[m] || []).push(id);
+  }
+  for (const list of Object.values(out)) list.sort();
+  return out;
 }
 
 /**
@@ -209,7 +240,8 @@ export function selectEntities({ states = {}, entities = {}, devices = {}, areas
   if (area) {
     ids = ids.filter((id) => resolveArea(entities[id], devices, areas).id === area);
   }
+  const groups = groupIndex(states);
   return ids.sort().map((id) => describeEntity({
-    entityId: id, entry: entities[id] || null, state: states[id] || null, devices, areas,
+    entityId: id, entry: entities[id] || null, state: states[id] || null, devices, areas, groups,
   }));
 }

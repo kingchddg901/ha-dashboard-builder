@@ -129,6 +129,15 @@ class BuilderDebugCard extends HTMLElement {
         + (sib ? `<br><span class="dim">${sib.total} entities on it, ${sib.primaryCount} primary: ${sib.primary.map((e) => `<code>${esc(e)}</code>`).join(" ")}</span>` : "")
         : `<span class="unk">none — group by device and this entity disappears</span>`}</span>
 
+          ${r.group.members.length || r.group.memberOf.length ? `<span class="k">grouped control</span>
+          <span class="v">${r.group.members.length
+        ? `drives ${r.group.members.length}: ${r.group.members.map((e) => `<code>${esc(e)}</code>`).join(" ")}` : ""}
+            ${r.group.members.length && r.group.memberOf.length ? "<br>" : ""}
+            ${r.group.memberOf.length
+        ? `inside ${r.group.memberOf.map((e) => `<code>${esc(e)}</code>`).join(" ")}` : ""}
+            <br><span class="dim">a group and its members both answer an area query - which one is
+            the control is yours to set, not HA's</span></span>` : ""}
+
           <span class="k">supported_features</span>
           <span class="v">${feat}</span>
 
