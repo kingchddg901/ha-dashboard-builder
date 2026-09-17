@@ -133,12 +133,24 @@ chg  stay mode   hue    sat    val    white   white
 ```
 
 * `mode` — `01` = Flash (jump), `02` = Fade (gradient), `00` = static.
-* `chg` / `stay` — 0x00–0x64 (0–100). Playback is not observable from HA (see
-  below), so timing has to be done by eye. One measurement so far: the 8-step
-  rainbow with both bytes at `0x58` (88) loops in roughly 15 s, about 1.9 s per
-  step. That fits both bytes counting in ~10 ms units (88 + 88 → 1.76 s) and one
-  byte counting in ~20 ms units (88 → 1.76 s) equally well. The names are Tuya's
-  standard field order, not something measured here.
+* `chg` / `stay` — 0x00–0x64 (0–100). Playback is not observable from HA, so
+  timing comes from video (method below). With both bytes at `0x58` (88), an
+  8-step rainbow measures:
+
+  | | |
+  |---|---|
+  | step period | **2.199 s** — four of five intervals identical to the frame |
+  | fade | ≈ 0.4–0.5 s |
+  | hold | ≈ 1.7 s |
+  | loop | 8 × 2.2 = 17.6 s |
+  | fade granularity | colour updates every **50 ms** (20 Hz) |
+
+  Fade and hold are far from equal although the two bytes are, so they are not
+  two durations in one unit. 2.2 s is exactly 88 × 25 ms and also exactly
+  176 × 12.5 ms; with equal bytes those cannot be told apart. The names are
+  Tuya's standard field order, not something measured here. A stopwatch put the
+  loop at about 15 s — 15% short, which is why the frame timing is the number to
+  use.
 * The hue/sat/val ranges are independently confirmed by the profile's own
   declaration for DP 24 `rgbhsv`, which uses the identical field order and ranges.
 
@@ -189,6 +201,10 @@ back to the first colour when the loop restarts. The firmware switches between
 the colour and white emitter groups rather than ramping one down while the other
 comes up. A sunrise that should pass from colour into white cannot be written
 as a single fading scene on this fixture; the handover will snap.
+
+The video puts the cut about 0.5 s after the white step begins — roughly one
+fade's length. The firmware still spends the step's fade slot, holding the
+previous colour through it, and switches at its end.
 
 ## DP 31 / 32 — Bedtime and Wake Up
 
@@ -415,6 +431,23 @@ can be the same colour with completely different spectra.
   bright blue edge and a slightly dimmer cyan patch that is normal for a
   phosphor LED. RGB gives separate bars with no yellow between green and red.
 
+## Timing a scene from video
+
+A phone at 60 fps times scene playback far better than a stopwatch.
+
+* Point the camera at the fixture with the fan **off** — moving blades modulate
+  the light.
+* Measure colour in an unclipped region: the halo around the fixture or a patch
+  of ceiling. The fixture itself saturates.
+* Work in chromaticity (`r/(r+g+b)`, `g/(r+g+b)`), which ignores auto-exposure.
+  Auto white balance still drifts during holds, so time transitions, not
+  absolute colour.
+* Use each frame's container timestamp. Phone video drops frames — this one had
+  four gaps of 33–116 ms — so frame number ÷ 60 is wrong.
+* Time fade onsets for the period; the snap into or out of white is a one-frame
+  event and the sharpest mark available. The frame-to-frame change inside a
+  fade also shows the firmware's update rate directly.
+
 ## Notes for upstream
 
 Neither of these costs any capability. The full physical range and every function
@@ -463,7 +496,7 @@ impossible to find this profile by the name on the box.
   white pencil waved fast under the light (separate red and white copies mean
   the halves alternate)
 * What the scene id byte controls
-* `chg` / `stay` — which byte is the fade and which the hold, and so the unit.
-  A two-colour fading scene written once with 100/20 and once with 20/100
-  separates them: one version spends most of each step changing colour, the
-  other mostly holding, and the loop time then fixes the unit
+* `chg` / `stay` — what each byte controls. The period is measured exactly at
+  88/88 but fits two readings. A two-colour fading scene filmed once with 100/20
+  and once with 20/100 separates them: the period and the fade length of each
+  run pin both bytes
