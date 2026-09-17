@@ -509,6 +509,19 @@ cannot replace the CD for telling phosphor white from RGB white.
 * **The file format needs a current reader.** These are DNG 1.7 files — linear
   (already demosaiced) and JPEG XL compressed. LibRaw 0.22, via `rawpy`, refuses
   them; `tifffile` with `imagecodecs` decodes them.
+* **Clipping is avoidable.** 1/12000 s at ISO 640 and −2 EV left the core of a
+  31%-brightness white unclipped, so the fixture itself can be measured rather
+  than its rim.
+* **Dimming did not band at that shutter.** Row-to-row variation through the
+  core was about 1.4% rms — well above noise, but with no period except whole
+  fractions of the sampled window, which is the diffuser's own structure — and
+  the warm/cool ratio moved only 0.3% rms. A shutter slicing through
+  out-of-phase dimming would have shown both, and would have got the colour
+  wrong.
+* **White mode is an on-locus white.** Set to 3599 K, the unclipped core
+  measures 3483 K, Duv −0.003 — against Duv −0.012 for equal RGB drive.
+* **Do not judge colour from the phone's preview.** The gallery rendered that
+  capture with a pink cast that is not in the data.
 
 ## Notes for upstream
 
@@ -520,7 +533,10 @@ a PR rather than a bug report.
 2700–6500 K. Packaging states 2000–5000 K, and the vendor app's own slider is
 labelled 2000 K at the warm end. The app also displays a scene's white step
 stored as `695` as 4085 K — exactly 2000 + 695 × 3 — so the vendor's own
-conversion is the linear 2000–5000 K mapping. Under the shipped mapping the reported value is
+conversion is the linear 2000–5000 K mapping. A RAW measurement of the fixture
+set to 3599 K under the corrected mapping reads 3483 K (Duv −0.003); the
+shipped mapping would have labelled the same setting 4725 K. Under the shipped
+mapping the reported value is
 700 K low at the warm end and 1500 K low at the cool end.
 
 Correcting `target_range` to `{min: 2000, max: 5000}` takes effect on a
