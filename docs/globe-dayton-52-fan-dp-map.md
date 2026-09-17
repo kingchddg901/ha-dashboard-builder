@@ -386,14 +386,27 @@ of the three primaries at fixed exposure (method below) show by how much:
 
 | emitter | chromaticity x, y | luminance share at equal drive | sRGB, for reference |
 |---|---|---|---|
-| red | 0.627, 0.308 | 23% | 21% |
-| green | 0.248, 0.434 | 45% | 72% |
-| blue | 0.160, 0.143 | 32% | 7% |
+| red | 0.650, 0.311 | 19% | 21% |
+| green | 0.286, 0.421 | 46% | 72% |
+| blue | 0.169, 0.173 | 35% | 7% |
 
-Blue carries several times its usual share. Equal drive on all three lands near
-**16,000 K with Duv −0.014** — blue, and below the Planckian locus toward
-purple — and red at 25% saturation, assuming linear drive, lands at
-x 0.29, y 0.25, where a conventional pale pink sits near x 0.37, y 0.32.
+Values use the camera matrix interpolated for the shots' 4000 K white balance,
+as the DNG specification does. Blue carries about five times its usual share.
+Equal drive on all three lands near **10,900 K with Duv −0.012** — blue, and
+below the Planckian locus toward purple — and red at 25% saturation, assuming
+linear drive, lands at x 0.30, y 0.27, where a conventional pale pink sits near
+x 0.37, y 0.32.
+
+**Sensitivity to the matrix.** Using the daylight matrix alone or the tungsten
+matrix alone moves the numbers but not the conclusion: blue's share runs
+32–37%, equal-drive white 8,700–16,300 K with Duv −0.011 to −0.014, and 25% red
+x 0.29–0.31, y 0.25–0.29 — always bluer and more purple than pale pink, never
+near neutral. The exact colour temperature is the least stable figure here.
+
+**Checking the conversion itself.** Converting the file's recorded white balance
+(`AsShotNeutral`) through the same interpolated matrix gives 3918 K,
+Duv +0.008, against the 4000 K set on the camera — so the conversion runs in the
+right direction with the right matrices.
 
 How far to trust it: the blue excess is large and agrees with the eye. The
 purple component leans hardest on the green coordinate, which is the weakest
