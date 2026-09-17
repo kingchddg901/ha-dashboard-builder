@@ -509,9 +509,23 @@ the setting to send for a target colour is:
 
 Errors fall 7–30×, most to within a few just-noticeable steps. Mint is the
 weakest: it sits near the gamut edge, in the region where the camera matrix is
-least certain. Corrected 4000 K from the RGB channels and white mode at 4000 K
-came out 0.009 apart — close enough that one capture, taken half a second after
-the switch between them, could not be assigned by colour alone.
+least certain. **Corrected RGB against white mode.** Held and recaptured at the same exposure:
+
+| | measured | x, y | from 4000 K |
+|---|---|---|---|
+| corrected RGB 4000 K, full brightness | 3951 K, Duv +0.001 | 0.3836, 0.3803 | 0.0047 |
+| white mode 4000 K, 10% brightness | 4112 K, Duv +0.001 | 0.3762, 0.3750 | 0.0046 |
+
+Both sit on the Planckian locus, equally close to the target from opposite
+sides, 0.009 apart, with near-identical camera channel ratios. The repeats
+matched the rapid-sequence captures to the third decimal, which also settled a
+capture from that run that had been ambiguous between the two.
+
+The difference that matters is output: white mode at 10% was 1.2× brighter than
+corrected RGB at full, so the white emitters deliver roughly twelve times the
+light for the same white, assuming a roughly linear dimming curve — and an RGB
+white built from three narrow bands will render object colours worse than
+phosphor. White requests belong in white mode; the correction is for colours.
 
 **What this validates.** The model and the check used the same camera, so the
 check proves the firmware behaves as modelled and the inversion lands where
