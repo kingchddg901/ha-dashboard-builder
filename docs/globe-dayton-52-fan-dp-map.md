@@ -381,44 +381,52 @@ fill the space between green and red. Red at 100% shows red alone, so pure
 colours use the colour die only.
 
 A side effect is visible without instruments: 25% red reads as lavender rather
-than pale pink. The emitters are not balanced to a white point, and RAW captures
-of the three primaries at fixed exposure (method below) show by how much:
+than pale pink. RAW captures at a single fixed exposure (1/1000 s, ISO 50,
+4000 K), each primary and the firmware's own white at full brightness, show why.
+
+**The primaries**, measured from the fixture's integrated light:
 
 | emitter | chromaticity x, y | luminance share at equal drive | sRGB, for reference |
 |---|---|---|---|
-| red | 0.650, 0.311 | 19% | 21% |
-| green | 0.286, 0.421 | 46% | 72% |
-| blue | 0.169, 0.173 | 35% | 7% |
+| red | 0.649, 0.311 | 27% | 21% |
+| green | 0.303, 0.513 | 57% | 72% |
+| blue | 0.132, 0.084 | 16% | 7% |
 
-Values use the camera matrix interpolated for the shots' 4000 K white balance,
-as the DNG specification does. Blue carries about five times its usual share.
-Equal drive on all three lands near **10,900 K with Duv −0.012** — blue, and
-below the Planckian locus toward purple — and red at 25% saturation, assuming
-linear drive, lands at x 0.30, y 0.27, where a conventional pale pink sits near
-x 0.37, y 0.32.
+Green is weak against red and blue — which pushes any RGB white toward magenta —
+and blue is roughly twice its usual share, which pushes it cool.
 
-**Sensitivity to the matrix.** Using the daylight matrix alone or the tungsten
-matrix alone moves the numbers but not the conclusion: blue's share runs
-32–37%, equal-drive white 8,700–16,300 K with Duv −0.011 to −0.014, and 25% red
-x 0.29–0.31, y 0.25–0.29 — always bluer and more purple than pale pink, never
-near neutral. The exact colour temperature is the least stable figure here.
+**The firmware's white.** Colour mode at 0% saturation measures
+**9,854 K, Duv −0.016**: blue, and below the Planckian locus toward purple. The
+three solo captures, summed, predict 9,501 K, so the measurement and the model
+agree on temperature. White mode, by contrast, sits on the locus (below).
+
+**Colour mode normalises its drive.** Decomposed into the solo primaries, the
+0%-saturation white is red ×0.33, green ×0.43, blue ×0.37 of their individual
+full outputs — about one channel's worth shared three ways, and 39% of the
+light the three give separately. So colour-mode brightness is not comparable
+across saturations, and pastels are dim as well as tinted.
+
+**Sensitivity to the matrix.** Values above use the camera matrix interpolated
+for the 4000 K white balance, as the DNG specification does. Using the daylight
+or tungsten matrix alone gives blue 11–21%, green 52–58%, and the white at
+9,209–10,085 K with Duv −0.009 to −0.028: always cool and always on the purple
+side. Red's share (21–37%) is the least stable figure.
 
 **Checking the conversion itself.** Converting the file's recorded white balance
-(`AsShotNeutral`) through the same interpolated matrix gives 3918 K,
-Duv +0.008, against the 4000 K set on the camera — so the conversion runs in the
-right direction with the right matrices.
+(`AsShotNeutral`) through the interpolated matrix gives 3918 K, Duv +0.008,
+against the 4000 K set on the camera — so the conversion runs in the right
+direction with the right matrices.
 
-How far to trust it: the blue excess is large and agrees with the eye. The
-purple component leans hardest on the green coordinate, which is the weakest
-number here — camera colour matrices are fitted for broadband light, and this
-green reads far less saturated than a green LED should, which would pull the
-white point greenward. The luminance shares assume the ceiling paint reflects
-the three primaries equally.
+**An earlier estimate this supersedes.** A first pass put blue at 35% of
+luminance and the white near 10,900 K. It used ceiling-bounced light around
+clipped cores, from primaries set in the app at unrecorded brightness. The
+temperature survived; the blue share did not — it was overstated about
+twofold.
 
 For dashboards this means a swatch of the commanded colour will not match the
 ceiling for pastels on this fixture; saturated colours match. It is correctable
-upstream of the device — attenuate blue before sending a pastel — if it ever
-matters.
+upstream of the device — reduce blue and red relative to green before sending a
+pastel — if it ever matters.
 
 **Scene step.** Written as a single static step — red at 50%, white at 50%, mid
 temperature — reusing the stored scene id and restoring the stored scene
@@ -502,10 +510,16 @@ cannot replace the CD for telling phosphor white from RGB white.
   replaces saturated pixels with a neutral at the clip level (4095 × the
   as-shot neutral), so a clipped core reads *white* in the RAW data, not as a
   blown channel. Measure the unclipped edge of the diffuser instead.
-* **Chromaticity** comes from the unclipped rim, converted with the file's own
-  `ColorMatrix1` and `CameraCalibration1`. **Relative brightness** comes from a
-  fixed annulus of ceiling around the fixture, excluding anything near clipping,
-  normalised by exposure time × ISO.
+* **Measure the fixture's integrated light**, background-subtracted, from an
+  unclipped capture — for colour and brightness both. Convert with the file's
+  own `ColorMatrix` and `CameraCalibration` pairs, interpolated for the shot's
+  white balance. An earlier attempt using the diffuser rim for colour and
+  ceiling-bounced light for brightness, around clipped cores, overstated blue
+  about twofold.
+* **Set the states from HA, and log when.** Primaries set in the app at
+  unrecorded brightness cannot be compared. A scripted sequence with a
+  timestamped log lets each capture be matched to its state by the DNG's
+  `DateTimeOriginal`, which also catches renamed or mis-ordered files.
 * **The file format needs a current reader.** These are DNG 1.7 files — linear
   (already demosaiced) and JPEG XL compressed. LibRaw 0.22, via `rawpy`, refuses
   them; `tifffile` with `imagecodecs` decodes them.
