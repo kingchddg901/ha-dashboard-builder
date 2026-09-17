@@ -381,11 +381,31 @@ fill the space between green and red. Red at 100% shows red alone, so pure
 colours use the colour die only.
 
 A side effect is visible without instruments: 25% red reads as lavender rather
-than pale pink. Raising green and blue to about three quarters only produces a
-neutral white if the firmware balances the three emitters, and it evidently does
-not; the result drifts cool. For dashboards this means a swatch of the commanded
-colour will not match the ceiling for pastels on this fixture. Saturated colours
-match.
+than pale pink. The emitters are not balanced to a white point, and RAW captures
+of the three primaries at fixed exposure (method below) show by how much:
+
+| emitter | chromaticity x, y | luminance share at equal drive | sRGB, for reference |
+|---|---|---|---|
+| red | 0.627, 0.308 | 23% | 21% |
+| green | 0.248, 0.434 | 45% | 72% |
+| blue | 0.160, 0.143 | 32% | 7% |
+
+Blue carries several times its usual share. Equal drive on all three lands near
+**16,000 K with Duv −0.014** — blue, and below the Planckian locus toward
+purple — and red at 25% saturation, assuming linear drive, lands at
+x 0.29, y 0.25, where a conventional pale pink sits near x 0.37, y 0.32.
+
+How far to trust it: the blue excess is large and agrees with the eye. The
+purple component leans hardest on the green coordinate, which is the weakest
+number here — camera colour matrices are fitted for broadband light, and this
+green reads far less saturated than a green LED should, which would pull the
+white point greenward. The luminance shares assume the ceiling paint reflects
+the three primaries equally.
+
+For dashboards this means a swatch of the commanded colour will not match the
+ceiling for pastels on this fixture; saturated colours match. It is correctable
+upstream of the device — attenuate blue before sending a pastel — if it ever
+matters.
 
 **Scene step.** Written as a single static step — red at 50%, white at 50%, mid
 temperature — reusing the stored scene id and restoring the stored scene
@@ -456,6 +476,26 @@ A phone at 60 fps times scene playback far better than a stopwatch.
 * Time fade onsets for the period; the snap into or out of white is a one-frame
   event and the sharpest mark available. The frame-to-frame change inside a
   fade also shows the firmware's update rate directly.
+
+## Measuring the emitters from RAW
+
+A phone's RAW capture is linear and free of per-shot white balance, which makes
+it usable for comparing the three primaries — though, being three-channel, it
+cannot replace the CD for telling phosphor white from RGB white.
+
+* **Fix the exposure.** Pro mode with manual shutter, ISO and white balance;
+  the captures above were all 1/1500 s at ISO 3200.
+* **Expect the core to clip anyway, and to lie about it.** Samsung's Expert RAW
+  replaces saturated pixels with a neutral at the clip level (4095 × the
+  as-shot neutral), so a clipped core reads *white* in the RAW data, not as a
+  blown channel. Measure the unclipped edge of the diffuser instead.
+* **Chromaticity** comes from the unclipped rim, converted with the file's own
+  `ColorMatrix1` and `CameraCalibration1`. **Relative brightness** comes from a
+  fixed annulus of ceiling around the fixture, excluding anything near clipping,
+  normalised by exposure time × ISO.
+* **The file format needs a current reader.** These are DNG 1.7 files — linear
+  (already demosaiced) and JPEG XL compressed. LibRaw 0.22, via `rawpy`, refuses
+  them; `tifffile` with `imagecodecs` decodes them.
 
 ## Notes for upstream
 
