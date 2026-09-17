@@ -455,6 +455,82 @@ for the length of a fade is unlikely to hold them together indefinitely, so the
 test step most probably rendered one half only. Which half is still unobserved. The id byte's meaning is also still unknown; reusing the stored
 one avoided finding out the hard way.
 
+## Correcting colour mode
+
+### How the firmware turns hue and saturation into drive
+
+Decomposing captures of yellow, cyan, magenta, orange, 50% red and the 0% white
+into the solo primaries gives the rule:
+
+```
+drive = normalise( HSV(h, s, 1) × (1, 1.25, 1.125) )     total ≈ 1.13 of one emitter at full
+```
+
+That is, a standard HSV conversion, green weighted ×1.25 and blue ×1.125, then
+scaled so the three channels together draw a little more than one channel's
+full drive. Fitted over six states, it predicts each measured drive ratio to
+within 0.010 rms. The 0% white, repeated in a second session at a different
+camera distance, matched the first to 0.4° in colour.
+
+Consequences: colour-mode brightness varies with hue (green, with the largest
+luminance share, is brightest), and no colour-mode setting ever lights more than
+about one channel's worth.
+
+### Inverting it
+
+With the primaries measured at full drive, as XYZ columns normalised so that
+equal full drive has Y = 1:
+
+```
+      red       green     blue
+X     0.5636    0.3379    0.2490
+Y     0.2704    0.5717    0.1579
+Z     0.0343    0.2043    1.4721
+```
+
+the setting to send for a target colour is:
+
+1. convert the target to XYZ (for an HA colour, via sRGB);
+2. solve `drive = P⁻¹ · XYZ` — any negative component means the target is
+   outside the fixture's gamut;
+3. divide by the firmware weights `(1, 1.25, 1.125)`;
+4. scale so the largest component is 1 and convert that RGB to hue and
+   saturation.
+
+### Checked on the fixture
+
+| target | send | target x, y | measured | error | uncorrected error |
+|---|---|---|---|---|---|
+| sRGB white (D65) | h 98.3, s 52.4 | 0.313, 0.329 | 0.310, 0.327 | 0.004 | 0.067 |
+| 4000 K white | h 63.6, s 77.9 | 0.380, 0.376 | 0.384, 0.380 | 0.005 | 0.143 |
+| sRGB pale pink (h 0, s 25) | h 40.1, s 64.0 | 0.366, 0.329 | 0.370, 0.335 | 0.007 | 0.075 |
+| sRGB sky blue (h 200, s 40) | h 156.3, s 67.8 | 0.251, 0.289 | 0.245, 0.283 | 0.008 | 0.040 |
+| sRGB mint (h 150, s 40) | h 127.0, s 84.6 | 0.282, 0.389 | 0.273, 0.378 | 0.015 | 0.107 |
+
+Errors fall 7–30×, most to within a few just-noticeable steps. Mint is the
+weakest: it sits near the gamut edge, in the region where the camera matrix is
+least certain. Corrected 4000 K from the RGB channels and white mode at 4000 K
+came out 0.009 apart — close enough that one capture, taken half a second after
+the switch between them, could not be assigned by colour alone.
+
+**What this validates.** The model and the check used the same camera, so the
+check proves the firmware behaves as modelled and the inversion lands where
+predicted in the camera's colour space. Absolute accuracy inherits the camera
+matrix, which has independent anchors only near white — its own 4000 K white
+balance read 2% low, and the white-mode endpoints measured 1951 K and 4514 K.
+Trust near-white results most and saturated greens least.
+
+**The eye cannot referee sequential states.** In a room lit only by the fixture,
+vision adapts to each state within seconds, and the corrected and uncorrected
+whites looked much alike. Judge against a second, fixed light source, or let the
+camera decide.
+
+**Not yet applied.** Nothing in HA sends corrected settings. The intended
+vehicle is a template light in front of the fixture, which would apply the
+inversion on the way out and report the colour asked for — so a dashboard
+swatch and the ceiling would finally agree. White and colour-temperature
+requests would pass straight to white mode, which is already calibrated.
+
 ## Reading the LEDs with a CD
 
 A CD's data side is a diffraction grating, which makes it a spectroscope good
@@ -628,6 +704,10 @@ impossible to find this profile by the name on the box.
 ## Still open
 
 * `mix_light_scene` (36) — find the app control that writes it
+* Apply the colour-mode correction in HA, and choose its target: sRGB (so
+  swatches match) or a warmer white point
+* Refit the colour model with the validation captures included, to tighten the
+  greens
 * DPs 108, 109 and 111 — what they control
 * `schedule` (209) and the "Sync with the Sun" circadian routine — untouched, so unreported
 * Whether a scene step with both halves set actually lights both. Two cheap
