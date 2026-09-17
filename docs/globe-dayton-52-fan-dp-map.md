@@ -246,6 +246,13 @@ impossible to find this profile by the name on the box.
 ## Still open
 
 * `mix_rgbcw` (51) and `mix_light_scene` (36) — find the app control that writes them
+* Whether colour mode already mixes implicitly: a desaturated colour could be
+  rendered by raising green and blue, or by bringing in the white channels in
+  proportion to `100% − saturation`. At 11% saturation the light stays in `hs`
+  mode rather than handing off to `color_temp`, which rules out a mode switch but
+  does not separate the other two. An eye comparison was inconclusive; a lux
+  reading of colour mode at 0% saturation against white mode at 100% should be
+  decisive, since RGB-synthesised white is far dimmer than the phosphor channels
 * `schedule` (209) and the "Sync with the Sun" circadian routine — untouched, so unreported
 * Fade-duration encoding in DP 31/32, byte `[4]`
 * Whether the firmware blends colour and white when both halves of a scene step are set
