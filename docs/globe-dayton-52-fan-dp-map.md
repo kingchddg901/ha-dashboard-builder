@@ -509,7 +509,34 @@ the setting to send for a target colour is:
 
 Errors fall 7–30×, most to within a few just-noticeable steps. Mint is the
 weakest: it sits near the gamut edge, in the region where the camera matrix is
-least certain. **Corrected RGB against white mode.** Held and recaptured at the same exposure:
+least certain.
+
+**The run.** All eight states were written from HA in one timed sequence on
+**2026-09-16**, local time (PDT, UTC−7), with each capture matched to its state
+afterwards by the DNG's `DateTimeOriginal`:
+
+| state | on at | held |
+|---|---|---|
+| lead-in — corrected screen white | 22:11:45.6 | 30.0 s |
+| 1 corrected screen white | 22:12:15.6 | 7.9 s |
+| 2 uncorrected white | 22:12:23.5 | 8.1 s |
+| 3 corrected 4000 K | 22:12:31.6 | 8.0 s |
+| 4 white mode 4000 K | 22:12:39.6 | 7.9 s |
+| 5 corrected pale pink | 22:12:47.5 | 8.0 s |
+| 6 uncorrected pale pink | 22:12:55.5 | 8.1 s |
+| 7 corrected sky blue | 22:13:03.6 | 8.0 s |
+| 8 corrected mint | 22:13:11.6 | 7.9 s |
+| restored — 3370 K, brightness 80 | 22:13:19.5 | — |
+
+93.9 s end to end. The three comparisons are adjacent pairs — 1 against 2, 5
+against 6, and 3 against 4 — so each pair is separated by about eight seconds
+rather than by a session, which is what makes the corrected and uncorrected
+figures comparable at one exposure. The lead-in holds state 1 for 30 s to get
+the camera set, so captures from it are usable as extra frames of that state.
+Holds land within ±0.1 s of 8 s because the sequence was written from HA on a
+timer rather than by hand.
+
+**Corrected RGB against white mode.** Held and recaptured at the same exposure:
 
 | | measured | x, y | from 4000 K |
 |---|---|---|---|
