@@ -1,0 +1,57 @@
+{#- Ceiling fan colour correction (Globe Dayton 52" / tuya_local ligency_fl15b1p_fanlight).
+    Model and measurements: ha-dashboard-builder docs/globe-dayton-52-fan-dp-map.md,
+    section "Correcting colour mode". Colours are HA hue/saturation, read as sRGB.
+
+    correct(h, s)  -> the [hue, sat] to SEND so the fixture emits the sRGB colour (h, s)
+    observe(h, s)  -> the sRGB [hue, sat] the fixture actually EMITS when set to (h, s)
+
+    Firmware rule: drive = normalise(HSV(h, s, 1) x GAIN); emitted XYZ = P . drive.  -#}
+{%- set GAIN = [1.0, 1.250, 1.125] -%}
+{%- set P    = [[0.563644,0.337857,0.248963],[0.270435,0.571661,0.157904],[0.034268,0.204274,1.472131]] -%}
+{%- set PINV = [[2.435037,-1.343470,-0.267703],[-1.181569,2.470908,-0.065212],[0.107273,-0.311592,0.694568]] -%}
+{%- set M    = [[0.412456,0.357576,0.180438],[0.212673,0.715152,0.072175],[0.019334,0.119192,0.950304]] -%}
+{%- set MINV = [[3.240455,-1.537139,-0.498532],[-0.969266,1.876011,0.041556],[0.055643,-0.204026,1.057225]] -%}
+
+{%- macro _hsv(h, s) -%}
+{%- set s = [[s / 100, 0] | max, 1] | min -%}
+{%- set hh = (h % 360) / 60 -%}{%- set i = hh | int -%}{%- set f = hh - i -%}
+{%- set p = 1 - s -%}{%- set q = 1 - s * f -%}{%- set t = 1 - s * (1 - f) -%}
+{{- [[1, t, p], [q, 1, p], [p, 1, t], [p, q, 1], [t, p, 1], [1, p, q]][i] -}}
+{%- endmacro -%}
+
+{%- macro _hs(rgb) -%}
+{%- set r, g, b = rgb -%}
+{%- set mx = [r, g, b] | max -%}{%- set mn = [r, g, b] | min -%}{%- set d = mx - mn -%}
+{%- if d <= 0 -%}{%- set hue = 0 -%}
+{%- elif mx == r -%}{%- set hue = 60 * (((g - b) / d) % 6) -%}
+{%- elif mx == g -%}{%- set hue = 60 * ((b - r) / d + 2) -%}
+{%- else -%}{%- set hue = 60 * ((r - g) / d + 4) -%}{%- endif -%}
+{%- set sat = (d / mx * 100) if mx > 0 else 0 -%}
+{{- [((hue | round(2)) % 360) | round(2), sat | round(2)] -}}
+{%- endmacro -%}
+
+{%- macro correct(h, s) -%}
+{%- set e = _hsv(h | float, s | float) | from_json -%}
+{%- set ns = namespace(lin=[]) -%}
+{%- for c in e -%}{%- set ns.lin = ns.lin + [(c / 12.92) if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4] -%}{%- endfor -%}
+{%- set L = ns.lin -%}
+{%- set X = [M[0][0]*L[0] + M[0][1]*L[1] + M[0][2]*L[2], M[1][0]*L[0] + M[1][1]*L[1] + M[1][2]*L[2], M[2][0]*L[0] + M[2][1]*L[1] + M[2][2]*L[2]] -%}
+{%- set D = [PINV[0][0]*X[0] + PINV[0][1]*X[1] + PINV[0][2]*X[2], PINV[1][0]*X[0] + PINV[1][1]*X[1] + PINV[1][2]*X[2], PINV[2][0]*X[0] + PINV[2][1]*X[1] + PINV[2][2]*X[2]] -%}
+{%- set R = [[D[0], 0] | max / GAIN[0], [D[1], 0] | max / GAIN[1], [D[2], 0] | max / GAIN[2]] -%}
+{%- set top = R | max -%}
+{%- if top <= 0 -%}{{- [0, 0] -}}{%- else -%}{{- _hs([R[0] / top, R[1] / top, R[2] / top]) -}}{%- endif -%}
+{%- endmacro -%}
+
+{%- macro observe(h, s) -%}
+{%- set e = _hsv(h | float, s | float) | from_json -%}
+{%- set W = [e[0] * GAIN[0], e[1] * GAIN[1], e[2] * GAIN[2]] -%}
+{%- set X = [P[0][0]*W[0] + P[0][1]*W[1] + P[0][2]*W[2], P[1][0]*W[0] + P[1][1]*W[1] + P[1][2]*W[2], P[2][0]*W[0] + P[2][1]*W[1] + P[2][2]*W[2]] -%}
+{%- set L = [MINV[0][0]*X[0] + MINV[0][1]*X[1] + MINV[0][2]*X[2], MINV[1][0]*X[0] + MINV[1][1]*X[1] + MINV[1][2]*X[2], MINV[2][0]*X[0] + MINV[2][1]*X[1] + MINV[2][2]*X[2]] -%}
+{%- set L = [[L[0], 0] | max, [L[1], 0] | max, [L[2], 0] | max] -%}
+{%- set top = L | max -%}
+{%- if top <= 0 -%}{{- [0, 0] -}}{%- else -%}
+{%- set ns = namespace(enc=[]) -%}
+{%- for c in L -%}{%- set c = c / top -%}{%- set ns.enc = ns.enc + [(12.92 * c) if c <= 0.0031308 else (1.055 * c ** (1 / 2.4) - 0.055)] -%}{%- endfor -%}
+{{- _hs(ns.enc) -}}
+{%- endif -%}
+{%- endmacro -%}

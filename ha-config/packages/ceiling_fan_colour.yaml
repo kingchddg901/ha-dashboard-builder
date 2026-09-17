@@ -1,0 +1,108 @@
+# =============================================================================
+# Ceiling Fan — calibrated colour light
+# -----------------------------------------------------------------------------
+# light.ceiling_fan_calibrated sits in front of light.ceiling_fan and corrects
+# colour. The fixture's own RGB mix renders pastels lavender; this light sends
+# the hue/saturation that makes the fixture emit the sRGB colour you asked for,
+# and reports the colour the fixture is actually emitting — including changes
+# made by the vendor app or voice, which bypass this light.
+#
+#   colour (hs, rgb, xy, colour names) -> corrected, via set_hs
+#   white (colour temperature)         -> passed through; white mode is already
+#                                         calibrated in the tuya_local profile
+#   brightness, effects, on/off        -> passed through
+#
+# The maths lives in custom_templates/ceiling_fan_colour.jinja. Model and
+# measurements: ha-dashboard-builder docs/globe-dayton-52-fan-dp-map.md.
+# Delete this file and that one to remove it; light.ceiling_fan is untouched.
+# =============================================================================
+
+template:
+  - light:
+      - name: "Ceiling Fan Calibrated"
+        unique_id: ceiling_fan_calibrated
+        icon: mdi:ceiling-fan-light
+        availability: "{{ states('light.ceiling_fan') not in ['unavailable', 'unknown'] }}"
+        state: "{{ is_state('light.ceiling_fan', 'on') }}"
+        level: "{{ state_attr('light.ceiling_fan', 'brightness') }}"
+        # Report white only while the fixture is in white mode, colour only while it
+        # is in colour mode: a template returning None leaves the colour mode alone.
+        temperature: >-
+          {%- set k = state_attr('light.ceiling_fan', 'color_temp_kelvin') -%}
+          {%- if state_attr('light.ceiling_fan', 'color_mode') == 'color_temp' and k -%}
+            {{ (1000000 / k) | round(0) | int }}
+          {%- else -%}None{%- endif -%}
+        min_mireds: "{{ (1000000 / (state_attr('light.ceiling_fan', 'max_color_temp_kelvin') | float(4570))) | round(0, 'ceil') | int }}"
+        max_mireds: "{{ (1000000 / (state_attr('light.ceiling_fan', 'min_color_temp_kelvin') | float(2000))) | round(0, 'floor') | int }}"
+        hs: >-
+          {%- from 'ceiling_fan_colour.jinja' import observe -%}
+          {%- set hs = state_attr('light.ceiling_fan', 'hs_color') -%}
+          {%- if state_attr('light.ceiling_fan', 'color_mode') == 'hs' and hs -%}
+            {{ observe(hs[0], hs[1]) }}
+          {%- else -%}None{%- endif -%}
+        effect_list: "{{ state_attr('light.ceiling_fan', 'effect_list') }}"
+        effect: "{{ state_attr('light.ceiling_fan', 'effect') }}"
+
+        turn_on:
+          - if: "{{ brightness is defined }}"
+            then:
+              - action: light.turn_on
+                target:
+                  entity_id: light.ceiling_fan
+                data:
+                  brightness: "{{ brightness }}"
+            else:
+              - action: light.turn_on
+                target:
+                  entity_id: light.ceiling_fan
+        turn_off:
+          - action: light.turn_off
+            target:
+              entity_id: light.ceiling_fan
+        set_level:
+          - action: light.turn_on
+            target:
+              entity_id: light.ceiling_fan
+            data:
+              brightness: "{{ brightness }}"
+        set_temperature:
+          - if: "{{ brightness is defined }}"
+            then:
+              - action: light.turn_on
+                target:
+                  entity_id: light.ceiling_fan
+                data:
+                  color_temp_kelvin: "{{ color_temp_kelvin }}"
+                  brightness: "{{ brightness }}"
+            else:
+              - action: light.turn_on
+                target:
+                  entity_id: light.ceiling_fan
+                data:
+                  color_temp_kelvin: "{{ color_temp_kelvin }}"
+        # HA passes `h` and `s` truncated to integers; use the `hs` tuple.
+        set_hs:
+          - variables:
+              sent: >-
+                {%- from 'ceiling_fan_colour.jinja' import correct -%}
+                {{ correct(hs[0], hs[1]) }}
+          - if: "{{ brightness is defined }}"
+            then:
+              - action: light.turn_on
+                target:
+                  entity_id: light.ceiling_fan
+                data:
+                  hs_color: "{{ sent }}"
+                  brightness: "{{ brightness }}"
+            else:
+              - action: light.turn_on
+                target:
+                  entity_id: light.ceiling_fan
+                data:
+                  hs_color: "{{ sent }}"
+        set_effect:
+          - action: light.turn_on
+            target:
+              entity_id: light.ceiling_fan
+            data:
+              effect: "{{ effect }}"

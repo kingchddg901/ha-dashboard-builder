@@ -539,11 +539,44 @@ vision adapts to each state within seconds, and the corrected and uncorrected
 whites looked much alike. Judge against a second, fixed light source, or let the
 camera decide.
 
-**Not yet applied.** Nothing in HA sends corrected settings. The intended
-vehicle is a template light in front of the fixture, which would apply the
-inversion on the way out and report the colour asked for — so a dashboard
-swatch and the ceiling would finally agree. White and colour-temperature
-requests would pass straight to white mode, which is already calibrated.
+### Applied in HA
+
+`light.ceiling_fan_calibrated` is a template light in front of the fixture
+([`ha-config/packages/ceiling_fan_colour.yaml`](../ha-config/packages/ceiling_fan_colour.yaml),
+with the maths in
+[`ha-config/custom_templates/ceiling_fan_colour.jinja`](../ha-config/custom_templates/ceiling_fan_colour.jinja)).
+The target is sRGB, so a colour requested in HA is the colour a dashboard swatch
+shows.
+
+* **Colour requests are corrected on the way out.** HA converts RGB, XY and
+  colour names to hue/saturation for a light that only speaks HS, so all of them
+  pass through `correct()`. HA hands `set_hs` its hue and saturation truncated to
+  integers as `h`/`s`; the light reads the float `hs` tuple instead.
+* **Colour is reported by running the model forward** on whatever the fixture is
+  actually set to, so the reported colour stays true when the vendor app or
+  voice control — which bypass HA — change the light. Colour is reported only
+  while the fixture is in colour mode and white only while it is in white mode:
+  a template light leaves its colour mode alone when a template returns `None`.
+* **White, brightness, effects and on/off pass straight through.** The
+  colour-temperature range is derived from the fixture's own limits, so it
+  follows the tuya_local profile. Template lights still work in mireds, and the
+  rounded range makes the top 4566 K rather than 4570 K.
+
+Checked end to end:
+
+| request | fixture received | light reports |
+|---|---|---|
+| sRGB 0, 25 at brightness 255 | 40, 64 | 359.9, 25.0 |
+| sRGB 150, 40 | 127, 85 | 149.9, 40.4 |
+| 3370 K at brightness 80 | DP 23 = 533, brightness 80 | 3367 K |
+
+The small residuals are the fixture rounding the corrected setting to whole
+numbers.
+
+Limits: colours outside the fixture's gamut are clamped, so a fully saturated
+sRGB green arrives at about 57% saturation; a running scene still reports its
+last colour; and `light.ceiling_fan` remains, uncorrected, for anything that
+still targets it.
 
 ## Reading the LEDs with a CD
 
@@ -725,8 +758,6 @@ impossible to find this profile by the name on the box.
 ## Still open
 
 * `mix_light_scene` (36) — find the app control that writes it
-* Apply the colour-mode correction in HA, and choose its target: sRGB (so
-  swatches match) or a warmer white point
 * Refit the colour model with the validation captures included, to tighten the
   greens
 * DPs 108, 109 and 111 — what they control
