@@ -1,0 +1,5282 @@
+{
+ "meta": {
+  "generated_by": "tools/mine-lcars-theme.py",
+  "defaults_from": "LCARS Transporter",
+  "themes": 24
+ },
+ "presets": {
+  "LCARS 25C": {
+   "roles": {
+    "ui-primary": {
+     "value": "#6d748c",
+     "source": "var(--lcars-primary-gray)",
+     "palette": "lcars-primary-gray"
+    },
+    "ui-primary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-secondary": {
+     "value": "#b6b6c1",
+     "source": "var(--lcars-medium-gray)",
+     "palette": "lcars-medium-gray"
+    },
+    "ui-secondary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-tertiary": {
+     "value": "#e7442a",
+     "source": "var(--lcars-alt-orange)",
+     "palette": "lcars-alt-orange"
+    },
+    "ui-tertiary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-quaternary": {
+     "value": "#6d748c",
+     "source": "var(--lcars-primary-gray)",
+     "palette": "lcars-primary-gray"
+    },
+    "ui-quaternary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-accent": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "ui-accent-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "background": {
+     "value": "#000000",
+     "source": "var(--lcars-black)",
+     "palette": "lcars-black"
+    },
+    "background-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-top": {
+     "value": "#2f3749",
+     "source": "var(--lcars-alt-dark-gray)",
+     "palette": "lcars-alt-dark-gray"
+    },
+    "card-top-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-mid": {
+     "value": "#6d748c",
+     "source": "var(--lcars-primary-gray)",
+     "palette": "lcars-primary-gray"
+    },
+    "card-mid-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-button": {
+     "value": "#b6b6c1",
+     "source": "var(--lcars-medium-gray)",
+     "palette": "lcars-medium-gray"
+    },
+    "card-button-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-bottom": {
+     "value": "#2f3749",
+     "source": "var(--lcars-alt-dark-gray)",
+     "palette": "lcars-alt-dark-gray"
+    },
+    "card-bottom-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "settings-card": {
+     "value": "#6e758d",
+     "source": "#6E758D",
+     "palette": null
+    },
+    "success": {
+     "value": "#2b9032",
+     "source": "var(--lcars-alt-green)",
+     "palette": "lcars-alt-green"
+    },
+    "warning": {
+     "value": "#ff6753",
+     "source": "var(--lcars-light-orange)",
+     "palette": "lcars-light-orange"
+    },
+    "error": {
+     "value": "#e7442a",
+     "source": "var(--lcars-alt-orange)",
+     "palette": "lcars-alt-orange"
+    }
+   },
+   "modes": {
+    "dark": {
+     "card-top-text": {
+      "value": "#d3d3d3",
+      "source": "var(--lcars-text-gray)",
+      "palette": "lcars-text-gray"
+     },
+     "card-bottom-text": {
+      "value": "#d3d3d3",
+      "source": "var(--lcars-text-gray)",
+      "palette": "lcars-text-gray"
+     }
+    }
+   },
+   "contrast": [
+    {
+     "text": "ui-primary-text",
+     "on": "ui-primary",
+     "ratio": 4.53,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-secondary-text",
+     "on": "ui-secondary",
+     "ratio": 10.45,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-tertiary-text",
+     "on": "ui-tertiary",
+     "ratio": 5.26,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-quaternary-text",
+     "on": "ui-quaternary",
+     "ratio": 4.53,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-accent-text",
+     "on": "ui-accent",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "background-text",
+     "on": "background",
+     "ratio": 21.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-top-text",
+     "on": "card-top",
+     "ratio": 11.91,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-mid-text",
+     "on": "card-mid",
+     "ratio": 4.53,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-button-text",
+     "on": "card-button",
+     "ratio": 10.45,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-bottom-text",
+     "on": "card-bottom",
+     "ratio": 11.91,
+     "verdict": "ok"
+    },
+    {
+     "text": "success",
+     "on": "background",
+     "ratio": 5.14,
+     "verdict": "ok"
+    },
+    {
+     "text": "warning",
+     "on": "background",
+     "ratio": 7.32,
+     "verdict": "ok"
+    },
+    {
+     "text": "error",
+     "on": "background",
+     "ratio": 5.26,
+     "verdict": "ok"
+    }
+   ]
+  },
+  "LCARS 25C (Blue Alert)": {
+   "roles": {
+    "ui-primary": {
+     "value": "#2266ff",
+     "source": "var(--lcars-alert-color)",
+     "palette": "lcars-text-blue"
+    },
+    "ui-primary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-secondary": {
+     "value": "#dfdfdf",
+     "source": "var(--lcars-alert-white)",
+     "palette": "lcars-silver"
+    },
+    "ui-secondary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-tertiary": {
+     "value": "#5588ee",
+     "source": "var(--lcars-steel-blue)",
+     "palette": "lcars-steel-blue"
+    },
+    "ui-tertiary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-quaternary": {
+     "value": "#2266ff",
+     "source": "var(--lcars-alert-color)",
+     "palette": "lcars-text-blue"
+    },
+    "ui-quaternary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-accent": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "ui-accent-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "background": {
+     "value": "#000000",
+     "source": "var(--lcars-black)",
+     "palette": "lcars-black"
+    },
+    "background-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-top": {
+     "value": "#2266ff",
+     "source": "var(--lcars-alert-color)",
+     "palette": "lcars-text-blue"
+    },
+    "card-top-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-mid": {
+     "value": "#2266ff",
+     "source": "var(--lcars-alert-color)",
+     "palette": "lcars-text-blue"
+    },
+    "card-mid-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-button": {
+     "value": "#2266ff",
+     "source": "var(--lcars-alert-color)",
+     "palette": "lcars-text-blue"
+    },
+    "card-button-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-bottom": {
+     "value": "#2266ff",
+     "source": "var(--lcars-alert-color)",
+     "palette": "lcars-text-blue"
+    },
+    "card-bottom-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "settings-card": {
+     "value": "#266aff",
+     "source": "#266AFF",
+     "palette": null
+    },
+    "success": {
+     "value": "#2b9032",
+     "source": "var(--lcars-alt-green)",
+     "palette": "lcars-alt-green"
+    },
+    "warning": {
+     "value": "#ffcc66",
+     "source": "var(--lcars-sunflower)",
+     "palette": "lcars-sunflower"
+    },
+    "error": {
+     "value": "#360000",
+     "source": "var(--lcars-dark-red)",
+     "palette": "lcars-dark-red"
+    }
+   },
+   "modes": {
+    "dark": {
+     "ui-primary-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     },
+     "ui-quaternary-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     },
+     "card-top-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     },
+     "card-mid-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     },
+     "card-button-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     },
+     "card-bottom-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     }
+    }
+   },
+   "contrast": [
+    {
+     "text": "ui-primary-text",
+     "on": "ui-primary",
+     "ratio": 4.76,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-secondary-text",
+     "on": "ui-secondary",
+     "ratio": 15.76,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-tertiary-text",
+     "on": "ui-tertiary",
+     "ratio": 6.14,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-quaternary-text",
+     "on": "ui-quaternary",
+     "ratio": 4.76,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-accent-text",
+     "on": "ui-accent",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "background-text",
+     "on": "background",
+     "ratio": 21.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-top-text",
+     "on": "card-top",
+     "ratio": 4.76,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-mid-text",
+     "on": "card-mid",
+     "ratio": 4.76,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-button-text",
+     "on": "card-button",
+     "ratio": 4.76,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-bottom-text",
+     "on": "card-bottom",
+     "ratio": 4.76,
+     "verdict": "ok"
+    },
+    {
+     "text": "success",
+     "on": "background",
+     "ratio": 5.14,
+     "verdict": "ok"
+    },
+    {
+     "text": "warning",
+     "on": "background",
+     "ratio": 14.08,
+     "verdict": "ok"
+    },
+    {
+     "text": "error",
+     "on": "background",
+     "ratio": 1.16,
+     "verdict": "FAIL"
+    }
+   ]
+  },
+  "LCARS 25C (Red Alert)": {
+   "roles": {
+    "ui-primary": {
+     "value": "#cc0000",
+     "source": "var(--lcars-alert-color)",
+     "palette": "lcars-crimson"
+    },
+    "ui-primary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-secondary": {
+     "value": "#dfdfdf",
+     "source": "var(--lcars-alert-white)",
+     "palette": "lcars-silver"
+    },
+    "ui-secondary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-tertiary": {
+     "value": "#8b0000",
+     "source": "var(--lcars-maroon)",
+     "palette": "lcars-maroon"
+    },
+    "ui-tertiary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-quaternary": {
+     "value": "#cc0000",
+     "source": "var(--lcars-alert-color)",
+     "palette": "lcars-crimson"
+    },
+    "ui-quaternary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-accent": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "ui-accent-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "background": {
+     "value": "#000000",
+     "source": "var(--lcars-black)",
+     "palette": "lcars-black"
+    },
+    "background-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-top": {
+     "value": "#cc0000",
+     "source": "var(--lcars-alert-color)",
+     "palette": "lcars-crimson"
+    },
+    "card-top-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-mid": {
+     "value": "#cc0000",
+     "source": "var(--lcars-alert-color)",
+     "palette": "lcars-crimson"
+    },
+    "card-mid-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-button": {
+     "value": "#cc0000",
+     "source": "var(--lcars-alert-color)",
+     "palette": "lcars-crimson"
+    },
+    "card-button-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-bottom": {
+     "value": "#cc0000",
+     "source": "var(--lcars-alert-color)",
+     "palette": "lcars-crimson"
+    },
+    "card-bottom-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "settings-card": {
+     "value": "#e12b1f",
+     "source": "#E12B1F",
+     "palette": null
+    },
+    "success": {
+     "value": "#2b9032",
+     "source": "var(--lcars-alt-green)",
+     "palette": "lcars-alt-green"
+    },
+    "warning": {
+     "value": "#ffcc66",
+     "source": "var(--lcars-sunflower)",
+     "palette": "lcars-sunflower"
+    },
+    "error": {
+     "value": "#360000",
+     "source": "var(--lcars-dark-red)",
+     "palette": "lcars-dark-red"
+    }
+   },
+   "modes": {
+    "dark": {
+     "ui-primary-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     },
+     "ui-quaternary-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     },
+     "card-top-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     },
+     "card-mid-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     },
+     "card-button-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     },
+     "card-bottom-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     }
+    }
+   },
+   "contrast": [
+    {
+     "text": "ui-primary-text",
+     "on": "ui-primary",
+     "ratio": 5.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-secondary-text",
+     "on": "ui-secondary",
+     "ratio": 15.76,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-tertiary-text",
+     "on": "ui-tertiary",
+     "ratio": 10.01,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-quaternary-text",
+     "on": "ui-quaternary",
+     "ratio": 5.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-accent-text",
+     "on": "ui-accent",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "background-text",
+     "on": "background",
+     "ratio": 21.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-top-text",
+     "on": "card-top",
+     "ratio": 5.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-mid-text",
+     "on": "card-mid",
+     "ratio": 5.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-button-text",
+     "on": "card-button",
+     "ratio": 5.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-bottom-text",
+     "on": "card-bottom",
+     "ratio": 5.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "success",
+     "on": "background",
+     "ratio": 5.14,
+     "verdict": "ok"
+    },
+    {
+     "text": "warning",
+     "on": "background",
+     "ratio": 14.08,
+     "verdict": "ok"
+    },
+    {
+     "text": "error",
+     "on": "background",
+     "ratio": 1.16,
+     "verdict": "FAIL"
+    }
+   ]
+  },
+  "LCARS 25C (Yellow Alert)": {
+   "roles": {
+    "ui-primary": {
+     "value": "#ffaa00",
+     "source": "var(--lcars-alert-color)",
+     "palette": "lcars-gold"
+    },
+    "ui-primary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-secondary": {
+     "value": "#dfdfdf",
+     "source": "var(--lcars-alert-white)",
+     "palette": "lcars-silver"
+    },
+    "ui-secondary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-tertiary": {
+     "value": "#ffcc66",
+     "source": "var(--lcars-sunflower)",
+     "palette": "lcars-sunflower"
+    },
+    "ui-tertiary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-quaternary": {
+     "value": "#ffaa00",
+     "source": "var(--lcars-alert-color)",
+     "palette": "lcars-gold"
+    },
+    "ui-quaternary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-accent": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "ui-accent-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "background": {
+     "value": "#000000",
+     "source": "var(--lcars-black)",
+     "palette": "lcars-black"
+    },
+    "background-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-top": {
+     "value": "#ffaa00",
+     "source": "var(--lcars-alert-color)",
+     "palette": "lcars-gold"
+    },
+    "card-top-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-mid": {
+     "value": "#ffaa00",
+     "source": "var(--lcars-alert-color)",
+     "palette": "lcars-gold"
+    },
+    "card-mid-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-button": {
+     "value": "#ffaa00",
+     "source": "var(--lcars-alert-color)",
+     "palette": "lcars-gold"
+    },
+    "card-button-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-bottom": {
+     "value": "#ffaa00",
+     "source": "var(--lcars-alert-color)",
+     "palette": "lcars-gold"
+    },
+    "card-bottom-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "settings-card": {
+     "value": "#b16100",
+     "source": "#B16100",
+     "palette": null
+    },
+    "success": {
+     "value": "#2b9032",
+     "source": "var(--lcars-alt-green)",
+     "palette": "lcars-alt-green"
+    },
+    "warning": {
+     "value": "#ffcc66",
+     "source": "var(--lcars-sunflower)",
+     "palette": "lcars-sunflower"
+    },
+    "error": {
+     "value": "#360000",
+     "source": "var(--lcars-dark-red)",
+     "palette": "lcars-dark-red"
+    }
+   },
+   "modes": {},
+   "contrast": [
+    {
+     "text": "ui-primary-text",
+     "on": "ui-primary",
+     "ratio": 11.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-secondary-text",
+     "on": "ui-secondary",
+     "ratio": 15.76,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-tertiary-text",
+     "on": "ui-tertiary",
+     "ratio": 14.08,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-quaternary-text",
+     "on": "ui-quaternary",
+     "ratio": 11.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-accent-text",
+     "on": "ui-accent",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "background-text",
+     "on": "background",
+     "ratio": 21.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-top-text",
+     "on": "card-top",
+     "ratio": 11.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-mid-text",
+     "on": "card-mid",
+     "ratio": 11.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-button-text",
+     "on": "card-button",
+     "ratio": 11.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-bottom-text",
+     "on": "card-bottom",
+     "ratio": 11.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "success",
+     "on": "background",
+     "ratio": 5.14,
+     "verdict": "ok"
+    },
+    {
+     "text": "warning",
+     "on": "background",
+     "ratio": 14.08,
+     "verdict": "ok"
+    },
+    {
+     "text": "error",
+     "on": "background",
+     "ratio": 1.16,
+     "verdict": "FAIL"
+    }
+   ]
+  },
+  "LCARS Breen": {
+   "roles": {
+    "ui-primary": {
+     "value": "#288855",
+     "source": "var(--lcars-green-primary)",
+     "palette": "lcars-green-primary"
+    },
+    "ui-primary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-secondary": {
+     "value": "#229a6c",
+     "source": "var(--lcars-green-secondary)",
+     "palette": "lcars-green-secondary"
+    },
+    "ui-secondary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-tertiary": {
+     "value": "#88de90",
+     "source": "var(--lcars-green-tertiary)",
+     "palette": "lcars-green-tertiary"
+    },
+    "ui-tertiary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-quaternary": {
+     "value": "#0f5616",
+     "source": "var(--lcars-green-middle)",
+     "palette": "lcars-green-middle"
+    },
+    "ui-quaternary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-accent": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "ui-accent-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "background": {
+     "value": "#000000",
+     "source": "var(--lcars-black)",
+     "palette": "lcars-black"
+    },
+    "background-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-top": {
+     "value": "#229a6c",
+     "source": "var(--lcars-green-secondary)",
+     "palette": "lcars-green-secondary"
+    },
+    "card-top-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-mid": {
+     "value": "#0f5616",
+     "source": "var(--lcars-green-middle)",
+     "palette": "lcars-green-middle"
+    },
+    "card-mid-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-button": {
+     "value": "#88de90",
+     "source": "var(--lcars-green-tertiary)",
+     "palette": "lcars-green-tertiary"
+    },
+    "card-button-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-bottom": {
+     "value": "#37bd76",
+     "source": "var(--lcars-green-footer)",
+     "palette": "lcars-green-footer"
+    },
+    "card-bottom-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "settings-card": {
+     "value": "#428343",
+     "source": "#428343",
+     "palette": null
+    },
+    "success": {
+     "value": "#33cc99",
+     "source": "var(--lcars-green)",
+     "palette": "lcars-green"
+    },
+    "warning": {
+     "value": "#ffcc66",
+     "source": "var(--lcars-sunflower)",
+     "palette": "lcars-sunflower"
+    },
+    "error": {
+     "value": "#360000",
+     "source": "var(--lcars-dark-red)",
+     "palette": "lcars-dark-red"
+    }
+   },
+   "modes": {},
+   "contrast": [
+    {
+     "text": "ui-primary-text",
+     "on": "ui-primary",
+     "ratio": 4.74,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-secondary-text",
+     "on": "ui-secondary",
+     "ratio": 5.91,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-tertiary-text",
+     "on": "ui-tertiary",
+     "ratio": 12.9,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-quaternary-text",
+     "on": "ui-quaternary",
+     "ratio": 8.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-accent-text",
+     "on": "ui-accent",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "background-text",
+     "on": "background",
+     "ratio": 21.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-top-text",
+     "on": "card-top",
+     "ratio": 5.91,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-mid-text",
+     "on": "card-mid",
+     "ratio": 8.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-button-text",
+     "on": "card-button",
+     "ratio": 12.9,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-bottom-text",
+     "on": "card-bottom",
+     "ratio": 8.7,
+     "verdict": "ok"
+    },
+    {
+     "text": "success",
+     "on": "background",
+     "ratio": 10.24,
+     "verdict": "ok"
+    },
+    {
+     "text": "warning",
+     "on": "background",
+     "ratio": 14.08,
+     "verdict": "ok"
+    },
+    {
+     "text": "error",
+     "on": "background",
+     "ratio": 1.16,
+     "verdict": "FAIL"
+    }
+   ]
+  },
+  "LCARS Cardassia": {
+   "roles": {
+    "ui-primary": {
+     "value": "#288855",
+     "source": "var(--lcars-green-primary)",
+     "palette": "lcars-green-primary"
+    },
+    "ui-primary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-secondary": {
+     "value": "#996699",
+     "source": "var(--lcars-lavender-rose)",
+     "palette": "lcars-lavender-rose"
+    },
+    "ui-secondary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-tertiary": {
+     "value": "#88ffff",
+     "source": "var(--lcars-aqua)",
+     "palette": "lcars-aqua"
+    },
+    "ui-tertiary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-quaternary": {
+     "value": "#4f1a23",
+     "source": "var(--lcars-cardassia-maroon)",
+     "palette": "lcars-cardassia-maroon"
+    },
+    "ui-quaternary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-accent": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "ui-accent-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "background": {
+     "value": "#000000",
+     "source": "var(--lcars-black)",
+     "palette": "lcars-black"
+    },
+    "background-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-top": {
+     "value": "#66ccff",
+     "source": "var(--lcars-sky-blue)",
+     "palette": "lcars-sky-blue"
+    },
+    "card-top-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-mid": {
+     "value": "#4f1a23",
+     "source": "var(--lcars-cardassia-maroon)",
+     "palette": "lcars-cardassia-maroon"
+    },
+    "card-mid-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-button": {
+     "value": "#4f1a23",
+     "source": "var(--lcars-cardassia-maroon)",
+     "palette": "lcars-cardassia-maroon"
+    },
+    "card-button-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-bottom": {
+     "value": "#663366",
+     "source": "var(--lcars-eggplant)",
+     "palette": "lcars-eggplant"
+    },
+    "card-bottom-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "settings-card": {
+     "value": "#a2646b",
+     "source": "#A2646B",
+     "palette": null
+    },
+    "success": {
+     "value": "#33cc99",
+     "source": "var(--lcars-green)",
+     "palette": "lcars-green"
+    },
+    "warning": {
+     "value": "#ffcc66",
+     "source": "var(--lcars-sunflower)",
+     "palette": "lcars-sunflower"
+    },
+    "error": {
+     "value": "#360000",
+     "source": "var(--lcars-dark-red)",
+     "palette": "lcars-dark-red"
+    }
+   },
+   "modes": {
+    "dark": {
+     "ui-quaternary-text": {
+      "value": "#d3d3d3",
+      "source": "var(--lcars-text-gray)",
+      "palette": "lcars-text-gray"
+     },
+     "card-mid-text": {
+      "value": "#d3d3d3",
+      "source": "var(--lcars-text-gray)",
+      "palette": "lcars-text-gray"
+     },
+     "card-button-text": {
+      "value": "#d3d3d3",
+      "source": "var(--lcars-text-gray)",
+      "palette": "lcars-text-gray"
+     }
+    }
+   },
+   "contrast": [
+    {
+     "text": "ui-primary-text",
+     "on": "ui-primary",
+     "ratio": 4.74,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-secondary-text",
+     "on": "ui-secondary",
+     "ratio": 4.71,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-tertiary-text",
+     "on": "ui-tertiary",
+     "ratio": 17.79,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-quaternary-text",
+     "on": "ui-quaternary",
+     "ratio": 13.96,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-accent-text",
+     "on": "ui-accent",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "background-text",
+     "on": "background",
+     "ratio": 21.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-top-text",
+     "on": "card-top",
+     "ratio": 11.65,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-mid-text",
+     "on": "card-mid",
+     "ratio": 13.96,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-button-text",
+     "on": "card-button",
+     "ratio": 13.96,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-bottom-text",
+     "on": "card-bottom",
+     "ratio": 9.42,
+     "verdict": "ok"
+    },
+    {
+     "text": "success",
+     "on": "background",
+     "ratio": 10.24,
+     "verdict": "ok"
+    },
+    {
+     "text": "warning",
+     "on": "background",
+     "ratio": 14.08,
+     "verdict": "ok"
+    },
+    {
+     "text": "error",
+     "on": "background",
+     "ratio": 1.16,
+     "verdict": "FAIL"
+    }
+   ]
+  },
+  "LCARS Classic": {
+   "roles": {
+    "ui-primary": {
+     "value": "#ffe399",
+     "source": "var(--lcars-khaki)",
+     "palette": "lcars-khaki"
+    },
+    "ui-primary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-secondary": {
+     "value": "#ffe399",
+     "source": "var(--lcars-khaki)",
+     "palette": "lcars-khaki"
+    },
+    "ui-secondary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-tertiary": {
+     "value": "#ff2200",
+     "source": "var(--lcars-mars)",
+     "palette": "lcars-mars"
+    },
+    "ui-tertiary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-quaternary": {
+     "value": "#666688",
+     "source": "var(--lcars-gray)",
+     "palette": "lcars-gray"
+    },
+    "ui-quaternary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-accent": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "ui-accent-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "background": {
+     "value": "#000000",
+     "source": "var(--lcars-black)",
+     "palette": "lcars-black"
+    },
+    "background-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-top": {
+     "value": "#5588ff",
+     "source": "var(--lcars-cool)",
+     "palette": "lcars-cool"
+    },
+    "card-top-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-mid": {
+     "value": "#88ccff",
+     "source": "var(--lcars-ice)",
+     "palette": "lcars-ice"
+    },
+    "card-mid-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-button": {
+     "value": "#88ccff",
+     "source": "var(--lcars-ice)",
+     "palette": "lcars-ice"
+    },
+    "card-button-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-bottom": {
+     "value": "#88ccff",
+     "source": "var(--lcars-ice)",
+     "palette": "lcars-ice"
+    },
+    "card-bottom-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "settings-card": {
+     "value": "#727295",
+     "source": "#727295",
+     "palette": null
+    },
+    "success": {
+     "value": "#33cc99",
+     "source": "var(--lcars-green)",
+     "palette": "lcars-green"
+    },
+    "warning": {
+     "value": "#ffcc66",
+     "source": "var(--lcars-sunflower)",
+     "palette": "lcars-sunflower"
+    },
+    "error": {
+     "value": "#360000",
+     "source": "var(--lcars-dark-red)",
+     "palette": "lcars-dark-red"
+    }
+   },
+   "modes": {
+    "dark": {
+     "ui-quaternary-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     }
+    }
+   },
+   "contrast": [
+    {
+     "text": "ui-primary-text",
+     "on": "ui-primary",
+     "ratio": 16.7,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-secondary-text",
+     "on": "ui-secondary",
+     "ratio": 16.7,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-tertiary-text",
+     "on": "ui-tertiary",
+     "ratio": 5.48,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-quaternary-text",
+     "on": "ui-quaternary",
+     "ratio": 5.5,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-accent-text",
+     "on": "ui-accent",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "background-text",
+     "on": "background",
+     "ratio": 21.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-top-text",
+     "on": "card-top",
+     "ratio": 6.35,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-mid-text",
+     "on": "card-mid",
+     "ratio": 12.13,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-button-text",
+     "on": "card-button",
+     "ratio": 12.13,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-bottom-text",
+     "on": "card-bottom",
+     "ratio": 12.13,
+     "verdict": "ok"
+    },
+    {
+     "text": "success",
+     "on": "background",
+     "ratio": 10.24,
+     "verdict": "ok"
+    },
+    {
+     "text": "warning",
+     "on": "background",
+     "ratio": 14.08,
+     "verdict": "ok"
+    },
+    {
+     "text": "error",
+     "on": "background",
+     "ratio": 1.16,
+     "verdict": "FAIL"
+    }
+   ]
+  },
+  "LCARS Default": {
+   "roles": {
+    "ui-primary": {
+     "value": "#ffbbaa",
+     "source": "var(--lcars-almond-creme)",
+     "palette": "lcars-almond-creme"
+    },
+    "ui-primary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-secondary": {
+     "value": "#cc88ff",
+     "source": "var(--lcars-african-violet)",
+     "palette": "lcars-african-violet"
+    },
+    "ui-secondary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-tertiary": {
+     "value": "#dd4444",
+     "source": "var(--lcars-red)",
+     "palette": "lcars-red"
+    },
+    "ui-tertiary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-quaternary": {
+     "value": "#666688",
+     "source": "var(--lcars-gray)",
+     "palette": "lcars-gray"
+    },
+    "ui-quaternary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-accent": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "ui-accent-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "background": {
+     "value": "#000000",
+     "source": "var(--lcars-black)",
+     "palette": "lcars-black"
+    },
+    "background-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-top": {
+     "value": "#7788ff",
+     "source": "var(--lcars-bluey)",
+     "palette": "lcars-bluey"
+    },
+    "card-top-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-mid": {
+     "value": "#dd4444",
+     "source": "var(--lcars-red)",
+     "palette": "lcars-red"
+    },
+    "card-mid-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-button": {
+     "value": "#dd4444",
+     "source": "var(--lcars-red)",
+     "palette": "lcars-red"
+    },
+    "card-button-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-bottom": {
+     "value": "#666688",
+     "source": "var(--lcars-gray)",
+     "palette": "lcars-gray"
+    },
+    "card-bottom-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "settings-card": {
+     "value": "#727295",
+     "source": "#727295",
+     "palette": null
+    },
+    "success": {
+     "value": "#33cc99",
+     "source": "var(--lcars-green)",
+     "palette": "lcars-green"
+    },
+    "warning": {
+     "value": "#ffcc66",
+     "source": "var(--lcars-sunflower)",
+     "palette": "lcars-sunflower"
+    },
+    "error": {
+     "value": "#360000",
+     "source": "var(--lcars-dark-red)",
+     "palette": "lcars-dark-red"
+    }
+   },
+   "modes": {
+    "dark": {
+     "ui-quaternary-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     },
+     "card-bottom-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     }
+    }
+   },
+   "contrast": [
+    {
+     "text": "ui-primary-text",
+     "on": "ui-primary",
+     "ratio": 12.94,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-secondary-text",
+     "on": "ui-secondary",
+     "ratio": 8.53,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-tertiary-text",
+     "on": "ui-tertiary",
+     "ratio": 4.98,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-quaternary-text",
+     "on": "ui-quaternary",
+     "ratio": 5.5,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-accent-text",
+     "on": "ui-accent",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "background-text",
+     "on": "background",
+     "ratio": 21.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-top-text",
+     "on": "card-top",
+     "ratio": 6.75,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-mid-text",
+     "on": "card-mid",
+     "ratio": 4.98,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-button-text",
+     "on": "card-button",
+     "ratio": 4.98,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-bottom-text",
+     "on": "card-bottom",
+     "ratio": 5.5,
+     "verdict": "ok"
+    },
+    {
+     "text": "success",
+     "on": "background",
+     "ratio": 10.24,
+     "verdict": "ok"
+    },
+    {
+     "text": "warning",
+     "on": "background",
+     "ratio": 14.08,
+     "verdict": "ok"
+    },
+    {
+     "text": "error",
+     "on": "background",
+     "ratio": 1.16,
+     "verdict": "FAIL"
+    }
+   ]
+  },
+  "LCARS Kronos": {
+   "roles": {
+    "ui-primary": {
+     "value": "#ff2200",
+     "source": "var(--lcars-mars)",
+     "palette": "lcars-mars"
+    },
+    "ui-primary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-secondary": {
+     "value": "#ffaa00",
+     "source": "var(--lcars-gold)",
+     "palette": "lcars-gold"
+    },
+    "ui-secondary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-tertiary": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "ui-tertiary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-quaternary": {
+     "value": "#930a00",
+     "source": "var(--lcars-deep-maroon)",
+     "palette": "lcars-deep-maroon"
+    },
+    "ui-quaternary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-accent": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "ui-accent-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "background": {
+     "value": "#000000",
+     "source": "var(--lcars-black)",
+     "palette": "lcars-black"
+    },
+    "background-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-top": {
+     "value": "#ff2200",
+     "source": "var(--lcars-mars)",
+     "palette": "lcars-mars"
+    },
+    "card-top-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-mid": {
+     "value": "#ff4400",
+     "source": "var(--lcars-october-sunset)",
+     "palette": "lcars-october-sunset"
+    },
+    "card-mid-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-button": {
+     "value": "#ff4400",
+     "source": "var(--lcars-october-sunset)",
+     "palette": "lcars-october-sunset"
+    },
+    "card-button-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-bottom": {
+     "value": "#ff8866",
+     "source": "var(--lcars-peach)",
+     "palette": "lcars-peach"
+    },
+    "card-bottom-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "settings-card": {
+     "value": "#cb4a39",
+     "source": "#CB4A39",
+     "palette": null
+    },
+    "success": {
+     "value": "#33cc99",
+     "source": "var(--lcars-green)",
+     "palette": "lcars-green"
+    },
+    "warning": {
+     "value": "#ffcc66",
+     "source": "var(--lcars-sunflower)",
+     "palette": "lcars-sunflower"
+    },
+    "error": {
+     "value": "#360000",
+     "source": "var(--lcars-dark-red)",
+     "palette": "lcars-dark-red"
+    }
+   },
+   "modes": {},
+   "contrast": [
+    {
+     "text": "ui-primary-text",
+     "on": "ui-primary",
+     "ratio": 5.48,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-secondary-text",
+     "on": "ui-secondary",
+     "ratio": 11.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-tertiary-text",
+     "on": "ui-tertiary",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-quaternary-text",
+     "on": "ui-quaternary",
+     "ratio": 9.19,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-accent-text",
+     "on": "ui-accent",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "background-text",
+     "on": "background",
+     "ratio": 21.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-top-text",
+     "on": "card-top",
+     "ratio": 5.48,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-mid-text",
+     "on": "card-mid",
+     "ratio": 6.08,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-button-text",
+     "on": "card-button",
+     "ratio": 6.08,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-bottom-text",
+     "on": "card-bottom",
+     "ratio": 8.97,
+     "verdict": "ok"
+    },
+    {
+     "text": "success",
+     "on": "background",
+     "ratio": 10.24,
+     "verdict": "ok"
+    },
+    {
+     "text": "warning",
+     "on": "background",
+     "ratio": 14.08,
+     "verdict": "ok"
+    },
+    {
+     "text": "error",
+     "on": "background",
+     "ratio": 1.16,
+     "verdict": "FAIL"
+    }
+   ]
+  },
+  "LCARS Picard [LCARdS Blue Accent]": {
+   "roles": {
+    "ui-primary": {
+     "value": "#9ea5ba",
+     "source": "var(--lcards-gray-medium-light)",
+     "palette": "lcards-gray-medium-light"
+    },
+    "ui-primary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-secondary": {
+     "value": "#6d748c",
+     "source": "var(--lcards-gray)",
+     "palette": "lcards-gray"
+    },
+    "ui-secondary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-tertiary": {
+     "value": "#37a6d1",
+     "source": "var(--lcards-blue)",
+     "palette": "lcards-blue"
+    },
+    "ui-tertiary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-quaternary": {
+     "value": "#6d748c",
+     "source": "var(--lcards-gray)",
+     "palette": "lcards-gray"
+    },
+    "ui-quaternary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-accent": {
+     "value": "#37a6d1",
+     "source": "var(--lcards-blue)",
+     "palette": "lcards-blue"
+    },
+    "ui-accent-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "background": {
+     "value": "#000000",
+     "source": "var(--lcars-black)",
+     "palette": "lcars-black"
+    },
+    "background-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-top": {
+     "value": "#52596e",
+     "source": "var(--lcards-gray-medium-dark)",
+     "palette": "lcards-gray-medium-dark"
+    },
+    "card-top-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-mid": {
+     "value": "#37a6d1",
+     "source": "var(--lcards-blue)",
+     "palette": "lcards-blue"
+    },
+    "card-mid-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-button": {
+     "value": "#37a6d1",
+     "source": "var(--lcards-blue)",
+     "palette": "lcards-blue"
+    },
+    "card-button-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-bottom": {
+     "value": "#2f3749",
+     "source": "var(--lcards-gray-dark)",
+     "palette": "lcards-gray-dark"
+    },
+    "card-bottom-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "settings-card": {
+     "value": "#5077af",
+     "source": "#5077AF",
+     "palette": null
+    },
+    "success": {
+     "value": "#33cc99",
+     "source": "var(--lcars-green)",
+     "palette": "lcars-green"
+    },
+    "warning": {
+     "value": "#ffcc66",
+     "source": "var(--lcars-sunflower)",
+     "palette": "lcars-sunflower"
+    },
+    "error": {
+     "value": "#360000",
+     "source": "var(--lcars-dark-red)",
+     "palette": "lcars-dark-red"
+    }
+   },
+   "modes": {
+    "light": {
+     "ui-secondary": {
+      "value": "#d2d5df",
+      "source": "var(--lcards-gray-light)",
+      "palette": "lcards-gray-light"
+     },
+     "ui-quaternary": {
+      "value": "#52596e",
+      "source": "var(--lcards-gray-medium-dark)",
+      "palette": "lcards-gray-medium-dark"
+     },
+     "success": {
+      "value": "#266239",
+      "source": "var(--lcards-green)",
+      "palette": "lcards-green"
+     },
+     "warning": {
+      "value": "#ff8470",
+      "source": "var(--lcards-orange-medium-light)",
+      "palette": "lcards-orange-medium-light"
+     },
+     "error": {
+      "value": "#ff6753",
+      "source": "var(--lcards-orange)",
+      "palette": "lcards-orange"
+     }
+    },
+    "dark": {
+     "ui-primary": {
+      "value": "#6d748c",
+      "source": "var(--lcards-gray)",
+      "palette": "lcards-gray"
+     },
+     "ui-secondary": {
+      "value": "#9ea5ba",
+      "source": "var(--lcards-gray-medium-light)",
+      "palette": "lcards-gray-medium-light"
+     },
+     "ui-quaternary": {
+      "value": "#2f3749",
+      "source": "var(--lcards-gray-dark)",
+      "palette": "lcards-gray-dark"
+     },
+     "ui-quaternary-text": {
+      "value": "#d3d3d3",
+      "source": "var(--lcars-text-gray)",
+      "palette": "lcars-text-gray"
+     },
+     "card-top-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     },
+     "card-bottom-text": {
+      "value": "#d3d3d3",
+      "source": "var(--lcars-text-gray)",
+      "palette": "lcars-text-gray"
+     },
+     "success": {
+      "value": "#266239",
+      "source": "var(--lcards-green)",
+      "palette": "lcards-green"
+     },
+     "warning": {
+      "value": "#ff6753",
+      "source": "var(--lcards-orange)",
+      "palette": "lcards-orange"
+     },
+     "error": {
+      "value": "#ef1d10",
+      "source": "var(--lcards-orange-dark)",
+      "palette": "lcards-orange-dark"
+     }
+    }
+   },
+   "contrast": [
+    {
+     "text": "ui-primary-text",
+     "on": "ui-primary",
+     "ratio": 8.54,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-secondary-text",
+     "on": "ui-secondary",
+     "ratio": 4.53,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-tertiary-text",
+     "on": "ui-tertiary",
+     "ratio": 7.54,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-quaternary-text",
+     "on": "ui-quaternary",
+     "ratio": 4.64,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-accent-text",
+     "on": "ui-accent",
+     "ratio": 2.79,
+     "verdict": "FAIL"
+    },
+    {
+     "text": "background-text",
+     "on": "background",
+     "ratio": 21.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-top-text",
+     "on": "card-top",
+     "ratio": 6.97,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-mid-text",
+     "on": "card-mid",
+     "ratio": 7.54,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-button-text",
+     "on": "card-button",
+     "ratio": 7.54,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-bottom-text",
+     "on": "card-bottom",
+     "ratio": 11.91,
+     "verdict": "ok"
+    },
+    {
+     "text": "success",
+     "on": "background",
+     "ratio": 10.24,
+     "verdict": "ok"
+    },
+    {
+     "text": "warning",
+     "on": "background",
+     "ratio": 14.08,
+     "verdict": "ok"
+    },
+    {
+     "text": "error",
+     "on": "background",
+     "ratio": 1.16,
+     "verdict": "FAIL"
+    }
+   ]
+  },
+  "LCARS Picard [LCARdS Red Accent]": {
+   "roles": {
+    "ui-primary": {
+     "value": "#9ea5ba",
+     "source": "var(--lcards-gray-medium-light)",
+     "palette": "lcards-gray-medium-light"
+    },
+    "ui-primary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-secondary": {
+     "value": "#6d748c",
+     "source": "var(--lcards-gray)",
+     "palette": "lcards-gray"
+    },
+    "ui-secondary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-tertiary": {
+     "value": "#ff6753",
+     "source": "var(--lcards-orange)",
+     "palette": "lcards-orange"
+    },
+    "ui-tertiary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-quaternary": {
+     "value": "#6d748c",
+     "source": "var(--lcards-gray)",
+     "palette": "lcards-gray"
+    },
+    "ui-quaternary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-accent": {
+     "value": "#e7442a",
+     "source": "var(--lcards-orange-medium-dark)",
+     "palette": "lcards-orange-medium-dark"
+    },
+    "ui-accent-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "background": {
+     "value": "#000000",
+     "source": "var(--lcars-black)",
+     "palette": "lcars-black"
+    },
+    "background-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-top": {
+     "value": "#52596e",
+     "source": "var(--lcards-gray-medium-dark)",
+     "palette": "lcards-gray-medium-dark"
+    },
+    "card-top-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-mid": {
+     "value": "#ff6753",
+     "source": "var(--lcards-orange)",
+     "palette": "lcards-orange"
+    },
+    "card-mid-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-button": {
+     "value": "#ff6753",
+     "source": "var(--lcards-orange)",
+     "palette": "lcards-orange"
+    },
+    "card-button-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-bottom": {
+     "value": "#2f3749",
+     "source": "var(--lcards-gray-dark)",
+     "palette": "lcards-gray-dark"
+    },
+    "card-bottom-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "settings-card": {
+     "value": "#6e758d",
+     "source": "#6E758D",
+     "palette": null
+    },
+    "success": {
+     "value": "#33cc99",
+     "source": "var(--lcars-green)",
+     "palette": "lcars-green"
+    },
+    "warning": {
+     "value": "#ffcc66",
+     "source": "var(--lcars-sunflower)",
+     "palette": "lcars-sunflower"
+    },
+    "error": {
+     "value": "#360000",
+     "source": "var(--lcars-dark-red)",
+     "palette": "lcars-dark-red"
+    }
+   },
+   "modes": {
+    "light": {
+     "ui-secondary": {
+      "value": "#d2d5df",
+      "source": "var(--lcards-gray-light)",
+      "palette": "lcards-gray-light"
+     },
+     "ui-quaternary": {
+      "value": "#52596e",
+      "source": "var(--lcards-gray-medium-dark)",
+      "palette": "lcards-gray-medium-dark"
+     },
+     "success": {
+      "value": "#266239",
+      "source": "var(--lcards-green)",
+      "palette": "lcards-green"
+     },
+     "warning": {
+      "value": "#ff8470",
+      "source": "var(--lcards-orange-medium-light)",
+      "palette": "lcards-orange-medium-light"
+     },
+     "error": {
+      "value": "#ff6753",
+      "source": "var(--lcards-orange)",
+      "palette": "lcards-orange"
+     }
+    },
+    "dark": {
+     "ui-primary": {
+      "value": "#6d748c",
+      "source": "var(--lcards-gray)",
+      "palette": "lcards-gray"
+     },
+     "ui-secondary": {
+      "value": "#9ea5ba",
+      "source": "var(--lcards-gray-medium-light)",
+      "palette": "lcards-gray-medium-light"
+     },
+     "ui-tertiary": {
+      "value": "#e7442a",
+      "source": "var(--lcards-orange-medium-dark)",
+      "palette": "lcards-orange-medium-dark"
+     },
+     "ui-quaternary": {
+      "value": "#2f3749",
+      "source": "var(--lcards-gray-dark)",
+      "palette": "lcards-gray-dark"
+     },
+     "ui-quaternary-text": {
+      "value": "#d3d3d3",
+      "source": "var(--lcars-text-gray)",
+      "palette": "lcars-text-gray"
+     },
+     "card-top-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     },
+     "card-bottom-text": {
+      "value": "#d3d3d3",
+      "source": "var(--lcars-text-gray)",
+      "palette": "lcars-text-gray"
+     },
+     "success": {
+      "value": "#266239",
+      "source": "var(--lcards-green)",
+      "palette": "lcards-green"
+     },
+     "warning": {
+      "value": "#ff6753",
+      "source": "var(--lcards-orange)",
+      "palette": "lcards-orange"
+     },
+     "error": {
+      "value": "#ef1d10",
+      "source": "var(--lcards-orange-dark)",
+      "palette": "lcards-orange-dark"
+     }
+    }
+   },
+   "contrast": [
+    {
+     "text": "ui-primary-text",
+     "on": "ui-primary",
+     "ratio": 8.54,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-secondary-text",
+     "on": "ui-secondary",
+     "ratio": 4.53,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-tertiary-text",
+     "on": "ui-tertiary",
+     "ratio": 7.32,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-quaternary-text",
+     "on": "ui-quaternary",
+     "ratio": 4.64,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-accent-text",
+     "on": "ui-accent",
+     "ratio": 5.26,
+     "verdict": "ok"
+    },
+    {
+     "text": "background-text",
+     "on": "background",
+     "ratio": 21.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-top-text",
+     "on": "card-top",
+     "ratio": 6.97,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-mid-text",
+     "on": "card-mid",
+     "ratio": 7.32,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-button-text",
+     "on": "card-button",
+     "ratio": 7.32,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-bottom-text",
+     "on": "card-bottom",
+     "ratio": 11.91,
+     "verdict": "ok"
+    },
+    {
+     "text": "success",
+     "on": "background",
+     "ratio": 10.24,
+     "verdict": "ok"
+    },
+    {
+     "text": "warning",
+     "on": "background",
+     "ratio": 14.08,
+     "verdict": "ok"
+    },
+    {
+     "text": "error",
+     "on": "background",
+     "ratio": 1.16,
+     "verdict": "FAIL"
+    }
+   ]
+  },
+  "LCARS Lower Decks I": {
+   "roles": {
+    "ui-primary": {
+     "value": "#ffaa00",
+     "source": "var(--lcars-gold)",
+     "palette": "lcars-gold"
+    },
+    "ui-primary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-secondary": {
+     "value": "#ffeecc",
+     "source": "var(--lcars-butter)",
+     "palette": "lcars-butter"
+    },
+    "ui-secondary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-tertiary": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "ui-tertiary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-quaternary": {
+     "value": "#91550b",
+     "source": "var(--lcars-darkpumpkin)",
+     "palette": "lcars-darkpumpkin"
+    },
+    "ui-quaternary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-accent": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "ui-accent-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "background": {
+     "value": "#000000",
+     "source": "var(--lcars-black)",
+     "palette": "lcars-black"
+    },
+    "background-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-top": {
+     "value": "#ff4400",
+     "source": "var(--lcars-october-sunset)",
+     "palette": "lcars-october-sunset"
+    },
+    "card-top-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-mid": {
+     "value": "#ffaa44",
+     "source": "var(--lcars-harvestgold)",
+     "palette": "lcars-harvestgold"
+    },
+    "card-mid-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-button": {
+     "value": "#ffaa44",
+     "source": "var(--lcars-harvestgold)",
+     "palette": "lcars-harvestgold"
+    },
+    "card-button-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-bottom": {
+     "value": "#ffcc99",
+     "source": "var(--lcars-honey)",
+     "palette": "lcars-honey"
+    },
+    "card-bottom-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "settings-card": {
+     "value": "#a56726",
+     "source": "#A56726",
+     "palette": null
+    },
+    "success": {
+     "value": "#33cc99",
+     "source": "var(--lcars-green)",
+     "palette": "lcars-green"
+    },
+    "warning": {
+     "value": "#ffcc66",
+     "source": "var(--lcars-sunflower)",
+     "palette": "lcars-sunflower"
+    },
+    "error": {
+     "value": "#360000",
+     "source": "var(--lcars-dark-red)",
+     "palette": "lcars-dark-red"
+    }
+   },
+   "modes": {
+    "dark": {
+     "ui-quaternary-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     }
+    }
+   },
+   "contrast": [
+    {
+     "text": "ui-primary-text",
+     "on": "ui-primary",
+     "ratio": 11.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-secondary-text",
+     "on": "ui-secondary",
+     "ratio": 18.35,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-tertiary-text",
+     "on": "ui-tertiary",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-quaternary-text",
+     "on": "ui-quaternary",
+     "ratio": 5.99,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-accent-text",
+     "on": "ui-accent",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "background-text",
+     "on": "background",
+     "ratio": 21.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-top-text",
+     "on": "card-top",
+     "ratio": 6.08,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-mid-text",
+     "on": "card-mid",
+     "ratio": 11.09,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-button-text",
+     "on": "card-button",
+     "ratio": 11.09,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-bottom-text",
+     "on": "card-bottom",
+     "ratio": 14.35,
+     "verdict": "ok"
+    },
+    {
+     "text": "success",
+     "on": "background",
+     "ratio": 10.24,
+     "verdict": "ok"
+    },
+    {
+     "text": "warning",
+     "on": "background",
+     "ratio": 14.08,
+     "verdict": "ok"
+    },
+    {
+     "text": "error",
+     "on": "background",
+     "ratio": 1.16,
+     "verdict": "FAIL"
+    }
+   ]
+  },
+  "LCARS Lower Decks II": {
+   "roles": {
+    "ui-primary": {
+     "value": "#ffaa00",
+     "source": "var(--lcars-gold)",
+     "palette": "lcars-gold"
+    },
+    "ui-primary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-secondary": {
+     "value": "#ffeecc",
+     "source": "var(--lcars-butter)",
+     "palette": "lcars-butter"
+    },
+    "ui-secondary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-tertiary": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "ui-tertiary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-quaternary": {
+     "value": "#91550b",
+     "source": "var(--lcars-darkpumpkin)",
+     "palette": "lcars-darkpumpkin"
+    },
+    "ui-quaternary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-accent": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "ui-accent-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "background": {
+     "value": "#000000",
+     "source": "var(--lcars-black)",
+     "palette": "lcars-black"
+    },
+    "background-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-top": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "card-top-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-mid": {
+     "value": "#d0b0a0",
+     "source": "var(--lcars-taupe)",
+     "palette": "lcars-taupe"
+    },
+    "card-mid-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-button": {
+     "value": "#ffcc99",
+     "source": "var(--lcars-honey)",
+     "palette": "lcars-honey"
+    },
+    "card-button-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-bottom": {
+     "value": "#fff5c7",
+     "source": "var(--lcars-vanilla)",
+     "palette": "lcars-vanilla"
+    },
+    "card-bottom-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "settings-card": {
+     "value": "#a56726",
+     "source": "#A56726",
+     "palette": null
+    },
+    "success": {
+     "value": "#33cc99",
+     "source": "var(--lcars-green)",
+     "palette": "lcars-green"
+    },
+    "warning": {
+     "value": "#ffcc66",
+     "source": "var(--lcars-sunflower)",
+     "palette": "lcars-sunflower"
+    },
+    "error": {
+     "value": "#360000",
+     "source": "var(--lcars-dark-red)",
+     "palette": "lcars-dark-red"
+    }
+   },
+   "modes": {
+    "dark": {
+     "ui-quaternary-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     }
+    }
+   },
+   "contrast": [
+    {
+     "text": "ui-primary-text",
+     "on": "ui-primary",
+     "ratio": 11.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-secondary-text",
+     "on": "ui-secondary",
+     "ratio": 18.35,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-tertiary-text",
+     "on": "ui-tertiary",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-quaternary-text",
+     "on": "ui-quaternary",
+     "ratio": 5.99,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-accent-text",
+     "on": "ui-accent",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "background-text",
+     "on": "background",
+     "ratio": 21.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-top-text",
+     "on": "card-top",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-mid-text",
+     "on": "card-mid",
+     "ratio": 10.4,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-button-text",
+     "on": "card-button",
+     "ratio": 14.35,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-bottom-text",
+     "on": "card-bottom",
+     "ratio": 19.14,
+     "verdict": "ok"
+    },
+    {
+     "text": "success",
+     "on": "background",
+     "ratio": 10.24,
+     "verdict": "ok"
+    },
+    {
+     "text": "warning",
+     "on": "background",
+     "ratio": 14.08,
+     "verdict": "ok"
+    },
+    {
+     "text": "error",
+     "on": "background",
+     "ratio": 1.16,
+     "verdict": "FAIL"
+    }
+   ]
+  },
+  "LCARS Modern": {
+   "roles": {
+    "ui-primary": {
+     "value": "#ddbbff",
+     "source": "var(--lcars-violet-creme)",
+     "palette": "lcars-violet-creme"
+    },
+    "ui-primary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-secondary": {
+     "value": "#aaaaff",
+     "source": "var(--lcars-sky)",
+     "palette": "lcars-sky"
+    },
+    "ui-secondary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-tertiary": {
+     "value": "#ffaa00",
+     "source": "var(--lcars-gold)",
+     "palette": "lcars-gold"
+    },
+    "ui-tertiary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-quaternary": {
+     "value": "#666688",
+     "source": "var(--lcars-gray)",
+     "palette": "lcars-gray"
+    },
+    "ui-quaternary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-accent": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "ui-accent-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "background": {
+     "value": "#000000",
+     "source": "var(--lcars-black)",
+     "palette": "lcars-black"
+    },
+    "background-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-top": {
+     "value": "#ffaa00",
+     "source": "var(--lcars-gold)",
+     "palette": "lcars-gold"
+    },
+    "card-top-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-mid": {
+     "value": "#9996ba",
+     "source": "var(--lcars-modern-light-gray)",
+     "palette": "lcars-modern-light-gray"
+    },
+    "card-mid-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-button": {
+     "value": "#666688",
+     "source": "var(--lcars-gray)",
+     "palette": "lcars-gray"
+    },
+    "card-button-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-bottom": {
+     "value": "#aaaaff",
+     "source": "var(--lcars-sky)",
+     "palette": "lcars-sky"
+    },
+    "card-bottom-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "settings-card": {
+     "value": "#727295",
+     "source": "#727295",
+     "palette": null
+    },
+    "success": {
+     "value": "#33cc99",
+     "source": "var(--lcars-green)",
+     "palette": "lcars-green"
+    },
+    "warning": {
+     "value": "#ffcc66",
+     "source": "var(--lcars-sunflower)",
+     "palette": "lcars-sunflower"
+    },
+    "error": {
+     "value": "#dd4444",
+     "source": "var(--lcars-red)",
+     "palette": "lcars-red"
+    }
+   },
+   "modes": {
+    "dark": {
+     "ui-quaternary-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     },
+     "card-button-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     }
+    }
+   },
+   "contrast": [
+    {
+     "text": "ui-primary-text",
+     "on": "ui-primary",
+     "ratio": 12.63,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-secondary-text",
+     "on": "ui-secondary",
+     "ratio": 9.9,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-tertiary-text",
+     "on": "ui-tertiary",
+     "ratio": 11.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-quaternary-text",
+     "on": "ui-quaternary",
+     "ratio": 5.5,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-accent-text",
+     "on": "ui-accent",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "background-text",
+     "on": "background",
+     "ratio": 21.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-top-text",
+     "on": "card-top",
+     "ratio": 11.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-mid-text",
+     "on": "card-mid",
+     "ratio": 7.43,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-button-text",
+     "on": "card-button",
+     "ratio": 5.5,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-bottom-text",
+     "on": "card-bottom",
+     "ratio": 9.9,
+     "verdict": "ok"
+    },
+    {
+     "text": "success",
+     "on": "background",
+     "ratio": 10.24,
+     "verdict": "ok"
+    },
+    {
+     "text": "warning",
+     "on": "background",
+     "ratio": 14.08,
+     "verdict": "ok"
+    },
+    {
+     "text": "error",
+     "on": "background",
+     "ratio": 4.98,
+     "verdict": "ok"
+    }
+   ]
+  },
+  "LCARS Navigation": {
+   "roles": {
+    "ui-primary": {
+     "value": "#827a53",
+     "source": "var(--lcars-olive)",
+     "palette": "lcars-olive"
+    },
+    "ui-primary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-secondary": {
+     "value": "#cdb972",
+     "source": "var(--lcars-sand)",
+     "palette": "lcars-sand"
+    },
+    "ui-secondary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-tertiary": {
+     "value": "#f7ee51",
+     "source": "var(--lcars-lemon)",
+     "palette": "lcars-lemon"
+    },
+    "ui-tertiary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-quaternary": {
+     "value": "#827a53",
+     "source": "var(--lcars-olive)",
+     "palette": "lcars-olive"
+    },
+    "ui-quaternary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-accent": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "ui-accent-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "background": {
+     "value": "#000000",
+     "source": "var(--lcars-black)",
+     "palette": "lcars-black"
+    },
+    "background-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-top": {
+     "value": "#b8a666",
+     "source": "var(--lcars-khaki-dark)",
+     "palette": "lcars-khaki-dark"
+    },
+    "card-top-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-mid": {
+     "value": "#6499ff",
+     "source": "var(--lcars-cornflower)",
+     "palette": "lcars-cornflower"
+    },
+    "card-mid-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-button": {
+     "value": "#827a53",
+     "source": "var(--lcars-olive)",
+     "palette": "lcars-olive"
+    },
+    "card-button-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-bottom": {
+     "value": "#827a53",
+     "source": "var(--lcars-olive)",
+     "palette": "lcars-olive"
+    },
+    "card-bottom-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "settings-card": {
+     "value": "#7e764f",
+     "source": "#7E764F",
+     "palette": null
+    },
+    "success": {
+     "value": "#33cc99",
+     "source": "var(--lcars-green)",
+     "palette": "lcars-green"
+    },
+    "warning": {
+     "value": "#360000",
+     "source": "var(--lcars-dark-red)",
+     "palette": "lcars-dark-red"
+    },
+    "error": {
+     "value": "#ffaa00",
+     "source": "var(--lcars-gold)",
+     "palette": "lcars-gold"
+    }
+   },
+   "modes": {},
+   "contrast": [
+    {
+     "text": "ui-primary-text",
+     "on": "ui-primary",
+     "ratio": 4.86,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-secondary-text",
+     "on": "ui-secondary",
+     "ratio": 10.78,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-tertiary-text",
+     "on": "ui-tertiary",
+     "ratio": 17.3,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-quaternary-text",
+     "on": "ui-quaternary",
+     "ratio": 4.86,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-accent-text",
+     "on": "ui-accent",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "background-text",
+     "on": "background",
+     "ratio": 21.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-top-text",
+     "on": "card-top",
+     "ratio": 8.68,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-mid-text",
+     "on": "card-mid",
+     "ratio": 7.54,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-button-text",
+     "on": "card-button",
+     "ratio": 4.86,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-bottom-text",
+     "on": "card-bottom",
+     "ratio": 4.86,
+     "verdict": "ok"
+    },
+    {
+     "text": "success",
+     "on": "background",
+     "ratio": 10.24,
+     "verdict": "ok"
+    },
+    {
+     "text": "warning",
+     "on": "background",
+     "ratio": 1.16,
+     "verdict": "FAIL"
+    },
+    {
+     "text": "error",
+     "on": "background",
+     "ratio": 11.0,
+     "verdict": "ok"
+    }
+   ]
+  },
+  "LCARS Nemesis Blue": {
+   "roles": {
+    "ui-primary": {
+     "value": "#2255ff",
+     "source": "var(--lcars-evening)",
+     "palette": "lcars-evening"
+    },
+    "ui-primary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-secondary": {
+     "value": "#ccaa88",
+     "source": "var(--lcars-wheat)",
+     "palette": "lcars-wheat"
+    },
+    "ui-secondary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-tertiary": {
+     "value": "#ff7744",
+     "source": "var(--lcars-pumpkinshade)",
+     "palette": "lcars-pumpkinshade"
+    },
+    "ui-tertiary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-quaternary": {
+     "value": "#444a77",
+     "source": "var(--lcars-galaxy)",
+     "palette": "lcars-galaxy"
+    },
+    "ui-quaternary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-accent": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "ui-accent-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "background": {
+     "value": "#000000",
+     "source": "var(--lcars-black)",
+     "palette": "lcars-black"
+    },
+    "background-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-top": {
+     "value": "#aaaaff",
+     "source": "var(--lcars-sky)",
+     "palette": "lcars-sky"
+    },
+    "card-top-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-mid": {
+     "value": "#88ccff",
+     "source": "var(--lcars-ice)",
+     "palette": "lcars-ice"
+    },
+    "card-mid-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-button": {
+     "value": "#ffcc99",
+     "source": "var(--lcars-honey)",
+     "palette": "lcars-honey"
+    },
+    "card-button-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-bottom": {
+     "value": "#5588ff",
+     "source": "var(--lcars-cool)",
+     "palette": "lcars-cool"
+    },
+    "card-bottom-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "settings-card": {
+     "value": "#6b72a3",
+     "source": "#6B72A3",
+     "palette": null
+    },
+    "success": {
+     "value": "#33cc99",
+     "source": "var(--lcars-green)",
+     "palette": "lcars-green"
+    },
+    "warning": {
+     "value": "#ffcc66",
+     "source": "var(--lcars-sunflower)",
+     "palette": "lcars-sunflower"
+    },
+    "error": {
+     "value": "#360000",
+     "source": "var(--lcars-dark-red)",
+     "palette": "lcars-dark-red"
+    }
+   },
+   "modes": {
+    "dark": {
+     "ui-primary-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     }
+    }
+   },
+   "contrast": [
+    {
+     "text": "ui-primary-text",
+     "on": "ui-primary",
+     "ratio": 5.51,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-secondary-text",
+     "on": "ui-secondary",
+     "ratio": 9.67,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-tertiary-text",
+     "on": "ui-tertiary",
+     "ratio": 7.97,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-quaternary-text",
+     "on": "ui-quaternary",
+     "ratio": 8.43,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-accent-text",
+     "on": "ui-accent",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "background-text",
+     "on": "background",
+     "ratio": 21.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-top-text",
+     "on": "card-top",
+     "ratio": 9.9,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-mid-text",
+     "on": "card-mid",
+     "ratio": 12.13,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-button-text",
+     "on": "card-button",
+     "ratio": 14.35,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-bottom-text",
+     "on": "card-bottom",
+     "ratio": 6.35,
+     "verdict": "ok"
+    },
+    {
+     "text": "success",
+     "on": "background",
+     "ratio": 10.24,
+     "verdict": "ok"
+    },
+    {
+     "text": "warning",
+     "on": "background",
+     "ratio": 14.08,
+     "verdict": "ok"
+    },
+    {
+     "text": "error",
+     "on": "background",
+     "ratio": 1.16,
+     "verdict": "FAIL"
+    }
+   ]
+  },
+  "LCARS Picard I": {
+   "roles": {
+    "ui-primary": {
+     "value": "#9FA5BDFF",
+     "source": "var(--lcars-hellgrau)",
+     "palette": null
+    },
+    "ui-primary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-secondary": {
+     "value": "#656B83FF",
+     "source": "var(--lcars-mittelgrau)",
+     "palette": null
+    },
+    "ui-secondary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-tertiary": {
+     "value": "#E7432AFF",
+     "source": "var(--lcars-feuerrot)",
+     "palette": null
+    },
+    "ui-tertiary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-quaternary": {
+     "value": "#656B83FF",
+     "source": "var(--lcars-mittelgrau)",
+     "palette": null
+    },
+    "ui-quaternary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-accent": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "ui-accent-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "background": {
+     "value": "#000000",
+     "source": "var(--lcars-black)",
+     "palette": "lcars-black"
+    },
+    "background-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-top": {
+     "value": "#656B83FF",
+     "source": "var(--lcars-mittelgrau)",
+     "palette": null
+    },
+    "card-top-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-mid": {
+     "value": "#e5960c",
+     "source": "var(--lcars-mango)",
+     "palette": "lcars-mango"
+    },
+    "card-mid-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-button": {
+     "value": "#E7432AFF",
+     "source": "var(--lcars-feuerrot)",
+     "palette": null
+    },
+    "card-button-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-bottom": {
+     "value": "#30374AFF",
+     "source": "var(--lcars-dunkelgrau)",
+     "palette": null
+    },
+    "card-bottom-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "settings-card": {
+     "value": "#6e758d",
+     "source": "#6E758D",
+     "palette": null
+    },
+    "success": {
+     "value": "#33cc99",
+     "source": "var(--lcars-green)",
+     "palette": "lcars-green"
+    },
+    "warning": {
+     "value": "#ffcc66",
+     "source": "var(--lcars-sunflower)",
+     "palette": "lcars-sunflower"
+    },
+    "error": {
+     "value": "#360000",
+     "source": "var(--lcars-dark-red)",
+     "palette": "lcars-dark-red"
+    }
+   },
+   "modes": {
+    "dark": {
+     "ui-secondary-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     },
+     "ui-quaternary-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     },
+     "card-top-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     },
+     "card-bottom-text": {
+      "value": "#d3d3d3",
+      "source": "var(--lcars-text-gray)",
+      "palette": "lcars-text-gray"
+     }
+    }
+   },
+   "contrast": [
+    {
+     "text": "ui-accent-text",
+     "on": "ui-accent",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "background-text",
+     "on": "background",
+     "ratio": 21.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-mid-text",
+     "on": "card-mid",
+     "ratio": 8.7,
+     "verdict": "ok"
+    },
+    {
+     "text": "success",
+     "on": "background",
+     "ratio": 10.24,
+     "verdict": "ok"
+    },
+    {
+     "text": "warning",
+     "on": "background",
+     "ratio": 14.08,
+     "verdict": "ok"
+    },
+    {
+     "text": "error",
+     "on": "background",
+     "ratio": 1.16,
+     "verdict": "FAIL"
+    }
+   ]
+  },
+  "LCARS Picard II": {
+   "roles": {
+    "ui-primary": {
+     "value": "#6efaf9",
+     "source": "var(--lcars-turquoise)",
+     "palette": "lcars-turquoise"
+    },
+    "ui-primary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-secondary": {
+     "value": "#21bece",
+     "source": "var(--lcars-cerulean)",
+     "palette": "lcars-cerulean"
+    },
+    "ui-secondary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-tertiary": {
+     "value": "#e1915c",
+     "source": "var(--lcars-apricot)",
+     "palette": "lcars-apricot"
+    },
+    "ui-tertiary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-quaternary": {
+     "value": "#012556",
+     "source": "var(--lcars-midnight-blue)",
+     "palette": "lcars-midnight-blue"
+    },
+    "ui-quaternary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-accent": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "ui-accent-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "background": {
+     "value": "#000000",
+     "source": "var(--lcars-black)",
+     "palette": "lcars-black"
+    },
+    "background-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-top": {
+     "value": "#e2c599",
+     "source": "var(--lcars-beige)",
+     "palette": "lcars-beige"
+    },
+    "card-top-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-mid": {
+     "value": "#21bece",
+     "source": "var(--lcars-cerulean)",
+     "palette": "lcars-cerulean"
+    },
+    "card-mid-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-button": {
+     "value": "#21bece",
+     "source": "var(--lcars-cerulean)",
+     "palette": "lcars-cerulean"
+    },
+    "card-button-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-bottom": {
+     "value": "#012556",
+     "source": "var(--lcars-midnight-blue)",
+     "palette": "lcars-midnight-blue"
+    },
+    "card-bottom-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "settings-card": {
+     "value": "#5077af",
+     "source": "#5077AF",
+     "palette": null
+    },
+    "success": {
+     "value": "#33cc99",
+     "source": "var(--lcars-green)",
+     "palette": "lcars-green"
+    },
+    "warning": {
+     "value": "#ffcc66",
+     "source": "var(--lcars-sunflower)",
+     "palette": "lcars-sunflower"
+    },
+    "error": {
+     "value": "#dd4444",
+     "source": "var(--lcars-red)",
+     "palette": "lcars-red"
+    }
+   },
+   "modes": {
+    "dark": {
+     "ui-quaternary-text": {
+      "value": "#d3d3d3",
+      "source": "var(--lcars-text-gray)",
+      "palette": "lcars-text-gray"
+     },
+     "card-bottom-text": {
+      "value": "#d3d3d3",
+      "source": "var(--lcars-text-gray)",
+      "palette": "lcars-text-gray"
+     }
+    }
+   },
+   "contrast": [
+    {
+     "text": "ui-primary-text",
+     "on": "ui-primary",
+     "ratio": 16.71,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-secondary-text",
+     "on": "ui-secondary",
+     "ratio": 9.32,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-tertiary-text",
+     "on": "ui-tertiary",
+     "ratio": 8.41,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-quaternary-text",
+     "on": "ui-quaternary",
+     "ratio": 15.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-accent-text",
+     "on": "ui-accent",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "background-text",
+     "on": "background",
+     "ratio": 21.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-top-text",
+     "on": "card-top",
+     "ratio": 12.68,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-mid-text",
+     "on": "card-mid",
+     "ratio": 9.32,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-button-text",
+     "on": "card-button",
+     "ratio": 9.32,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-bottom-text",
+     "on": "card-bottom",
+     "ratio": 15.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "success",
+     "on": "background",
+     "ratio": 10.24,
+     "verdict": "ok"
+    },
+    {
+     "text": "warning",
+     "on": "background",
+     "ratio": 14.08,
+     "verdict": "ok"
+    },
+    {
+     "text": "error",
+     "on": "background",
+     "ratio": 4.98,
+     "verdict": "ok"
+    }
+   ]
+  },
+  "LCARS Red Alert": {
+   "roles": {
+    "ui-primary": {
+     "value": "#cc2233",
+     "source": "var(--lcars-cardinal)",
+     "palette": "lcars-cardinal"
+    },
+    "ui-primary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-secondary": {
+     "value": "#dfdfdf",
+     "source": "var(--lcars-silver)",
+     "palette": "lcars-silver"
+    },
+    "ui-secondary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-tertiary": {
+     "value": "#ff0000",
+     "source": "var(--lcars-scarlet)",
+     "palette": "lcars-scarlet"
+    },
+    "ui-tertiary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-quaternary": {
+     "value": "#360000",
+     "source": "var(--lcars-dark-red)",
+     "palette": "lcars-dark-red"
+    },
+    "ui-quaternary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-accent": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "ui-accent-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "background": {
+     "value": "#000000",
+     "source": "var(--lcars-black)",
+     "palette": "lcars-black"
+    },
+    "background-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-top": {
+     "value": "#bf1b1b",
+     "source": "var(--lcars-brick-red)",
+     "palette": "lcars-brick-red"
+    },
+    "card-top-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-mid": {
+     "value": "#9d361e",
+     "source": "var(--lcars-mahogany)",
+     "palette": "lcars-mahogany"
+    },
+    "card-mid-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-button": {
+     "value": "#d66a60",
+     "source": "var(--lcars-muted-coral)",
+     "palette": "lcars-muted-coral"
+    },
+    "card-button-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-bottom": {
+     "value": "#91311c",
+     "source": "var(--lcars-sienna)",
+     "palette": "lcars-sienna"
+    },
+    "card-bottom-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "settings-card": {
+     "value": "#a5645a",
+     "source": "#A5645A",
+     "palette": null
+    },
+    "success": {
+     "value": "#33cc99",
+     "source": "var(--lcars-green)",
+     "palette": "lcars-green"
+    },
+    "warning": {
+     "value": "#ffcc66",
+     "source": "var(--lcars-sunflower)",
+     "palette": "lcars-sunflower"
+    },
+    "error": {
+     "value": "#360000",
+     "source": "var(--lcars-dark-red)",
+     "palette": "lcars-dark-red"
+    }
+   },
+   "modes": {
+    "dark": {
+     "ui-primary-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     },
+     "ui-quaternary-text": {
+      "value": "#a2a2a2",
+      "source": "var(--lcars-text-mist)",
+      "palette": "lcars-text-mist"
+     },
+     "card-top-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     }
+    }
+   },
+   "contrast": [
+    {
+     "text": "ui-primary-text",
+     "on": "ui-primary",
+     "ratio": 5.46,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-secondary-text",
+     "on": "ui-secondary",
+     "ratio": 15.76,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-tertiary-text",
+     "on": "ui-tertiary",
+     "ratio": 5.25,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-quaternary-text",
+     "on": "ui-quaternary",
+     "ratio": 18.15,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-accent-text",
+     "on": "ui-accent",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "background-text",
+     "on": "background",
+     "ratio": 21.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-top-text",
+     "on": "card-top",
+     "ratio": 6.2,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-mid-text",
+     "on": "card-mid",
+     "ratio": 7.05,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-button-text",
+     "on": "card-button",
+     "ratio": 6.09,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-bottom-text",
+     "on": "card-bottom",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "success",
+     "on": "background",
+     "ratio": 10.24,
+     "verdict": "ok"
+    },
+    {
+     "text": "warning",
+     "on": "background",
+     "ratio": 14.08,
+     "verdict": "ok"
+    },
+    {
+     "text": "error",
+     "on": "background",
+     "ratio": 1.16,
+     "verdict": "FAIL"
+    }
+   ]
+  },
+  "LCARS Romulus": {
+   "roles": {
+    "ui-primary": {
+     "value": "#33cc99",
+     "source": "var(--lcars-green)",
+     "palette": "lcars-green"
+    },
+    "ui-primary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-secondary": {
+     "value": "#cc88ff",
+     "source": "var(--lcars-african-violet)",
+     "palette": "lcars-african-violet"
+    },
+    "ui-secondary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-tertiary": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "ui-tertiary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-quaternary": {
+     "value": "#0f5616",
+     "source": "var(--lcars-green-middle)",
+     "palette": "lcars-green-middle"
+    },
+    "ui-quaternary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-accent": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "ui-accent-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "background": {
+     "value": "#000000",
+     "source": "var(--lcars-black)",
+     "palette": "lcars-black"
+    },
+    "background-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-top": {
+     "value": "#cc2233",
+     "source": "var(--lcars-cardinal)",
+     "palette": "lcars-cardinal"
+    },
+    "card-top-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-mid": {
+     "value": "#cc88ff",
+     "source": "var(--lcars-african-violet)",
+     "palette": "lcars-african-violet"
+    },
+    "card-mid-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-button": {
+     "value": "#aaaaff",
+     "source": "var(--lcars-sky)",
+     "palette": "lcars-sky"
+    },
+    "card-button-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-bottom": {
+     "value": "#88ffff",
+     "source": "var(--lcars-aqua)",
+     "palette": "lcars-aqua"
+    },
+    "card-bottom-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "settings-card": {
+     "value": "#428343",
+     "source": "#428343",
+     "palette": null
+    },
+    "success": {
+     "value": "#33cc99",
+     "source": "var(--lcars-green)",
+     "palette": "lcars-green"
+    },
+    "warning": {
+     "value": "#ffcc66",
+     "source": "var(--lcars-sunflower)",
+     "palette": "lcars-sunflower"
+    },
+    "error": {
+     "value": "#360000",
+     "source": "var(--lcars-dark-red)",
+     "palette": "lcars-dark-red"
+    }
+   },
+   "modes": {
+    "dark": {
+     "card-top-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     }
+    }
+   },
+   "contrast": [
+    {
+     "text": "ui-primary-text",
+     "on": "ui-primary",
+     "ratio": 10.24,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-secondary-text",
+     "on": "ui-secondary",
+     "ratio": 8.53,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-tertiary-text",
+     "on": "ui-tertiary",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-quaternary-text",
+     "on": "ui-quaternary",
+     "ratio": 8.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-accent-text",
+     "on": "ui-accent",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "background-text",
+     "on": "background",
+     "ratio": 21.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-top-text",
+     "on": "card-top",
+     "ratio": 5.46,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-mid-text",
+     "on": "card-mid",
+     "ratio": 8.53,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-button-text",
+     "on": "card-button",
+     "ratio": 9.9,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-bottom-text",
+     "on": "card-bottom",
+     "ratio": 17.79,
+     "verdict": "ok"
+    },
+    {
+     "text": "success",
+     "on": "background",
+     "ratio": 10.24,
+     "verdict": "ok"
+    },
+    {
+     "text": "warning",
+     "on": "background",
+     "ratio": 14.08,
+     "verdict": "ok"
+    },
+    {
+     "text": "error",
+     "on": "background",
+     "ratio": 1.16,
+     "verdict": "FAIL"
+    }
+   ]
+  },
+  "LCARS TNG": {
+   "roles": {
+    "ui-primary": {
+     "value": "#f5deb3",
+     "source": "var(--lcars-wheat-light)",
+     "palette": "lcars-wheat-light"
+    },
+    "ui-primary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-secondary": {
+     "value": "#ffcc66",
+     "source": "var(--lcars-sunflower)",
+     "palette": "lcars-sunflower"
+    },
+    "ui-secondary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-tertiary": {
+     "value": "#cc99cc",
+     "source": "var(--lcars-lilac-light)",
+     "palette": "lcars-lilac-light"
+    },
+    "ui-tertiary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-quaternary": {
+     "value": "#444a77",
+     "source": "var(--lcars-galaxy)",
+     "palette": "lcars-galaxy"
+    },
+    "ui-quaternary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-accent": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "ui-accent-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "background": {
+     "value": "#000000",
+     "source": "var(--lcars-black)",
+     "palette": "lcars-black"
+    },
+    "background-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-top": {
+     "value": "#f5deb3",
+     "source": "var(--lcars-wheat-light)",
+     "palette": "lcars-wheat-light"
+    },
+    "card-top-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-mid": {
+     "value": "#c5b358",
+     "source": "var(--lcars-antique-gold)",
+     "palette": "lcars-antique-gold"
+    },
+    "card-mid-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-button": {
+     "value": "#ffbb33",
+     "source": "var(--lcars-amber)",
+     "palette": "lcars-amber"
+    },
+    "card-button-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-bottom": {
+     "value": "#f5deb3",
+     "source": "var(--lcars-wheat-light)",
+     "palette": "lcars-wheat-light"
+    },
+    "card-bottom-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "settings-card": {
+     "value": "#6b72a3",
+     "source": "#6B72A3",
+     "palette": null
+    },
+    "success": {
+     "value": "#f0e68c",
+     "source": "var(--lcars-khaki-light)",
+     "palette": "lcars-khaki-light"
+    },
+    "warning": {
+     "value": "#dc143c",
+     "source": "var(--lcars-vivid-crimson)",
+     "palette": "lcars-vivid-crimson"
+    },
+    "error": {
+     "value": "#8b0000",
+     "source": "var(--lcars-maroon)",
+     "palette": "lcars-maroon"
+    }
+   },
+   "modes": {},
+   "contrast": [
+    {
+     "text": "ui-primary-text",
+     "on": "ui-primary",
+     "ratio": 15.98,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-secondary-text",
+     "on": "ui-secondary",
+     "ratio": 14.08,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-tertiary-text",
+     "on": "ui-tertiary",
+     "ratio": 9.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-quaternary-text",
+     "on": "ui-quaternary",
+     "ratio": 8.43,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-accent-text",
+     "on": "ui-accent",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "background-text",
+     "on": "background",
+     "ratio": 21.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-top-text",
+     "on": "card-top",
+     "ratio": 15.98,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-mid-text",
+     "on": "card-mid",
+     "ratio": 9.96,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-button-text",
+     "on": "card-button",
+     "ratio": 12.41,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-bottom-text",
+     "on": "card-bottom",
+     "ratio": 15.98,
+     "verdict": "ok"
+    },
+    {
+     "text": "success",
+     "on": "background",
+     "ratio": 16.4,
+     "verdict": "ok"
+    },
+    {
+     "text": "warning",
+     "on": "background",
+     "ratio": 4.21,
+     "verdict": "large-text-only"
+    },
+    {
+     "text": "error",
+     "on": "background",
+     "ratio": 2.1,
+     "verdict": "FAIL"
+    }
+   ]
+  },
+  "LCARS TNGbuttons": {
+   "roles": {
+    "ui-primary": {
+     "value": "#f5cd9f",
+     "source": "var(--lcars-peach-cream)",
+     "palette": "lcars-peach-cream"
+    },
+    "ui-primary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-secondary": {
+     "value": "#ffcc66",
+     "source": "var(--lcars-sunflower)",
+     "palette": "lcars-sunflower"
+    },
+    "ui-secondary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-tertiary": {
+     "value": "#cc99cc",
+     "source": "var(--lcars-lilac-light)",
+     "palette": "lcars-lilac-light"
+    },
+    "ui-tertiary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-quaternary": {
+     "value": "#444a77",
+     "source": "var(--lcars-galaxy)",
+     "palette": "lcars-galaxy"
+    },
+    "ui-quaternary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-accent": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "ui-accent-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "background": {
+     "value": "#000000",
+     "source": "var(--lcars-black)",
+     "palette": "lcars-black"
+    },
+    "background-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-top": {
+     "value": "#f5cd9f",
+     "source": "var(--lcars-peach-cream)",
+     "palette": "lcars-peach-cream"
+    },
+    "card-top-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-mid": {
+     "value": "#ffcc99",
+     "source": "var(--lcars-honey)",
+     "palette": "lcars-honey"
+    },
+    "card-mid-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-button": {
+     "value": "#ffcc66",
+     "source": "var(--lcars-sunflower)",
+     "palette": "lcars-sunflower"
+    },
+    "card-button-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-bottom": {
+     "value": "#efc861",
+     "source": "var(--lcars-warm-gold)",
+     "palette": "lcars-warm-gold"
+    },
+    "card-bottom-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "settings-card": {
+     "value": "#6b72a3",
+     "source": "#6B72A3",
+     "palette": null
+    },
+    "success": {
+     "value": "#99aa66",
+     "source": "var(--lcars-sage)",
+     "palette": "lcars-sage"
+    },
+    "warning": {
+     "value": "#dc143c",
+     "source": "var(--lcars-vivid-crimson)",
+     "palette": "lcars-vivid-crimson"
+    },
+    "error": {
+     "value": "#8b0000",
+     "source": "var(--lcars-maroon)",
+     "palette": "lcars-maroon"
+    }
+   },
+   "modes": {},
+   "contrast": [
+    {
+     "text": "ui-primary-text",
+     "on": "ui-primary",
+     "ratio": 14.12,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-secondary-text",
+     "on": "ui-secondary",
+     "ratio": 14.08,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-tertiary-text",
+     "on": "ui-tertiary",
+     "ratio": 9.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-quaternary-text",
+     "on": "ui-quaternary",
+     "ratio": 8.43,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-accent-text",
+     "on": "ui-accent",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "background-text",
+     "on": "background",
+     "ratio": 21.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-top-text",
+     "on": "card-top",
+     "ratio": 14.12,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-mid-text",
+     "on": "card-mid",
+     "ratio": 14.35,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-button-text",
+     "on": "card-button",
+     "ratio": 14.08,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-bottom-text",
+     "on": "card-bottom",
+     "ratio": 13.1,
+     "verdict": "ok"
+    },
+    {
+     "text": "success",
+     "on": "background",
+     "ratio": 8.3,
+     "verdict": "ok"
+    },
+    {
+     "text": "warning",
+     "on": "background",
+     "ratio": 4.21,
+     "verdict": "large-text-only"
+    },
+    {
+     "text": "error",
+     "on": "background",
+     "ratio": 2.1,
+     "verdict": "FAIL"
+    }
+   ]
+  },
+  "LCARS Transporter": {
+   "roles": {
+    "ui-primary": {
+     "value": "#2c374b",
+     "source": "var(--lcars-navy-gray)",
+     "palette": "lcars-navy-gray"
+    },
+    "ui-primary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-secondary": {
+     "value": "#6e748c",
+     "source": "var(--lcars-slate-gray)",
+     "palette": "lcars-slate-gray"
+    },
+    "ui-secondary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-tertiary": {
+     "value": "#fa6851",
+     "source": "var(--lcars-coral)",
+     "palette": "lcars-coral"
+    },
+    "ui-tertiary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-quaternary": {
+     "value": "#2c374b",
+     "source": "var(--lcars-navy-gray)",
+     "palette": "lcars-navy-gray"
+    },
+    "ui-quaternary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-accent": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "ui-accent-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "background": {
+     "value": "#000000",
+     "source": "var(--lcars-black)",
+     "palette": "lcars-black"
+    },
+    "background-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-top": {
+     "value": "#51596c",
+     "source": "var(--lcars-charcoal)",
+     "palette": "lcars-charcoal"
+    },
+    "card-top-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-mid": {
+     "value": "#51596c",
+     "source": "var(--lcars-charcoal)",
+     "palette": "lcars-charcoal"
+    },
+    "card-mid-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-button": {
+     "value": "#2a7092",
+     "source": "var(--lcars-teal)",
+     "palette": "lcars-teal"
+    },
+    "card-button-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-bottom": {
+     "value": "#2c374b",
+     "source": "var(--lcars-navy-gray)",
+     "palette": "lcars-navy-gray"
+    },
+    "card-bottom-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "settings-card": {
+     "value": "#69768d",
+     "source": "#69768D",
+     "palette": null
+    },
+    "success": {
+     "value": "#33cc99",
+     "source": "var(--lcars-green)",
+     "palette": "lcars-green"
+    },
+    "warning": {
+     "value": "#360000",
+     "source": "var(--lcars-dark-red)",
+     "palette": "lcars-dark-red"
+    },
+    "error": {
+     "value": "#ffaa00",
+     "source": "var(--lcars-gold)",
+     "palette": "lcars-gold"
+    }
+   },
+   "modes": {
+    "dark": {
+     "ui-primary-text": {
+      "value": "#d3d3d3",
+      "source": "var(--lcars-text-gray)",
+      "palette": "lcars-text-gray"
+     },
+     "ui-quaternary-text": {
+      "value": "#d3d3d3",
+      "source": "var(--lcars-text-gray)",
+      "palette": "lcars-text-gray"
+     },
+     "card-button-text": {
+      "value": "#000000",
+      "source": "var(--lcars-text-dark)",
+      "palette": "lcars-text-dark"
+     },
+     "card-bottom-text": {
+      "value": "#d3d3d3",
+      "source": "var(--lcars-text-gray)",
+      "palette": "lcars-text-gray"
+     }
+    }
+   },
+   "contrast": [
+    {
+     "text": "ui-primary-text",
+     "on": "ui-primary",
+     "ratio": 11.96,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-secondary-text",
+     "on": "ui-secondary",
+     "ratio": 4.54,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-tertiary-text",
+     "on": "ui-tertiary",
+     "ratio": 7.16,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-quaternary-text",
+     "on": "ui-quaternary",
+     "ratio": 11.96,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-accent-text",
+     "on": "ui-accent",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "background-text",
+     "on": "background",
+     "ratio": 21.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-top-text",
+     "on": "card-top",
+     "ratio": 7.01,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-mid-text",
+     "on": "card-mid",
+     "ratio": 7.01,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-button-text",
+     "on": "card-button",
+     "ratio": 5.48,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-bottom-text",
+     "on": "card-bottom",
+     "ratio": 11.96,
+     "verdict": "ok"
+    },
+    {
+     "text": "success",
+     "on": "background",
+     "ratio": 10.24,
+     "verdict": "ok"
+    },
+    {
+     "text": "warning",
+     "on": "background",
+     "ratio": 1.16,
+     "verdict": "FAIL"
+    },
+    {
+     "text": "error",
+     "on": "background",
+     "ratio": 11.0,
+     "verdict": "ok"
+    }
+   ]
+  },
+  "LCARS Zeldaar": {
+   "roles": {
+    "ui-primary": {
+     "value": "#ddbbff",
+     "source": "var(--lcars-violet-creme)",
+     "palette": "lcars-violet-creme"
+    },
+    "ui-primary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-secondary": {
+     "value": "#ffcc99",
+     "source": "var(--lcars-honey)",
+     "palette": "lcars-honey"
+    },
+    "ui-secondary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-tertiary": {
+     "value": "#cc6666",
+     "source": "var(--lcars-roseblush)",
+     "palette": "lcars-roseblush"
+    },
+    "ui-tertiary-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "ui-quaternary": {
+     "value": "#774477",
+     "source": "var(--lcars-mauve)",
+     "palette": "lcars-mauve"
+    },
+    "ui-quaternary-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "ui-accent": {
+     "value": "#ff7700",
+     "source": "var(--lcars-orange)",
+     "palette": "lcars-orange"
+    },
+    "ui-accent-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "background": {
+     "value": "#000000",
+     "source": "var(--lcars-black)",
+     "palette": "lcars-black"
+    },
+    "background-text": {
+     "value": "#ffffff",
+     "source": "var(--lcars-text-light)",
+     "palette": "lcars-text-light"
+    },
+    "card-top": {
+     "value": "#7788ff",
+     "source": "var(--lcars-bluey)",
+     "palette": "lcars-bluey"
+    },
+    "card-top-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-mid": {
+     "value": "#ffe399",
+     "source": "var(--lcars-khaki)",
+     "palette": "lcars-khaki"
+    },
+    "card-mid-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-button": {
+     "value": "#cc88ff",
+     "source": "var(--lcars-african-violet)",
+     "palette": "lcars-african-violet"
+    },
+    "card-button-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "card-bottom": {
+     "value": "#cc6666",
+     "source": "var(--lcars-roseblush)",
+     "palette": "lcars-roseblush"
+    },
+    "card-bottom-text": {
+     "value": "#000000",
+     "source": "var(--lcars-text-dark)",
+     "palette": "lcars-text-dark"
+    },
+    "settings-card": {
+     "value": "#986398",
+     "source": "#986398",
+     "palette": null
+    },
+    "success": {
+     "value": "#33cc99",
+     "source": "var(--lcars-green)",
+     "palette": "lcars-green"
+    },
+    "warning": {
+     "value": "#ffcc66",
+     "source": "var(--lcars-sunflower)",
+     "palette": "lcars-sunflower"
+    },
+    "error": {
+     "value": "#360000",
+     "source": "var(--lcars-dark-red)",
+     "palette": "lcars-dark-red"
+    }
+   },
+   "modes": {},
+   "contrast": [
+    {
+     "text": "ui-primary-text",
+     "on": "ui-primary",
+     "ratio": 12.63,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-secondary-text",
+     "on": "ui-secondary",
+     "ratio": 14.35,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-tertiary-text",
+     "on": "ui-tertiary",
+     "ratio": 5.66,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-quaternary-text",
+     "on": "ui-quaternary",
+     "ratio": 7.3,
+     "verdict": "ok"
+    },
+    {
+     "text": "ui-accent-text",
+     "on": "ui-accent",
+     "ratio": 7.89,
+     "verdict": "ok"
+    },
+    {
+     "text": "background-text",
+     "on": "background",
+     "ratio": 21.0,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-top-text",
+     "on": "card-top",
+     "ratio": 6.75,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-mid-text",
+     "on": "card-mid",
+     "ratio": 16.7,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-button-text",
+     "on": "card-button",
+     "ratio": 8.53,
+     "verdict": "ok"
+    },
+    {
+     "text": "card-bottom-text",
+     "on": "card-bottom",
+     "ratio": 5.66,
+     "verdict": "ok"
+    },
+    {
+     "text": "success",
+     "on": "background",
+     "ratio": 10.24,
+     "verdict": "ok"
+    },
+    {
+     "text": "warning",
+     "on": "background",
+     "ratio": 14.08,
+     "verdict": "ok"
+    },
+    {
+     "text": "error",
+     "on": "background",
+     "ratio": 1.16,
+     "verdict": "FAIL"
+    }
+   ]
+  }
+ }
+}

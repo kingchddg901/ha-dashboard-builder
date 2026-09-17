@@ -1,0 +1,258 @@
+{
+ "meta": {
+  "generated_by": "tools/mine-lcars-theme.py",
+  "defaults_from": "LCARS Transporter",
+  "themes": 24
+ },
+ "groups": [
+  {
+   "id": "lcars-roles",
+   "label": "Frame roles",
+   "tokens": [
+    {
+     "key": "ui-primary",
+     "type": "color",
+     "cssVar": "--lcars-ui-primary",
+     "default": "#2c374b",
+     "palette": "lcars-navy-gray"
+    },
+    {
+     "key": "ui-primary-text",
+     "type": "color",
+     "cssVar": "--lcars-ui-primary-text",
+     "default": "#ffffff",
+     "palette": "lcars-text-light"
+    },
+    {
+     "key": "ui-secondary",
+     "type": "color",
+     "cssVar": "--lcars-ui-secondary",
+     "default": "#6e748c",
+     "palette": "lcars-slate-gray"
+    },
+    {
+     "key": "ui-secondary-text",
+     "type": "color",
+     "cssVar": "--lcars-ui-secondary-text",
+     "default": "#000000",
+     "palette": "lcars-text-dark"
+    },
+    {
+     "key": "ui-tertiary",
+     "type": "color",
+     "cssVar": "--lcars-ui-tertiary",
+     "default": "#fa6851",
+     "palette": "lcars-coral"
+    },
+    {
+     "key": "ui-tertiary-text",
+     "type": "color",
+     "cssVar": "--lcars-ui-tertiary-text",
+     "default": "#000000",
+     "palette": "lcars-text-dark"
+    },
+    {
+     "key": "ui-quaternary",
+     "type": "color",
+     "cssVar": "--lcars-ui-quaternary",
+     "default": "#2c374b",
+     "palette": "lcars-navy-gray"
+    },
+    {
+     "key": "ui-quaternary-text",
+     "type": "color",
+     "cssVar": "--lcars-ui-quaternary-text",
+     "default": "#ffffff",
+     "palette": "lcars-text-light"
+    },
+    {
+     "key": "ui-accent",
+     "type": "color",
+     "cssVar": "--lcars-ui-accent-color",
+     "default": "#ff7700",
+     "palette": "lcars-orange"
+    },
+    {
+     "key": "ui-accent-text",
+     "type": "color",
+     "cssVar": "--lcars-ui-accent-text",
+     "default": "#000000",
+     "palette": "lcars-text-dark"
+    },
+    {
+     "key": "background",
+     "type": "color",
+     "cssVar": "--lcars-background-color",
+     "default": "#000000",
+     "palette": "lcars-black"
+    },
+    {
+     "key": "background-text",
+     "type": "color",
+     "cssVar": "--lcars-background-text",
+     "default": "#ffffff",
+     "palette": "lcars-text-light"
+    }
+   ]
+  },
+  {
+   "id": "lcars-card",
+   "label": "Card regions",
+   "tokens": [
+    {
+     "key": "card-top",
+     "type": "color",
+     "cssVar": "--lcars-card-top-color",
+     "default": "#51596c",
+     "palette": "lcars-charcoal"
+    },
+    {
+     "key": "card-top-text",
+     "type": "color",
+     "cssVar": "--lcars-card-top-text",
+     "default": "#ffffff",
+     "palette": "lcars-text-light"
+    },
+    {
+     "key": "card-mid",
+     "type": "color",
+     "cssVar": "--lcars-card-mid-color",
+     "default": "#51596c",
+     "palette": "lcars-charcoal"
+    },
+    {
+     "key": "card-mid-text",
+     "type": "color",
+     "cssVar": "--lcars-card-mid-text",
+     "default": "#ffffff",
+     "palette": "lcars-text-light"
+    },
+    {
+     "key": "card-button",
+     "type": "color",
+     "cssVar": "--lcars-card-button-color",
+     "default": "#2a7092",
+     "palette": "lcars-teal"
+    },
+    {
+     "key": "card-button-text",
+     "type": "color",
+     "cssVar": "--lcars-card-button-text",
+     "default": "#ffffff",
+     "palette": "lcars-text-light"
+    },
+    {
+     "key": "card-bottom",
+     "type": "color",
+     "cssVar": "--lcars-card-bottom-color",
+     "default": "#2c374b",
+     "palette": "lcars-navy-gray"
+    },
+    {
+     "key": "card-bottom-text",
+     "type": "color",
+     "cssVar": "--lcars-card-bottom-text",
+     "default": "#ffffff",
+     "palette": "lcars-text-light"
+    },
+    {
+     "key": "settings-card",
+     "type": "color",
+     "cssVar": "--lcars-settings-card-color",
+     "default": "#69768d"
+    }
+   ]
+  },
+  {
+   "id": "lcars-status",
+   "label": "Status",
+   "tokens": [
+    {
+     "key": "success",
+     "type": "color",
+     "cssVar": "--success-color",
+     "default": "#33cc99",
+     "palette": "lcars-green"
+    },
+    {
+     "key": "warning",
+     "type": "color",
+     "cssVar": "--warning-color",
+     "default": "#360000",
+     "palette": "lcars-dark-red"
+    },
+    {
+     "key": "error",
+     "type": "color",
+     "cssVar": "--error-color",
+     "default": "#ffaa00",
+     "palette": "lcars-gold"
+    }
+   ]
+  },
+  {
+   "id": "lcars-shape",
+   "label": "Frame shape",
+   "tokens": [
+    {
+     "key": "vertical-border",
+     "type": "number",
+     "unit": "px",
+     "cssVar": "--lcars-vertical-border",
+     "min": 0,
+     "max": 80,
+     "step": 1,
+     "default": 35
+    },
+    {
+     "key": "horizontal-border",
+     "type": "number",
+     "unit": "px",
+     "cssVar": "--lcars-horizontal-border",
+     "min": 0,
+     "max": 80,
+     "step": 1,
+     "default": 10
+    },
+    {
+     "key": "outer-radius",
+     "type": "number",
+     "unit": "px",
+     "cssVar": "--lcars-outer-radius",
+     "min": 0,
+     "max": 80,
+     "step": 1,
+     "default": 34
+    },
+    {
+     "key": "inner-radius",
+     "type": "number",
+     "unit": "px",
+     "cssVar": "--lcars-inner-radius",
+     "min": 0,
+     "max": 80,
+     "step": 1,
+     "default": 20
+    }
+   ]
+  },
+  {
+   "id": "lcars-type",
+   "label": "Type",
+   "tokens": [
+    {
+     "key": "font",
+     "type": "raw",
+     "cssVar": "--lcars-font",
+     "default": "Tungsten"
+    },
+    {
+     "key": "fallback-font",
+     "type": "raw",
+     "cssVar": "--lcars-fallback-font",
+     "default": "Antonio"
+    }
+   ]
+  }
+ ]
+}
