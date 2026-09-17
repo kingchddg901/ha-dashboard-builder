@@ -151,6 +151,13 @@ chg  stay mode   hue    sat    val    white   white
   Tuya's standard field order, not something measured here. A stopwatch put the
   loop at about 15 s — 15% short, which is why the frame timing is the number to
   use.
+
+  The app's **Speed** slider writes its percentage straight into both bytes in
+  Fade mode: this scene was set to 88%. If a higher Speed means faster playback,
+  as the name says, the bytes cannot simply be durations — 2.2 s at 88 would grow
+  at 100. A Flash-mode rainbow captured earlier carried `100/90` rather than a
+  matched pair, which hints that Flash pins the first byte and Speed drives the
+  second; its Speed setting was not recorded.
 * The hue/sat/val ranges are independently confirmed by the profile's own
   declaration for DP 24 `rgbhsv`, which uses the identical field order and ranges.
 
@@ -178,11 +185,13 @@ triple and fills the white pair:
 
 ```
    585802 0000 03e8 03e8 00000000   hue 0 ... through hue 300, as above
-   585802 0000 0000 0000 03e8 02b7  white, brightness 1000, temperature 695
+   585802 0000 0000 0000 03e8 02b7  white, brightness 1000, temperature 695 (app: 4085 K, 100%)
 ```
 
 That capture is what confirms the white half of the step format; before it, the
-white fields had only ever been seen as zero.
+white fields had only ever been seen as zero. The app shows the step as 4085 K at
+100%, which pins both scales: brightness is the percentage × 10, and temperature
+maps 0–1000 linearly onto 2000–5000 K (2000 + 695 × 3 = 4085).
 
 ### Three limits worth knowing
 
@@ -456,7 +465,9 @@ a PR rather than a bug report.
 
 **DP 23 colour temperature.** The profile maps the raw 0–1000 scale to
 2700–6500 K. Packaging states 2000–5000 K, and the vendor app's own slider is
-labelled 2000 K at the warm end. Under the shipped mapping the reported value is
+labelled 2000 K at the warm end. The app also displays a scene's white step
+stored as `695` as 4085 K — exactly 2000 + 695 × 3 — so the vendor's own
+conversion is the linear 2000–5000 K mapping. Under the shipped mapping the reported value is
 700 K low at the warm end and 1500 K low at the cool end.
 
 Correcting `target_range` to `{min: 2000, max: 5000}` takes effect on a
@@ -496,7 +507,8 @@ impossible to find this profile by the name on the box.
   white pencil waved fast under the light (separate red and white copies mean
   the halves alternate)
 * What the scene id byte controls
-* `chg` / `stay` — what each byte controls. The period is measured exactly at
-  88/88 but fits two readings. A two-colour fading scene filmed once with 100/20
-  and once with 20/100 separates them: the period and the fade length of each
-  run pin both bytes
+* `chg` / `stay` — what each byte controls, and which way Speed runs. The next
+  step needs no hand-written payload: film the same mood at a different Speed
+  (say 50%). Shorter steps mean the byte is a duration; longer steps mean the
+  firmware inverts it. Separating the two bytes from each other still needs
+  unequal values — a hand-written scene at 100/20 and at 20/100
