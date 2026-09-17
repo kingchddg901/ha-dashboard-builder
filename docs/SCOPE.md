@@ -328,7 +328,7 @@ one gesture from unrecoverable without editing storage.
 **The general rule this is an instance of:** a live editor may theme itself, but whatever recovers
 from a bad value must not be reachable by that value.
 
-### RESOLVED 2026-09-15 — built in the kit, `token-theme-kit@8ea5bf8` (local, unpushed)
+### RESOLVED 2026-09-15 — built in the kit, `token-theme-kit@8ea5bf8` and `4918061`, both pushed
 
 Three-tier reset — per token, per group, total — ported from VA's editor, which has run that
 shape in production. A reset **removes the override** so the token falls back through resolution;
