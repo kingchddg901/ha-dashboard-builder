@@ -665,6 +665,13 @@ than within 490 K. The local profile uses 2000–4570: LED batches vary, so the
 packaging describes the product line rather than this kit. After the change,
 DP 1000 reports 4570 K against a measured 4514 K.
 
+The tuned profile is kept at
+[`device-profiles/tuya_local/ligency_fl15b1p_fanlight.yaml`](../device-profiles/tuya_local/ligency_fl15b1p_fanlight.yaml).
+A `tuya_local` update replaces the installed copy with the shipped one
+(2700–6500 K), so updates to that integration are held; if one is ever taken,
+copying this file back into `custom_components/tuya_local/devices/` and
+reloading the config entry restores the calibration.
+
 Two consequences. A kelvin value typed into HA now lands on a different DP than
 it did under 2000–5000 — a stored "3599 K", for instance, would now be DP 622,
 cooler than the DP 533 it used to mean. The vendor app and voice control write
