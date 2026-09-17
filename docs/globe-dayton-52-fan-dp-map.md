@@ -532,10 +532,47 @@ cannot replace the CD for telling phosphor white from RGB white.
   the warm/cool ratio moved only 0.3% rms. A shutter slicing through
   out-of-phase dimming would have shown both, and would have got the colour
   wrong.
-* **White mode is an on-locus white.** Set to 3599 K, the unclipped core
-  measures 3483 K, Duv −0.003 — against Duv −0.012 for equal RGB drive.
+* **White mode is an on-locus white** at every setting measured — see
+  *White mode, measured*.
 * **Do not judge colour from the phone's preview.** The gallery rendered that
   capture with a pink cast that is not in the data.
+
+## White mode, measured
+
+RAW captures of white mode at DP 23 = 0, 533 and 1000, integrated over the
+fixture and converted with the spec-interpolated camera matrix (range across the
+daylight-only and tungsten-only matrices in brackets):
+
+| DP 23 | corrected label | measured | Duv | shipped label |
+|---|---|---|---|---|
+| 0 | 2000 K | **1951 K** (1833–2037) | −0.003 | 2700 K |
+| 533 | 3599 K | **3473 K** (3251–3599) | −0.005 | 4725 K |
+| 1000 | 5000 K | **4514 K** (4420–4543) | +0.003 | 6500 K |
+
+Two captures of the 5000 K setting three minutes apart agreed to within 1 K and
+0.0001 Duv, so the method is repeatable; its accuracy is bounded by the camera
+matrix, which read the camera's own 4000 K white balance 2% low.
+
+**It is a two-emitter blend.** The 3599 K capture is reproduced by a combination
+of the two end captures with a 0.1% misfit under every matrix — white mode is a
+warm and a cool white LED and nothing else, consistent with the CD result.
+
+**The blend is not a linear split of the setting.** Reaching the middle colour
+takes roughly two parts cool output to one part warm, where a split
+proportional to DP 23 would be 53:47. That fits firmware which targets a colour
+temperature and solves for the blend, rather than dividing drive. (The middle
+capture used a different exposure from the ends, so its brightness is not
+compared with theirs; the proportion is independent of exposure.)
+
+**The cool end is brighter.** At the same brightness setting and exposure, the
+5000 K setting gives about 1.35× the luminance of the 2000 K setting
+(1.19–1.47 across matrices).
+
+**A tighter mapping is available, and not applied.** The best straight line
+through the three measurements runs from 2000 K at DP 0 to about 4570 K at
+DP 1000, which would put every label within about 100 K of the measurement
+rather than within 490 K. The packaging and the vendor app both say 5000 K, and
+this rests on one phone's colour conversion, so the profile stays at 2000–5000.
 
 ## Notes for upstream
 
@@ -547,10 +584,10 @@ a PR rather than a bug report.
 2700–6500 K. Packaging states 2000–5000 K, and the vendor app's own slider is
 labelled 2000 K at the warm end. The app also displays a scene's white step
 stored as `695` as 4085 K — exactly 2000 + 695 × 3 — so the vendor's own
-conversion is the linear 2000–5000 K mapping. A RAW measurement of the fixture
-set to 3599 K under the corrected mapping reads 3483 K (Duv −0.003); the
-shipped mapping would have labelled the same setting 4725 K. Under the shipped
-mapping the reported value is
+conversion is the linear 2000–5000 K mapping. RAW measurements at both ends and
+the middle (see *White mode, measured*) put the corrected labels within 2.5–10%
+of what the fixture emits, where the shipped labels are 36–44% high at every
+point. Under the shipped mapping the reported value is
 700 K low at the warm end and 1500 K low at the cool end.
 
 Correcting `target_range` to `{min: 2000, max: 5000}` takes effect on a
