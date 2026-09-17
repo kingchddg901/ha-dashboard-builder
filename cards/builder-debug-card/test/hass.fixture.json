@@ -1,0 +1,1002 @@
+{
+ "areas": {
+  "bedroom": {
+   "area_id": "bedroom",
+   "floor_id": "main_floor",
+   "name": "Heidi and chris Room"
+  },
+  "gtill": {
+   "area_id": "gtill",
+   "floor_id": null,
+   "name": "gtill"
+  },
+  "washroom": {
+   "area_id": "washroom",
+   "floor_id": "main_floor",
+   "name": "washroom"
+  }
+ },
+ "devices": {
+  "2400e48587acb35da89f3cbe9038f888": {
+   "area_id": "bedroom",
+   "id": "2400e48587acb35da89f3cbe9038f888",
+   "manufacturer": "Tuya",
+   "model": null,
+   "name": "Local Ceiling fan",
+   "name_by_user": null
+  },
+  "74de75411ff65b7f8ec879d9efe20d74": {
+   "area_id": "washroom",
+   "id": "74de75411ff65b7f8ec879d9efe20d74",
+   "manufacturer": "Leedarson",
+   "model": "Smart RGBTW Bulb",
+   "name": "Smart RGBTW Bulb",
+   "name_by_user": "Bathroom3"
+  },
+  "a1b4b1f8dc0880af7717a56e86d4018b": {
+   "area_id": "gtill",
+   "id": "a1b4b1f8dc0880af7717a56e86d4018b",
+   "manufacturer": "PrimePolarIS",
+   "model": "Pellet Grill",
+   "name": "iFireTech1428",
+   "name_by_user": "Grill"
+  },
+  "b996d79851ff816836c22b1aed4b6d22": {
+   "area_id": "washroom",
+   "id": "b996d79851ff816836c22b1aed4b6d22",
+   "manufacturer": "Leedarson",
+   "model": "Smart RGBTW Bulb",
+   "name": "Smart RGBTW Bulb",
+   "name_by_user": "Bathroom1"
+  },
+  "b9d2a4086f551a31c6460c9ae84fa9fe": {
+   "area_id": "bedroom",
+   "id": "b9d2a4086f551a31c6460c9ae84fa9fe",
+   "manufacturer": "Samsung Electronics",
+   "model": "UN55AU8000FXZA (big tv)",
+   "name": "Big TV",
+   "name_by_user": null
+  },
+  "cc9270da4fba0b21dd7edc178111a065": {
+   "area_id": null,
+   "id": "cc9270da4fba0b21dd7edc178111a065",
+   "manufacturer": "Dreametech™",
+   "model": "dreame.vacuum.r2469a",
+   "name": "Robin",
+   "name_by_user": null
+  }
+ },
+ "entities": {
+  "binary_sensor.local_ceiling_fan_problem": {
+   "area_id": null,
+   "device_id": "2400e48587acb35da89f3cbe9038f888",
+   "entity_category": "diagnostic",
+   "entity_id": "binary_sensor.local_ceiling_fan_problem",
+   "hidden": false,
+   "platform": "tuya_local"
+  },
+  "climate.grill": {
+   "area_id": null,
+   "device_id": "a1b4b1f8dc0880af7717a56e86d4018b",
+   "entity_category": null,
+   "entity_id": "climate.grill",
+   "hidden": false,
+   "platform": "prime_polaris"
+  },
+  "fan.ceiling_fan": {
+   "area_id": null,
+   "device_id": "2400e48587acb35da89f3cbe9038f888",
+   "entity_category": null,
+   "entity_id": "fan.ceiling_fan",
+   "hidden": false,
+   "platform": "tuya_local"
+  },
+  "light.bathroom": {
+   "area_id": null,
+   "device_id": null,
+   "entity_category": null,
+   "entity_id": "light.bathroom",
+   "hidden": false,
+   "platform": "group"
+  },
+  "light.bathroom1": {
+   "area_id": null,
+   "device_id": "b996d79851ff816836c22b1aed4b6d22",
+   "entity_category": null,
+   "entity_id": "light.bathroom1",
+   "hidden": false,
+   "platform": "matter"
+  },
+  "light.bathroom3": {
+   "area_id": null,
+   "device_id": "74de75411ff65b7f8ec879d9efe20d74",
+   "entity_category": null,
+   "entity_id": "light.bathroom3",
+   "hidden": false,
+   "platform": "matter"
+  },
+  "light.ceiling_fan": {
+   "area_id": null,
+   "device_id": "2400e48587acb35da89f3cbe9038f888",
+   "entity_category": null,
+   "entity_id": "light.ceiling_fan",
+   "hidden": false,
+   "platform": "tuya_local"
+  },
+  "light.ceiling_fan_calibrated": {
+   "area_id": "bedroom",
+   "device_id": null,
+   "entity_category": null,
+   "entity_id": "light.ceiling_fan_calibrated",
+   "hidden": false,
+   "platform": "template"
+  },
+  "light.local_ceiling_fan_nightlight": {
+   "area_id": null,
+   "device_id": "2400e48587acb35da89f3cbe9038f888",
+   "entity_category": "config",
+   "entity_id": "light.local_ceiling_fan_nightlight",
+   "hidden": false,
+   "platform": "tuya_local"
+  },
+  "media_player.big_tv_2": {
+   "area_id": null,
+   "device_id": "b9d2a4086f551a31c6460c9ae84fa9fe",
+   "entity_category": null,
+   "entity_id": "media_player.big_tv_2",
+   "hidden": false,
+   "platform": "samsungtv_smart"
+  },
+  "number.local_ceiling_fan_fan_timer": {
+   "area_id": null,
+   "device_id": "2400e48587acb35da89f3cbe9038f888",
+   "entity_category": "config",
+   "entity_id": "number.local_ceiling_fan_fan_timer",
+   "hidden": false,
+   "platform": "tuya_local"
+  },
+  "remote.big_tv": {
+   "area_id": null,
+   "device_id": "b9d2a4086f551a31c6460c9ae84fa9fe",
+   "entity_category": null,
+   "entity_id": "remote.big_tv",
+   "hidden": false,
+   "platform": "samsungtv_smart"
+  },
+  "switch.local_ceiling_fan_do_not_disturb": {
+   "area_id": null,
+   "device_id": "2400e48587acb35da89f3cbe9038f888",
+   "entity_category": "config",
+   "entity_id": "switch.local_ceiling_fan_do_not_disturb",
+   "hidden": false,
+   "platform": "tuya_local"
+  },
+  "switch.local_ceiling_fan_fan_beep": {
+   "area_id": null,
+   "device_id": "2400e48587acb35da89f3cbe9038f888",
+   "entity_category": "config",
+   "entity_id": "switch.local_ceiling_fan_fan_beep",
+   "hidden": false,
+   "platform": "tuya_local"
+  },
+  "text.local_ceiling_fan_debug": {
+   "area_id": null,
+   "device_id": "2400e48587acb35da89f3cbe9038f888",
+   "entity_category": "config",
+   "entity_id": "text.local_ceiling_fan_debug",
+   "hidden": false,
+   "platform": "tuya_local"
+  },
+  "text.local_ceiling_fan_initial_settings": {
+   "area_id": null,
+   "device_id": "2400e48587acb35da89f3cbe9038f888",
+   "entity_category": "config",
+   "entity_id": "text.local_ceiling_fan_initial_settings",
+   "hidden": false,
+   "platform": "tuya_local"
+  },
+  "text.local_ceiling_fan_light_control": {
+   "area_id": null,
+   "device_id": "2400e48587acb35da89f3cbe9038f888",
+   "entity_category": "config",
+   "entity_id": "text.local_ceiling_fan_light_control",
+   "hidden": false,
+   "platform": "tuya_local"
+  },
+  "text.local_ceiling_fan_light_switch_gradient": {
+   "area_id": null,
+   "device_id": "2400e48587acb35da89f3cbe9038f888",
+   "entity_category": "config",
+   "entity_id": "text.local_ceiling_fan_light_switch_gradient",
+   "hidden": false,
+   "platform": "tuya_local"
+  },
+  "text.local_ceiling_fan_mix_light_scene": {
+   "area_id": null,
+   "device_id": "2400e48587acb35da89f3cbe9038f888",
+   "entity_category": "config",
+   "entity_id": "text.local_ceiling_fan_mix_light_scene",
+   "hidden": false,
+   "platform": "tuya_local"
+  },
+  "text.local_ceiling_fan_mix_rgbcw": {
+   "area_id": null,
+   "device_id": "2400e48587acb35da89f3cbe9038f888",
+   "entity_category": "config",
+   "entity_id": "text.local_ceiling_fan_mix_rgbcw",
+   "hidden": false,
+   "platform": "tuya_local"
+  },
+  "text.local_ceiling_fan_music": {
+   "area_id": null,
+   "device_id": "2400e48587acb35da89f3cbe9038f888",
+   "entity_category": "config",
+   "entity_id": "text.local_ceiling_fan_music",
+   "hidden": false,
+   "platform": "tuya_local"
+  },
+  "text.local_ceiling_fan_randomized_schedule": {
+   "area_id": null,
+   "device_id": "2400e48587acb35da89f3cbe9038f888",
+   "entity_category": "config",
+   "entity_id": "text.local_ceiling_fan_randomized_schedule",
+   "hidden": false,
+   "platform": "tuya_local"
+  },
+  "text.local_ceiling_fan_scene": {
+   "area_id": null,
+   "device_id": "2400e48587acb35da89f3cbe9038f888",
+   "entity_category": "config",
+   "entity_id": "text.local_ceiling_fan_scene",
+   "hidden": false,
+   "platform": "tuya_local"
+  },
+  "text.local_ceiling_fan_schedule": {
+   "area_id": null,
+   "device_id": "2400e48587acb35da89f3cbe9038f888",
+   "entity_category": "config",
+   "entity_id": "text.local_ceiling_fan_schedule",
+   "hidden": false,
+   "platform": "tuya_local"
+  },
+  "text.local_ceiling_fan_segment_dimming": {
+   "area_id": null,
+   "device_id": "2400e48587acb35da89f3cbe9038f888",
+   "entity_category": "config",
+   "entity_id": "text.local_ceiling_fan_segment_dimming",
+   "hidden": false,
+   "platform": "tuya_local"
+  },
+  "text.local_ceiling_fan_sleep_settings": {
+   "area_id": null,
+   "device_id": "2400e48587acb35da89f3cbe9038f888",
+   "entity_category": "config",
+   "entity_id": "text.local_ceiling_fan_sleep_settings",
+   "hidden": false,
+   "platform": "tuya_local"
+  },
+  "text.local_ceiling_fan_wake_settings": {
+   "area_id": null,
+   "device_id": "2400e48587acb35da89f3cbe9038f888",
+   "entity_category": "config",
+   "entity_id": "text.local_ceiling_fan_wake_settings",
+   "hidden": false,
+   "platform": "tuya_local"
+  },
+  "time.local_ceiling_fan_light_timer": {
+   "area_id": null,
+   "device_id": "2400e48587acb35da89f3cbe9038f888",
+   "entity_category": "config",
+   "entity_id": "time.local_ceiling_fan_light_timer",
+   "hidden": false,
+   "platform": "tuya_local"
+  },
+  "vacuum.robin": {
+   "area_id": null,
+   "device_id": "cc9270da4fba0b21dd7edc178111a065",
+   "entity_category": null,
+   "entity_id": "vacuum.robin",
+   "hidden": false,
+   "platform": "dreame_vacuum"
+  }
+ },
+ "states": {
+  "climate.grill": {
+   "attributes": {
+    "current_temperature": 27.8,
+    "email": "eufytesting4@gmail.com",
+    "friendly_name": "Grill",
+    "hvac_modes": [
+     "off",
+     "heat"
+    ],
+    "max_temp": 260.0,
+    "min_temp": 82.2,
+    "preset_mode": null,
+    "preset_modes": [
+     "Starting",
+     "Cooking",
+     "Off",
+     "Shutting Down",
+     "Error"
+    ],
+    "supported_features": 17,
+    "target_temp_step": 1,
+    "temperature": null,
+    "token_expiry": 1798661871
+   },
+   "entity_id": "climate.grill",
+   "state": "off"
+  },
+  "fan.ceiling_fan": {
+   "attributes": {
+    "direction": "forward",
+    "friendly_name": "Local Ceiling fan Fan",
+    "percentage": 66,
+    "percentage_step": 16.666666666666668,
+    "preset_mode": "normal",
+    "preset_modes": [
+     "normal",
+     "nature",
+     "sleep"
+    ],
+    "supported_features": 61
+   },
+   "entity_id": "fan.ceiling_fan",
+   "state": "off"
+  },
+  "light.bathroom": {
+   "attributes": {
+    "brightness": null,
+    "color_mode": null,
+    "color_temp_kelvin": null,
+    "entity_id": [
+     "light.bathroom1",
+     "light.washroom_bathroom2",
+     "light.bathroom3"
+    ],
+    "friendly_name": "Bathroom",
+    "hs_color": null,
+    "max_color_temp_kelvin": 6535,
+    "min_color_temp_kelvin": 1801,
+    "rgb_color": null,
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "supported_features": 32,
+    "xy_color": null
+   },
+   "entity_id": "light.bathroom",
+   "state": "off"
+  },
+  "light.bathroom1": {
+   "attributes": {
+    "brightness": null,
+    "color_mode": null,
+    "color_temp_kelvin": null,
+    "friendly_name": "Bathroom1",
+    "hs_color": null,
+    "max_color_temp_kelvin": 6535,
+    "min_color_temp_kelvin": 1801,
+    "rgb_color": null,
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "supported_features": 32,
+    "xy_color": null
+   },
+   "entity_id": "light.bathroom1",
+   "state": "off"
+  },
+  "light.bathroom3": {
+   "attributes": {
+    "brightness": null,
+    "color_mode": null,
+    "color_temp_kelvin": null,
+    "friendly_name": "Bathroom3",
+    "hs_color": null,
+    "max_color_temp_kelvin": 6535,
+    "min_color_temp_kelvin": 1801,
+    "rgb_color": null,
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "supported_features": 32,
+    "xy_color": null
+   },
+   "entity_id": "light.bathroom3",
+   "state": "off"
+  },
+  "light.ceiling_fan": {
+   "attributes": {
+    "brightness": 80,
+    "color_mode": "color_temp",
+    "color_temp_kelvin": 3369.81,
+    "effect": "off",
+    "effect_list": [
+     "Scene",
+     "Music",
+     "off"
+    ],
+    "friendly_name": "Local Ceiling fan",
+    "hs_color": [
+     27.312,
+     47.679
+    ],
+    "max_color_temp_kelvin": 4570,
+    "min_color_temp_kelvin": 2000,
+    "rgb_color": [
+     255,
+     189,
+     133
+    ],
+    "supported_color_modes": [
+     "color_temp",
+     "hs"
+    ],
+    "supported_features": 4,
+    "xy_color": [
+     0.464,
+     0.377
+    ]
+   },
+   "entity_id": "light.ceiling_fan",
+   "state": "on"
+  },
+  "light.ceiling_fan_calibrated": {
+   "attributes": {
+    "brightness": 80,
+    "color_mode": "color_temp",
+    "color_temp_kelvin": 3367,
+    "effect": "off",
+    "effect_list": [
+     "Scene",
+     "Music",
+     "off"
+    ],
+    "friendly_name": "Ceiling Fan Calibrated",
+    "hs_color": [
+     27.316,
+     47.743
+    ],
+    "icon": "mdi:ceiling-fan-light",
+    "max_color_temp_kelvin": 4566,
+    "min_color_temp_kelvin": 2000,
+    "rgb_color": [
+     255,
+     189,
+     133
+    ],
+    "supported_color_modes": [
+     "color_temp",
+     "hs"
+    ],
+    "supported_features": 4,
+    "xy_color": [
+     0.464,
+     0.377
+    ]
+   },
+   "entity_id": "light.ceiling_fan_calibrated",
+   "state": "on"
+  },
+  "media_player.big_tv_2": {
+   "attributes": {
+    "device_class": "tv",
+    "friendly_name": "Big TV",
+    "ip_address": "192.168.4.30",
+    "source_list": [
+     "TV",
+     "HDMI"
+    ],
+    "supported_features": 24509
+   },
+   "entity_id": "media_player.big_tv_2",
+   "state": "off"
+  },
+  "remote.big_tv": {
+   "attributes": {
+    "friendly_name": "Big TV",
+    "supported_features": 0
+   },
+   "entity_id": "remote.big_tv",
+   "state": "unknown"
+  },
+  "vacuum.robin": {
+   "attributes": {
+    "active_segments": null,
+    "ap": {
+     "bssid": "28:ec:22:9e:4a:e6",
+     "ip": "192.168.4.21",
+     "rssi": -34,
+     "ssid": "Internet"
+    },
+    "auto_add_detergent": 1,
+    "auto_drying": true,
+    "auto_dust_collecting": true,
+    "auto_empty_mode": "Standard",
+    "auto_empty_mode_list": [
+     "Off",
+     "Standard",
+     "High frequency",
+     "Low frequency"
+    ],
+    "auto_empty_status": "Idle",
+    "auto_water_refilling": false,
+    "battery": 100,
+    "capabilities": [
+     "lidar_navigation",
+     "multi_floor_map",
+     "self_wash_base",
+     "auto_empty_base",
+     "mop_pad_lifting",
+     "mop_pad_lifting_plus",
+     "customized_cleaning",
+     "auto_switch_settings",
+     "mopping_after_sweeping",
+     "wifi_map",
+     "backup_map",
+     "dnd",
+     "dnd_task",
+     "shortcuts",
+     "drainage",
+     "carpet_recognition",
+     "mop_pad_swing",
+     "mop_pad_swing_plus",
+     "off_peak_charging",
+     "max_suction_power",
+     "obstacle_image_crop",
+     "self_clean_frequency",
+     "auto_empty_mode",
+     "tight_mopping",
+     "floor_material",
+     "floor_direction_cleaning",
+     "segment_visibility",
+     "cleangenius",
+     "cleangenius_auto",
+     "intensive_carpet_cleaning",
+     "mopping_settings",
+     "cleaning_route",
+     "segment_slow_clean_route",
+     "pet_furniture",
+     "task_type",
+     "water_tank_draining",
+     "auto_rename_segment",
+     "ultra_clean_mode",
+     "clean_carpets_first",
+     "saved_furnitures",
+     "extended_furnitures",
+     "furnitures_v2",
+     "wetness",
+     "wetness_level",
+     "water_check",
+     "auto_carpet_cleaning",
+     "segment_mopping_settings",
+     "max_suction_power_extended",
+     "new_state",
+     "gen5",
+     "cleangenius_mode",
+     "washing_mode",
+     "virtual_tracks",
+     "station_cleaning",
+     "auto_add_detergent",
+     "carpet_cleanset_v2",
+     "carpet_id",
+     "auto_emptying",
+     "cleaning_sequence_v2",
+     "walls_v3",
+     "custom_cleaning_mode",
+     "map",
+     "walls"
+    ],
+    "carpet_avoidance": false,
+    "carpet_boost": true,
+    "carpet_cleaning": "Adaptation",
+    "carpet_cleaning_list": [
+     "Avoidance",
+     "Adaptation",
+     "Vacuum and mop",
+     "Ignore"
+    ],
+    "carpet_recognition": 1,
+    "charging": false,
+    "child_lock": false,
+    "clean_carpets_first": false,
+    "clean_water_tank_status": "Installed",
+    "cleaned_area": 5,
+    "cleangenius": "Off",
+    "cleangenius_cleaning": false,
+    "cleangenius_list": [
+     "Off",
+     "Routine cleaning",
+     "Deep cleaning"
+    ],
+    "cleangenius_mode": "Vacuum and mop",
+    "cleangenius_mode_list": [],
+    "cleaning_count": 52,
+    "cleaning_mode": "Sweeping",
+    "cleaning_mode_list": [
+     "Sweeping",
+     "Mopping",
+     "Sweeping and mopping",
+     "Mopping after sweeping"
+    ],
+    "cleaning_paused": 0,
+    "cleaning_route": "Standard",
+    "cleaning_route_list": [
+     "Quick",
+     "Standard"
+    ],
+    "cleaning_sequence": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ],
+    "cleaning_time": 5,
+    "collision_avoidance": true,
+    "cruising": false,
+    "current_segment": 7,
+    "custom_mopping_mode": 1,
+    "customized_cleaning": false,
+    "detergent_status": "Installed",
+    "device_class": "dreame_vacuum",
+    "dirty_water_tank_status": "Installed",
+    "dnd": [
+     {
+      "enabled": false,
+      "end": "08:00",
+      "id": 0,
+      "repeats": 127,
+      "ss": 0,
+      "start": "22:00"
+     }
+    ],
+    "docked": true,
+    "draining_available": true,
+    "drying": false,
+    "drying_available": true,
+    "drying_left": 0,
+    "drying_progress": 0,
+    "drying_time": 4,
+    "drying_time_list": [
+     2,
+     3,
+     4
+    ],
+    "dust_bag_status": "Installed",
+    "dust_collection_available": true,
+    "error": "No error",
+    "fan_speed": "Turbo",
+    "fan_speed_list": [
+     "Silent",
+     "Standard",
+     "Strong",
+     "Turbo"
+    ],
+    "faults": {},
+    "fill_light": true,
+    "filter_left": 95,
+    "filter_time_left": 143,
+    "firmware_version": "1636",
+    "floor_direction_cleaning": true,
+    "floor_direction_cleaning_available": true,
+    "friendly_name": "Robin",
+    "gap_cleaning_extension": true,
+    "has_error": false,
+    "has_saved_map": true,
+    "has_temporary_map": false,
+    "icon": "mdi:sleep",
+    "intensive_carpet_cleaning": true,
+    "last_updated_time": {
+     "auto_empty_status": 1789538923,
+     "cleaning_paused": 1789538923,
+     "faults": 1789538923,
+     "low_water_warning": 1789538923,
+     "task_status": 1789538923
+    },
+    "located": true,
+    "low_water": false,
+    "low_water_warning": "No warning",
+    "main_brush_left": 97,
+    "main_brush_time_left": 293,
+    "map_backup_status": "Idle",
+    "map_count": 2,
+    "map_recovery_status": "Idle",
+    "mapping": false,
+    "mapping_available": true,
+    "maps": [
+     {
+      "custom_name": "Main",
+      "date": "2026-09-15T23:08:46",
+      "id": 1,
+      "index": 1,
+      "name": "Main",
+      "recovery_map": [
+       "08/09/26 22:12:31: Map1 (Original)",
+       "08/10/26 19:32:42: Map2 (Edited)",
+       "08/30/26 18:03:50: Map3 (Backup)"
+      ]
+     },
+     {
+      "custom_name": "Test map",
+      "date": "2026-09-15T23:08:45",
+      "id": 21,
+      "index": 2,
+      "name": "Test map",
+      "recovery_map": [
+       "08/30/26 18:10:49: Map1 (Original)"
+      ]
+     }
+    ],
+    "max_suction_power": false,
+    "mop_extend": true,
+    "mop_extend_frequency": "High",
+    "mop_extend_frequency_list": [
+     "Standard",
+     "Intelligent",
+     "High"
+    ],
+    "mop_pad": true,
+    "mop_pad_humidity": "Moist",
+    "mop_pad_humidity_list": [],
+    "mop_wash_level": "Deep",
+    "mop_wash_level_list": [
+     "Deep",
+     "Daily",
+     "Water saving"
+    ],
+    "mopping_mode": 2,
+    "mopping_under_furnitures": true,
+    "multi_floor_map": true,
+    "nation_matched": "matched",
+    "obstacle_avoidance": true,
+    "off_peak_charging": false,
+    "off_peak_charging_end": "08:00",
+    "off_peak_charging_start": "22:00",
+    "paused": false,
+    "pet_focused_cleaning": true,
+    "previous_self_clean_area": 20,
+    "previous_self_clean_time": 25,
+    "relocation_status": "Located",
+    "resume_cleaning": true,
+    "returning": false,
+    "returning_paused": false,
+    "returning_to_wash": false,
+    "returning_to_wash_paused": false,
+    "rooms": {
+     "Main": [
+      {
+       "icon": "mdi:home-outline",
+       "id": 1,
+       "index": 0,
+       "name": "Entryway",
+       "type": 0
+      },
+      {
+       "icon": "mdi:home-outline",
+       "id": 2,
+       "index": 0,
+       "name": "Bryan's Room",
+       "type": 0
+      },
+      {
+       "icon": "mdi:chef-hat",
+       "id": 3,
+       "index": 0,
+       "name": "Kitchen",
+       "type": 4
+      },
+      {
+       "icon": "mdi:toilet",
+       "id": 4,
+       "index": 0,
+       "name": "Bathroom",
+       "type": 6
+      },
+      {
+       "icon": "mdi:home-outline",
+       "id": 5,
+       "index": 0,
+       "name": "Heidi & Chris",
+       "type": 0
+      },
+      {
+       "icon": "mdi:monitor-shimmer",
+       "id": 6,
+       "index": 0,
+       "name": "Office",
+       "type": 12
+      },
+      {
+       "icon": "mdi:home-outline",
+       "id": 7,
+       "index": 0,
+       "name": "Dining Room",
+       "type": 0
+      },
+      {
+       "icon": "mdi:sofa-outline",
+       "id": 8,
+       "index": 0,
+       "name": "Living Room",
+       "type": 1
+      },
+      {
+       "icon": "mdi:home-outline",
+       "id": 9,
+       "index": 0,
+       "name": "Cat Room",
+       "type": 0
+      },
+      {
+       "icon": "mdi:home-outline",
+       "id": 10,
+       "index": 0,
+       "name": "Hallway",
+       "type": 0
+      }
+     ],
+     "Test map": [
+      {
+       "icon": "mdi:home-outline",
+       "id": 1,
+       "index": 0,
+       "name": "Room 1",
+       "type": 0
+      },
+      {
+       "icon": "mdi:home-outline",
+       "id": 2,
+       "index": 0,
+       "name": "Room 2",
+       "type": 0
+      }
+     ]
+    },
+    "running": false,
+    "schedule": [],
+    "scheduled_clean": false,
+    "segment_cleaning": false,
+    "selected_map": "Main",
+    "selected_map_id": 1,
+    "selected_map_index": 1,
+    "self_clean": true,
+    "self_clean_area": 0,
+    "self_clean_area_default": 20,
+    "self_clean_area_max": 35,
+    "self_clean_area_min": 10,
+    "self_clean_frequency": "By room",
+    "self_clean_frequency_list": [
+     "By area",
+     "By time",
+     "By room"
+    ],
+    "self_clean_time_default": 25,
+    "self_clean_time_max": 50,
+    "self_clean_time_min": 10,
+    "sensor_dirty_left": 77,
+    "sensor_dirty_time_left": 23,
+    "shortcut_task": false,
+    "shortcuts": {
+     "32": {
+      "id": 32,
+      "index": 1,
+      "map_id": 1,
+      "name": "Pet Area Cleaning",
+      "running": false,
+      "tasks": [
+       [
+        {
+         "cleaning_mode": 2,
+         "cleaning_times": 1,
+         "coords": [
+          -1250,
+          3225,
+          -700,
+          3825
+         ],
+         "order": 1,
+         "suction_level": 2,
+         "task_type": 2,
+         "water_volume": 3,
+         "wetness_level": 4
+        },
+        {
+         "cleaning_mode": 0,
+         "cleaning_times": 1,
+         "coords": [
+          -5300,
+          -1125,
+          -4050,
+          -25
+         ],
+         "order": 2,
+         "suction_level": 2,
+         "task_type": 2,
+         "water_volume": 2,
+         "wetness_level": 3
+        }
+       ],
+       [
+        {
+         "cleaning_mode": 1,
+         "cleaning_times": 1,
+         "coords": [
+          -1250,
+          3225,
+          -700,
+          3825
+         ],
+         "order": 1,
+         "suction_level": 2,
+         "task_type": 2,
+         "water_volume": 3,
+         "wetness_level": 4
+        },
+        {
+         "cleaning_mode": 1,
+         "cleaning_times": 1,
+         "coords": [
+          -5300,
+          -1125,
+          -4050,
+          -25
+         ],
+         "order": 2,
+         "suction_level": 2,
+         "task_type": 2,
+         "water_volume": 2,
+         "wetness_level": 3
+        }
+       ]
+      ]
+     }
+    },
+    "side_brush_left": 99,
+    "side_brush_time_left": 199,
+    "spot_cleaning": false,
+    "started": false,
+    "station_drainage_status": "Idle",
+    "status": "Sleeping",
+    "suction_level": "Turbo",
+    "suction_level_list": [
+     "Quiet",
+     "Standard",
+     "Strong",
+     "Turbo"
+    ],
+    "supported_features": 31676,
+    "tight_mopping": false,
+    "timezone": "America/Los_Angeles",
+    "total_cleaned_area": 280,
+    "total_cleaning_time": 414,
+    "total_cruise_time": 0,
+    "total_runtime": 0,
+    "ultra_clean_mode": false,
+    "vacuum_state": "charging_completed",
+    "voice_packet_id": "EN",
+    "volume": 0,
+    "washing": false,
+    "washing_available": true,
+    "washing_paused": false,
+    "wetness_level": 20,
+    "zone_cleaning": false
+   },
+   "entity_id": "vacuum.robin",
+   "state": "docked"
+  }
+ }
+}
