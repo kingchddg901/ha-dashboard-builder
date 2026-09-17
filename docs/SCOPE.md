@@ -68,6 +68,13 @@ is true for some ceiling fans and false for others — separately-paired lights,
 So composition needs **declaration**, with device-registry inference as a convenience, not as the
 mechanism. The handoff defers this; the torture test forces it early, which is good.
 
+**Measured 2026-09-17** ([`ha-hint-audit.md`](ha-hint-audit.md)): for *this* fixture the
+registry does answer it — `fan.ceiling_fan` and `light.ceiling_fan` sit on one device that also
+carries the area, so the heading above is too strong while the body is right. The real break is
+elsewhere: `light.ceiling_fan_calibrated` is a template entity with **no device at all**, so
+device-registry inference silently returns the uncorrected light. Declaration stays the
+mechanism, for that reason rather than this one.
+
 ---
 
 ## 2.4 Hand-off to foreign cards — the sharpest open question
