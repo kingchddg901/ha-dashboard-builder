@@ -568,11 +568,19 @@ compared with theirs; the proportion is independent of exposure.)
 5000 K setting gives about 1.35× the luminance of the 2000 K setting
 (1.19–1.47 across matrices).
 
-**A tighter mapping is available, and not applied.** The best straight line
-through the three measurements runs from 2000 K at DP 0 to about 4570 K at
-DP 1000, which would put every label within about 100 K of the measurement
-rather than within 490 K. The packaging and the vendor app both say 5000 K, and
-this rests on one phone's colour conversion, so the profile stays at 2000–5000.
+**This unit runs a tighter mapping than the published one.** The best straight
+line through the three measurements runs from 2000 K at DP 0 to about 4570 K at
+DP 1000, which puts every label within about 100 K of the measurement rather
+than within 490 K. The local profile uses 2000–4570: LED batches vary, so the
+packaging describes the product line rather than this kit. After the change,
+DP 1000 reports 4570 K against a measured 4514 K.
+
+Two consequences. A kelvin value typed into HA now lands on a different DP than
+it did under 2000–5000 — a stored "3599 K", for instance, would now be DP 622,
+cooler than the DP 533 it used to mean. The vendor app and voice control write
+DPs directly and are unaffected. And the recommendation for upstream remains the
+published 2000–5000, since unit-to-unit variation is not something a shared
+profile can know.
 
 ## Notes for upstream
 
