@@ -149,11 +149,16 @@ light entities, 23 of which are a member of something.
 That narrows the declaration. `members` is only needed for a wrapper that publishes **nothing**
 about what it wraps:
 
-| wrapper | composition discoverable? |
-|---|---|
-| group (`light.bathroom`) | **yes** — members in `entity_id`, reverse edge in `search/related` |
-| `switch_as_x` (`light.kitchen`) | keeps the underlying switch's **device** and area, integration named |
-| template (`light.ceiling_fan_calibrated`) | **no** — related returns area and floor, nothing else |
+| wrapper | composition discoverable? | is the source deduped? |
+|---|---|---|
+| group (`light.bathroom`) | **yes** — members in `entity_id`, reverse edge in `search/related` | no, deliberately: group and members are both real controls |
+| `switch_as_x` (`light.kitchen`) | keeps the underlying switch's **device** and area, integration named | **yes, automatically** — `switch.shelly_1_gen4` is `HIDDEN by integration` |
+| template (`light.ceiling_fan_calibrated`) | **no** — related returns area and floor, nothing else | **no** — the raw light stays visible, unlinked |
+
+`light.kitchen` is a Shelly 1 Gen4 relay driving a dumb fixture, which is the commonest mixed
+case in any real house: binary because the hardware is, not because anything is misconfigured.
+Two of the three wrapper kinds describe themselves, so the template wrapper is the only one
+where a human has to say which entity is canonical.
 
 So the template light stays the case that needs a declaration, and it is the one that carries
 the colour correction.
