@@ -873,11 +873,31 @@ either integration exposes. From its label:
 | Light output | **180 Vdc, 18 W max** |
 | Motor output | **180 Vdc, 35 W max** |
 
-The FCC ID is the useful one for an upstream report: it is a public registry
-entry, tied to a grantee code rather than to a retail brand, so it identifies
-the module across every white-label fan it is fitted to. `GE27109TX` is worth
-putting in the profile's comments for the same reason — a person holding this
-receiver can search for it, where nobody can search for "Tuya / model: None".
+Looking that FCC ID up settles the manufacturer question, and it is not a
+white label in the usual sense. Grantee code `2AQUQ` is **Globe Electric Company
+Inc.**, Montreal, Quebec — 168 FCC IDs of their own, a Shenzhen-based
+responsible party, and a Chinese test lab. Globe certifies under its own code
+rather than reselling somebody else's certified module, so the name on the box
+is also the name on the grant.
+
+**The fan holds two certifications, for two different radios:**
+
+| FCC ID | covers | radio |
+|---|---|---|
+| `2AQUQGE37110` — "Ceiling Fan With Light" | the product, granted 2025-01-15 | **Wi-Fi and BLE** — separate WIFI-1, WIFI-2 and BLE test reports, 2402–2480 MHz |
+| `2AQUQGE27109TX` — the receiver module | the remote link, granted 2025-01-23 | proprietary **2.4G**, class DXX, 2402 / 2426 / 2480 MHz |
+
+So the smart side and the handheld remote are separate radios, and the label on
+the receiver names only the second one. That is worth knowing before concluding
+anything about what the remote does: its traffic never passes through the Tuya
+stack at all, which is why remote presses are not DP writes.
+
+**The grant covers four models** — 37000001, 37000098, 37000110 and 37000119,
+under a "Model difference statement" — so this controller is fitted across a
+family of Globe fans rather than this SKU alone. For the profile's `products:`
+block that is the important part: the mapping likely serves several fans, and
+`GE37110` identifies the family where a retail SKU identifies one box on one
+shelf in one country.
 
 ## Still open
 
