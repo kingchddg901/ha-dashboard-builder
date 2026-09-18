@@ -178,6 +178,13 @@ on/off, not observing it. Given design rule 7's requirement that the row tell yo
 without opening the entity, an assumed state is a **claim, not an observation**, and should not
 look identical to a reported one.
 
+> **Corrected for this integration.** `androidtv_remote` sets the flag on the whole entity class,
+> while power and volume both arrive from the TV by callback. What it cannot observe is playback,
+> because play and pause are bare key presses. Read literally, the flag would grey out a power state
+> that is observed. `tv-core.js` declares the narrower meaning for this one platform
+> (`ASSUMED_STATE_COVERS`), and every other platform keeps the conservative reading. The general
+> point stands: the flag's meaning is per integration, and has to be read from the integration.
+
 ### A caution about reading `restored: True`
 
 > **Corrected.** This document first read three entities flipping to `restored: True` at an

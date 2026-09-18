@@ -14,11 +14,15 @@
  * title: Big TV
  * media_player: media_player.big_tv_2
  * remote: remote.big_tv
+ *
+ * The d-pad speaks whichever language the remote's integration does - Samsung's
+ * KEY_* codes or Android TV's DPAD_* names - looked up from the remote's own
+ * platform. A remote on a platform with no key table gets no d-pad at all.
  */
 
 import { describeEntity } from "../builder-debug-card/capability-core.js";
 import { layoutFor, axisFor } from "../appliance-card/control-core.js";
-import { keyCommand, tvControls } from "./tv-core.js";
+import { platformKey, tvControls } from "./tv-core.js";
 
 const esc = (v) => String(v).replace(/[&<>"]/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -80,17 +84,24 @@ class TvCard extends HTMLElement {
     const rec = st ? describeEntity({ entityId: id, entry: this._hass.entities?.[id] || null,
       state: st, devices: this._hass.devices || {}, areas: this._hass.areas || {} }) : null;
     const c = tvControls(rec);
+    const remotePlatform = this._config.remote
+      ? (this._hass.entities?.[this._config.remote]?.platform ?? null) : null;
+    const hasPad = Boolean(this._config.remote && platformKey("OK", remotePlatform));
     const layout = layoutFor(this._width);
     const axis = axisFor(layout, this._height);
 
-    const sig = JSON.stringify([layout, axis, c, this._lastKey]);
+    const sig = JSON.stringify([layout, axis, c, this._lastKey, remotePlatform]);
     if (sig === this._sig) return;
     this._sig = sig;
 
-    const stateWord = !c.available ? "unavailable" : c.on ? "on" : "off";
+    const stateWord = !c.available ? "unavailable" : !c.on ? "off"
+      : c.power.confirmed ? "on" : "on (assumed)";
     const src = c.source;
     const srcLine = !c.on ? "" : src.kind === "exact" ? src.current
       : src.kind === "ambiguous" ? `${esc(src.list.join(" or "))} - the set can't say which` : "";
+    // No source picker (Android TV has none): say which app is running instead,
+    // as the package id it really is - HA gives no display name for it.
+    const appLine = c.on && !c.source.canSelect && c.app ? `running ${esc(c.app)}` : "";
 
     this.shadowRoot.innerHTML = `
       <style>${STYLE}</style>
@@ -117,20 +128,25 @@ class TvCard extends HTMLElement {
                    data-src="${esc(s)}" ${c.on ? "" : "disabled"}>${esc(s)}</button>`).join("")}
             </div>
             <div class="srcline">${srcLine}</div>` : ""}
+            ${appLine ? `<div class="srcline">${appLine}</div>` : ""}
           </div>
-          ${this._config.remote ? `
+          ${this._config.remote && !hasPad ? `
+          <div class="col pad"><div class="srcline">no key table for ${esc(remotePlatform || "this remote")}
+            - the d-pad is left off rather than guessed</div></div>` : ""}
+          ${hasPad ? `
           <div class="col pad ${c.on ? "" : "dim"}">
             <div class="dpad">
               <span></span><button class="k" data-k="UP" aria-label="Up">▲</button><span></span>
               <button class="k" data-k="LEFT" aria-label="Left">◀</button>
-              <button class="k ok" data-k="ENTER" aria-label="OK">OK</button>
+              <button class="k ok" data-k="OK" aria-label="OK">OK</button>
               <button class="k" data-k="RIGHT" aria-label="Right">▶</button>
               <span></span><button class="k" data-k="DOWN" aria-label="Down">▼</button><span></span>
             </div>
             <div class="navrow">
-              <button class="k small" data-k="RETURN">back</button>
+              <button class="k small" data-k="BACK">back</button>
               <button class="k small" data-k="HOME">home</button>
               <button class="k small" data-k="MENU">menu</button>
+              <button class="k small" data-k="GUIDE">guide</button>
             </div>
             <div class="sent">${this._lastKey ? `sent ${esc(this._lastKey)} <span class="dim">· the set doesn't confirm keys</span>` : "&nbsp;"}</div>
           </div>` : ""}
@@ -152,8 +168,10 @@ class TvCard extends HTMLElement {
       this._call("media_player", "volume_mute", { entity_id: id, is_volume_muted: !c.volume.muted }));
     r.querySelectorAll(".src").forEach((b) => b.addEventListener("click", () =>
       this._call("media_player", "select_source", { entity_id: id, source: b.dataset.src })));
+    const platform = this._config.remote
+      ? (this._hass.entities?.[this._config.remote]?.platform ?? null) : null;
     r.querySelectorAll(".k").forEach((b) => b.addEventListener("click", () => {
-      const cmd = keyCommand(b.dataset.k);
+      const cmd = platformKey(b.dataset.k, platform);
       if (!cmd || !this._config.remote) return;
       this._call("remote", "send_command", { entity_id: this._config.remote, command: cmd });
       this._lastKey = cmd;

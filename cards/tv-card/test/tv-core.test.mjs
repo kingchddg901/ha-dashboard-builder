@@ -11,7 +11,9 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 import { describeEntity } from "../../builder-debug-card/capability-core.js";
-import { REMOTE_KEYS, keyCommand, sourceState, tvControls, tvSummary } from "../tv-core.js";
+import {
+  REMOTE_KEYS, keyCommand, sourceState, tvControls, tvSummary, platformKey,
+} from "../tv-core.js";
 
 const hass = JSON.parse(readFileSync(
   new URL("../../builder-debug-card/test/hass.fixture.json", import.meta.url), "utf8"));
@@ -99,4 +101,54 @@ test("the TV's glance says muted, off and unavailable plainly", () => {
   assert.equal(tvSummary(tvControls(muted)), "on · 22% muted");
   assert.equal(tvSummary(tvControls(offRecord)), "off");
   assert.equal(tvSummary(tvControls({ state: "unavailable", raw: {} })), "unavailable");
+});
+
+/* ------------------------------------------------------------- android tv */
+
+// Measured live on 2026-09-18 from media_player.android_tv_2 (androidtv_remote).
+const android = {
+  state: "on", platform: "androidtv_remote",
+  raw: { supported_features: 153529, volume_level: 0.72, is_volume_muted: false,
+    app_id: "com.tcl.tv", assumed_state: true, device_class: "tv" },
+};
+
+// RED IF: a logical key is sent in the wrong platform's words, or a key is
+// guessed for a platform with no vocabulary.
+test("the d-pad speaks each platform's own words", () => {
+  assert.equal(platformKey("OK", "samsungtv_smart"), "KEY_ENTER");
+  assert.equal(platformKey("OK", "androidtv_remote"), "DPAD_CENTER");
+  assert.equal(platformKey("BACK", "androidtv_remote"), "BACK");
+  assert.equal(platformKey("BACK", "samsungtv"), "KEY_RETURN");
+  assert.equal(platformKey("GUIDE", "samsungtv_smart"), "KEY_GUIDE");
+  assert.equal(platformKey("GUIDE", "androidtv_remote"), "GUIDE");
+  assert.equal(platformKey("OK", "some_other_tv"), null);
+  assert.equal(platformKey("NETFLIX", "androidtv_remote"), null);
+});
+
+// RED IF: the blanket assumed_state flag greys out a power state the TV pushes.
+// The integration's own source sets the flag on the class, while power and volume
+// arrive by callback; only playback is unseen.
+test("Android TV's assumed_state covers playback, not power", () => {
+  const c = tvControls(android);
+  assert.equal(c.assumed, true);
+  assert.equal(c.power.confirmed, true);
+  assert.equal(c.transport.confirmed, false);
+  assert.equal(c.volume.level, 72);
+  assert.equal(c.volume.confirmed, true);
+  assert.equal(tvSummary(c), "on · 72%");
+});
+
+// RED IF: an unknown platform's assumed_state is trusted as observed.
+test("elsewhere, assumed_state is read conservatively", () => {
+  const c = tvControls({ ...android, platform: "some_ir_blaster" });
+  assert.equal(c.power.confirmed, false);
+  assert.equal(tvSummary(c), "on (assumed) · 72%");
+});
+
+test("Android TV offers volume steps but no source picker, and names its app", () => {
+  const c = tvControls(android);
+  assert.equal(c.volume.step, true);
+  assert.equal(c.volume.set, false);
+  assert.equal(c.source.canSelect, false);
+  assert.equal(c.app, "com.tcl.tv");
 });

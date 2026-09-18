@@ -32,6 +32,43 @@ export const REMOTE_KEYS = Object.freeze([
   "RED", "GREEN", "YELLOW", "BLUE",
 ]);
 
+/**
+ * The d-pad in each platform's own words. The card asks for a LOGICAL key and
+ * the core translates it for whichever integration owns the remote. A platform
+ * with no table here gets no d-pad at all - sending a guessed key name to a
+ * remote that ignores it would be a control that does nothing, silently.
+ *
+ * Android TV Remote names are the TV's own key codes without the KEYCODE_ prefix
+ * (androidtvremote2's remotemessage.proto: DPAD_*, BACK, HOME, MENU, GUIDE), and
+ * an unknown name is refused there with an error; core samsungtv uses the
+ * same KEY_* codes as samsungtv_smart, so moving Big TV to core later is a
+ * config change and not a code change.
+ */
+const SAMSUNG_KEYS = Object.freeze({ UP: "KEY_UP", DOWN: "KEY_DOWN", LEFT: "KEY_LEFT", RIGHT: "KEY_RIGHT",
+  OK: "KEY_ENTER", BACK: "KEY_RETURN", HOME: "KEY_HOME", MENU: "KEY_MENU", GUIDE: "KEY_GUIDE" });
+export const PLATFORM_KEYS = Object.freeze({
+  samsungtv_smart: SAMSUNG_KEYS,
+  samsungtv: SAMSUNG_KEYS,
+  androidtv_remote: Object.freeze({ UP: "DPAD_UP", DOWN: "DPAD_DOWN", LEFT: "DPAD_LEFT", RIGHT: "DPAD_RIGHT",
+    OK: "DPAD_CENTER", BACK: "BACK", HOME: "HOME", MENU: "MENU", GUIDE: "GUIDE" }),
+});
+
+export function platformKey(logical, platform) {
+  return PLATFORM_KEYS[platform]?.[logical] ?? null;
+}
+
+/**
+ * What `assumed_state` actually covers, per integration.
+ *
+ * HA's flag says "this state is assumed" and most integrations mean on/off. The
+ * Android TV Remote integration sets it on the whole class while power and
+ * volume both arrive from the TV by callback - what it cannot see is PLAYBACK,
+ * since play and pause are bare key presses. Reading the flag literally would
+ * grey out a power state that is observed. So the correction is declared here,
+ * from the source, and every other platform keeps the conservative reading.
+ */
+export const ASSUMED_STATE_COVERS = Object.freeze({ androidtv_remote: "transport" });
+
 /** A key name -> the string remote.send_command expects, or null if unknown. */
 export function keyCommand(key) {
   const k = String(key || "").toUpperCase().replace(/^KEY_/, "");
@@ -62,7 +99,7 @@ export function sourceState(record) {
 export function tvSummary(c) {
   if (!c?.available) return "unavailable";
   if (!c.on) return "off";
-  const parts = ["on"];
+  const parts = [c.power.confirmed ? "on" : "on (assumed)"];
   if (c.source.kind === "exact") parts.push(c.source.current);
   if (c.volume.confirmed) parts.push(c.volume.muted ? `${c.volume.level}% muted` : `${c.volume.level}%`);
   return parts.join(" · ");
@@ -75,8 +112,11 @@ export function tvSummary(c) {
  * state). A control can be offered and unconfirmed - that is the normal case for
  * anything the set does not report back.
  */
-export function tvControls(record) {
+export function tvControls(record, { platform = null } = {}) {
   const f = decodeFeatures("media_player", record?.raw?.supported_features);
+  const plat = platform || record?.platform || null;
+  const assumed = record?.raw?.assumed_state === true;
+  const covers = ASSUMED_STATE_COVERS[plat] || "state";
   const has = (name) => f.names.includes(name);
   const on = record?.state === "on";
   const vol = record?.raw?.volume_level;
@@ -85,7 +125,8 @@ export function tvControls(record) {
   return {
     on,
     available: record != null && !["unavailable", "unknown"].includes(record.state),
-    power: { canOn: has("TURN_ON"), canOff: has("TURN_OFF") },
+    power: { canOn: has("TURN_ON"), canOff: has("TURN_OFF"),
+      confirmed: !(assumed && covers === "state") },
     volume: {
       step: has("VOLUME_STEP"), set: has("VOLUME_SET"), mute: has("VOLUME_MUTE"),
       level, muted,
@@ -95,7 +136,11 @@ export function tvControls(record) {
     transport: {
       play: has("PLAY"), pause: has("PAUSE"), stop: has("STOP"),
       next: has("NEXT_TRACK"), prev: has("PREVIOUS_TRACK"),
+      confirmed: false,                    // key presses; nothing reports playback back
     },
+    app: record?.raw?.app_id ?? null,      // a package id - HA gives no display name
+    assumed,
+    platform: plat,
     features: f.names,
   };
 }

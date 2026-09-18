@@ -28,7 +28,7 @@ Copy **both** `samsung-tvplus-card.js` and `tvplus-core.js` to `config/www/`
 
 ```yaml
 type: custom:samsung-tvplus-card
-remote: remote.big_tv_un55au8000fxza
+remote: remote.big_tv
 title: Living room
 channels:
   - Witness to Justice
@@ -39,7 +39,7 @@ channels:
 
 | option | | |
 |---|---|---|
-| `remote` | **required** | a `remote.*` entity for the TV — the one from the core `samsungtv` integration |
+| `remote` | **required** | a `remote.*` entity for the TV, from core `samsungtv` or from `samsungtv_smart` (see below) |
 | `channels` | **required** | channel **names**, not numbers (see below) |
 | `title` | optional | card heading |
 | `region` | optional | `us` (default), `ca`, `gb`, `de`, `fr`, `es`, `it`, `at`, `ch`, `in`, `kr` |
@@ -60,6 +60,12 @@ claims nothing about the result. (Launching an *app* is different: that the TV d
 **Local News 1–5 are not worth adding.** The lineup source resolves those slots for whatever
 market its scraper ran in, so they are somebody else's stations. Everything else is national and
 correct.
+
+## Which remote
+
+Tuning was measured through core `samsungtv`. `samsungtv_smart` also works, going by its source:
+its remote joins the keys with `+` and spaces them out itself, so the card's `delay_secs` is
+ignored there. That path has been read, but no channel has been tuned through it yet.
 
 ## Data source
 

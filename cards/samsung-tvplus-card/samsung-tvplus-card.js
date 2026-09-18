@@ -13,7 +13,7 @@
  * adapter and is the disposable half.
  *
  * type: custom:samsung-tvplus-card
- * remote: remote.big_tv_un55au8000fxza
+ * remote: remote.big_tv
  * channels:
  *   - Witness to Justice
  *   - CBS News 24/7
