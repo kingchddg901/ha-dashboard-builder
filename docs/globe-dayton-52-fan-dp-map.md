@@ -395,6 +395,30 @@ than pale pink. RAW captures at a single fixed exposure (1/1000 s, ISO 50,
 Green is weak against red and blue — which pushes any RGB white toward magenta —
 and blue is roughly twice its usual share, which pushes it cool.
 
+**Why yellow is the hardest colour here.** Two limits land on it at once.
+
+The green primary is washed out rather than weak. It carries the largest share of
+the luminance, but at x 0.303, y 0.513 it sits only about 46 percent as far from
+white as a typical 525 nm green LED does. That pulls the whole red-green edge of
+the gamut toward white, and yellow lives on that edge: a ray from D65 toward sRGB
+yellow leaves the fixture's gamut **75 percent of the way out**, at about
+x 0.392, y 0.461. Whatever is asked for, the most saturated yellow this fixture can
+produce is a pale one. Pushing green up does not help, because the green itself is
+the limit.
+
+And yellow is the one hue that stops reading as itself when dim - a dark yellow
+is seen as olive, mustard or brown. Colour mode normalises total drive to about
+one channel's worth, and RGB light here is roughly twelve times dimmer than the
+white emitters, so every yellow it makes is both pale and dim. The two together
+are why it is hard to hit by hand.
+
+What helps: full brightness, which yellow needs more than any other hue, and
+leaning toward orange at hue 45-50, which draws on the strong, saturated red
+primary instead of the washed-out green. What would have made it easy is warm
+white phosphor with a yellow tint on top - bright, and already near yellow-orange
+- which is exactly what `mix_rgbcw` (DP 51) would allow and what the firmware
+ignores.
+
 **The firmware's white.** Colour mode at 0% saturation measures
 **9,854 K, Duv −0.016**: blue, and below the Planckian locus toward purple. The
 three solo captures, summed, predict 9,501 K, so the measurement and the model
