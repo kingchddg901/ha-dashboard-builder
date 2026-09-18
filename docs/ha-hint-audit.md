@@ -44,10 +44,16 @@ come from HA** for a device like Robin or the Grill.
 **159 (33%)** at the first pass — 158 inherited from the device, 1 set on the entity — leaving
 320 with no area by either route. Across all 1,410: 439 via device, 1 via entity, 970 nothing.
 
-This number is the one that moves, because assigning an area is a two-click job: a re-read a
-few hours later, after some were assigned by hand, gave 162 placed (160 device, 2 entity) and
-317 unplaced. The shape of the problem is what matters, not the exact count — a third placed,
-and every gap fixable by hand.
+This number is the one that moves, because assigning an area is a two-click job. Over the same
+afternoon it was closed by hand: **478 of 479 placed (452 via device, 26 via entity), one left**
+— `person.christopher_king`, deliberately, because a person is not in a place. Four new areas
+did most of the work by giving the roomless things somewhere honest to go: *System Level*,
+*Virtual Item*, *Phones*, *Public Areas*.
+
+So the measured 33% is what an **unmaintained** registry looks like, not a ceiling — and that is
+the state any other install will be in on first run. The builder still cannot assume placement;
+it can assume placement is *achievable*, which makes an unplaced bucket a migration path rather
+than a permanent fixture.
 
 Primary visible entities by domain: sensor 181, select 75, number 69, switch 41, button 34,
 light 28, text 8, media_player 5, binary_sensor 5, input_boolean 4, automation 4, vacuum 3,
@@ -202,8 +208,10 @@ layout:
    defect. `dreame_vacuum` is the proof; "Error" as a preset is the second.
 3. **Use `entity_category` to hide plumbing, but treat "primary" as a claim, not a verdict.**
    A per-integration prominence override is required, not optional.
-4. **Do not make area-driven discovery the only path.** It reaches a third of the visible
-   primary entities. Either areas get assigned to what matters, or there is an unplaced bucket.
+4. **Do not make area-driven discovery the only path** — for a registry nobody has curated it
+   reaches a third of the visible primary entities. Offer the unplaced bucket, and treat it as
+   something a user empties: this house went from 33% to 478/479 in an afternoon once the gaps
+   were listed by leverage, since a device's area places every entity on it.
 5. **Assign an area to every helper at creation**, or it is invisible to the graph — and do not
    group by device alone, or user-created entities disappear.
 6. **Ids for identity, names for display, parse neither.** `bedroom` displays as "Heidi and
