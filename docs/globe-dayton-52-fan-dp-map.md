@@ -583,13 +583,21 @@ on, so the calibration describes a fixture near that thermal state. All the comp
 sound - each run held its states about eight seconds apart, so they share a warm-up point - but
 absolute accuracy after an hour of running is untested. It is one capture to find out.
 
-Two consequences. It may explain the weakest number in the set - the green coordinate reads far
-less saturated than a green LED should, which a slightly warm or ivory diffuser would do by
-absorbing more of the short and middle wavelengths than it does red; the camera matrix was the
-other candidate, and neither makes the correction wrong, because both sit in the path for real
-use too. And it binds the calibration to this assembly: swap the globe, or let it yellow or
-gather dust over years, and the numbers drift. Recalibration is the same afternoon's work, and
-the method above is repeatable, but a clean globe is part of what was measured.
+**What the globe actually is** matters for how far this travels: a plain frosted-white opal
+dome over the hub, the commonest diffuser in the category rather than a shaped optic. Two things
+follow. The method, and probably the rough magnitudes, should carry to other fixtures of this
+class - while the exact endpoints stay specific to this kit, because LED binning varies more
+than a standard diffuser does. And it weakens the diffuser as an explanation for the weakest
+number in the set: the green coordinate reads far less saturated than a green LED should, which
+an ivory or warm diffuser could cause, but a frosted white one is built to be close to neutral
+and is unlikely to account for a shift that size. That leaves the camera matrix - fitted for
+broadband light and asked to judge a narrow-band green - as the leading candidate, still
+untested. Neither possibility makes the correction wrong, because both sat in the path during
+use exactly as they did during measurement.
+
+It does bind the calibration to this assembly: swap the globe, or let it yellow or gather dust
+over years, and the numbers drift. Recalibration is the same afternoon's work with the method
+above, but a clean globe is part of what was measured.
 
 **The eye cannot referee sequential states.** In a room lit only by the fixture,
 vision adapts to each state within seconds, and the corrected and uncorrected
