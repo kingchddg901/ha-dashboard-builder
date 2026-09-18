@@ -42,16 +42,33 @@ Both halves are readable. A group publishes its members in its `entity_id` attri
 member's area resolves from the registry (its own, or its device's). So one predicate separates
 the two kinds of group:
 
-* Members resolve to the group's **own area** → a *local* control. `light.bathroom` over its
-  three bulbs, `light.hall_front_2` over its two. One control standing in for several things in
-  the same place; the group and its members will both answer a query for that area, and the
-  dashboard decides which to show.
-* Members resolve to **other** areas → the group's area is a **parent** of those areas. That is
-  `hallway`, and `public_areas`.
+* Members resolve to the group's **own area** → the group is the **object**, and its members are
+  parts of it. `light.hall_back` is not a convenience over two bulbs, it is *one fixture* —
+  `Hall back1` and `Hall back2` are separate devices because HA has no concept of a fixture, so
+  the group is the only place that fact exists. `light.bathroom` over its three bulbs is the
+  same move one size up. Show the group; the parts are for diagnostics.
+* Members resolve to **other** areas → the group's area is a **parent** of those areas — a
+  *place*, not an object. That is `hallway` and `public_areas`. Here both levels are real
+  controls and **neither should be buried**: the house this came from uses the zone when it
+  wants the whole hall lit and a single child when it does not, which is the entire reason the
+  child areas were split out.
 
 Nothing is named specially, no label or prefix is required, and a user who happens to build that
 shape without reading this gets the hierarchy anyway — because the shape genuinely means what
 the rule says it means.
+
+## What the shape does not tell you
+
+The levels exist for reasons that are nowhere in Home Assistant. In the house above, the hall is
+split three ways because **the back fixture spills into the living room and the front one into
+the bedroom** — so "hall back only" and "hall front only" are the controls that let one room
+stay dark while another is lit.
+
+Nothing in HA models adjacency or spill. The group tree is the *trace* of that knowledge, and it
+is enough to build the right controls — the granularities are all there. What it cannot
+reconstruct is **why**, which is what a control needs to explain itself: *Back — keeps light out
+of the living room*. That sentence is real user knowledge, it is one line per control, and it is
+a better use of a declaration file than anything the registry can already answer.
 
 ## What it does not require
 
