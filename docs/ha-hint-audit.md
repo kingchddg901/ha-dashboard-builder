@@ -194,6 +194,35 @@ and strictly less capable (no effects, no scenes, no presets beyond two, no DP s
 lamp, on two devices, with nothing anywhere linking them. This is the canonical-entity problem in
 its purest form, and it is the case a human has to settle.
 
+## Off does not mean the same thing twice
+
+A fan that is off still reports the speed it will come back at; a light that is off reports
+nothing at all. Read at one moment across this house:
+
+| | while `off` |
+|---|---|
+| `fan.ceiling_fan` | `percentage: 66`, `preset_mode: normal` — retained |
+| `fan.heidi_and_chris_room_ceiling_fan` | `percentage: 60`, `preset_mode: None` |
+| every `light.*` that is off (13 of them) | `brightness`, `color_temp_kelvin`, `color_mode` all `None` |
+
+The light behaviour is HA's spec, not a bug — a light that is off has no brightness. The fan
+keeps its level because the value is the **restore field**: it is what the device will resume at,
+which is why the vendor app greys its fan card and still prints *Speed 4*.
+
+Two things follow for a renderer:
+
+* **There is no single "show the last value while off" rule.** For a fan the restore value is
+  there and worth showing, provided the off state is unmistakable — a filled slider with no
+  off-treatment reads as running. For a light the value does not exist, so a dashboard that wants
+  to promise "it will come back at 32%" has to remember that itself.
+* **The capability exists in the hardware either way.** This fixture has power-on-behaviour data
+  points — last state, or a default colour — and the vendor app exposes them as settings. So the
+  light *does* restore; HA's light entity simply will not say to what. Hardware knows, the vendor
+  app knows, the integration drops it.
+
+The two integrations disagree here as well: `tuya_local` retains `preset_mode: normal` while off,
+the cloud entity reports `None` and does not list `normal` as a preset at all.
+
 ## What groups answer — added after the first pass
 
 A light **group** publishes its own membership in the `entity_id` state attribute, and
