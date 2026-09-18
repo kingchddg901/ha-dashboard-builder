@@ -151,18 +151,26 @@ class ApplianceCard extends HTMLElement {
     const mode = !colourCapable ? "white"
       : this._mode || (light?.raw?.color_mode === "hs" ? "colour" : "white");
 
-    // The desk opens where the light is - or, when it is off, where it will
-    // come back. Re-seeded only when the light itself changes, never mid-drag,
-    // so after a release the faders settle onto what the fixture ACTUALLY did.
-    // That is the gamut made visible: ask for pure green and they settle at the
-    // saturation this fixture can reach, instead of pretending it got there.
+    // The faders hold INTENT - what was asked for - and never the outcome.
+    // An earlier version re-seeded them from the light after every release, to
+    // show the gamut, and it made the desk impossible to steer: ask for yellow,
+    // the fixture reports the nearest yellow it can make, the faders jump there,
+    // and every correction is overwritten the same way. So the desk is seeded
+    // when it opens, and again only when the light changes for a reason that is
+    // not our own command - the app, voice, another dashboard. Our own echo is
+    // recognised by time: tuya_local shows an optimistic value for 5 s and the
+    // real one after the next poll, so 7 s covers both. What the fixture
+    // actually made is shown beside the faders instead of written into them.
     const mixKey = JSON.stringify([light?.raw?.hs_color, light?.raw?.brightness, light?.state]);
     if (light && this._mixKey !== mixKey) {
       this._mixKey = mixKey;
-      const mem = this._remembered(this._config.light);
-      const src = light.state === "on" ? light
-        : { raw: { hs_color: mem?.hs ?? null, brightness: mem?.b ?? null } };
-      this._mix = colorToMix(src);
+      const echo = Date.now() < (this._echoUntil || 0);
+      if (!this._mix || !echo) {
+        const mem = this._remembered(this._config.light);
+        const src = light.state === "on" ? light
+          : { raw: { hs_color: mem?.hs ?? null, brightness: mem?.b ?? null } };
+        this._mix = colorToMix(src);
+      }
     }
 
     const sig = JSON.stringify([layout, axis, fan?.state, light?.state, speed, level, kelvin, appear,
@@ -176,7 +184,7 @@ class ApplianceCard extends HTMLElement {
         <div class="hd">${esc(this._config.title)}<span class="lay">${esc(layout)} · ${esc(axis)}</span></div>
         ${fan ? this._fanBlock(fan, speed) : ""}
         ${light ? this._lightBlock(light, level, kelvin, appear, mode, colourCapable) : ""}
-        ${light && mode === "colour" ? this._deskBlock() : ""}
+        ${light && mode === "colour" ? this._deskBlock(light) : ""}
       </ha-card>`;
     this._wire(fan, speed, light, level, kelvin);
     if (light) this._wireDesk(mode);
@@ -261,8 +269,12 @@ class ApplianceCard extends HTMLElement {
   /* The desk: three channel faders, a saturation handle over them, and a master.
      Faders are rows in every layout for now - thumb-sized, and immune to the
      vertical-range quirks some WebViews still have. */
-  _deskBlock() {
+  _deskBlock(light) {
     const m = this._mix;
+    const hs = light?.state === "on" ? light?.raw?.hs_color : null;
+    const got = Array.isArray(hs) ? `hsl(${hs[0]}, ${hs[1]}%, 55%)` : "transparent";
+    const gotText = Array.isArray(hs)
+      ? `hue ${Math.round(hs[0])}° · sat ${Math.round(hs[1])}%` : "—";
     const fader = (key, label, value) => `
       <label class="fader f-${key}"><span class="fl">${label}</span>
         <input class="fr" data-ch="${key}" type="range" min="0" max="100" value="${value}"
@@ -270,7 +282,11 @@ class ApplianceCard extends HTMLElement {
         <span class="fv">${value}</span></label>`;
     return `
       <div class="desk">
-        <div class="deskhead"><span class="bigswatch"></span><span class="desksum"></span></div>
+        <div class="deskhead">
+          <span class="pair"><span class="bigswatch" title="asked"></span><span class="cap">asked</span></span>
+          <span class="pair"><span class="gotswatch" style="background:${got}" title="the fixture reports"></span><span class="cap">got</span></span>
+          <span class="sums"><span class="desksum"></span><span class="gotsum">fixture: ${gotText}</span></span>
+        </div>
         ${fader("r", "R", m.r)}
         ${fader("g", "G", m.g)}
         ${fader("b", "B", m.b)}
@@ -288,7 +304,8 @@ class ApplianceCard extends HTMLElement {
       this._mode = "white"; this._sig = null; this._render();
     });
     r.querySelector(".mode-colour")?.addEventListener("click", () => {
-      this._mode = "colour"; this._sig = null; this._render();
+      this._mode = "colour"; this._mix = null; this._mixKey = null;
+      this._sig = null; this._render();
     });
     if (mode !== "colour" || !this._mix) return;
 
@@ -318,6 +335,7 @@ class ApplianceCard extends HTMLElement {
     const send = () => {
       const m = this._mix;
       const cmd = mixToCommand(m, { power: m.power });
+      this._echoUntil = Date.now() + 7000;
       if (cmd.off) this._call("light", "turn_off", { entity_id: lightId });
       else this._call("light", "turn_on",
         { entity_id: lightId, rgb_color: cmd.rgb_color, brightness_pct: cmd.brightness_pct });
@@ -474,8 +492,14 @@ const STYLE = `
   .modes button.on { border-color: var(--accent-color, #ff9900); color: var(--primary-text-color); }
   .desk { display: grid; gap: 4px; padding: 2px 0 12px; }
   .deskhead { display: flex; align-items: center; gap: 9px; margin-bottom: 3px; }
-  .bigswatch { width: 30px; height: 30px; border-radius: 7px; flex: none;
+  .bigswatch, .gotswatch { width: 30px; height: 30px; border-radius: 7px; flex: none; display: block;
                box-shadow: inset 0 0 0 1px rgba(255,255,255,.22); }
+  .pair { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .cap { font-size: 9.5px; letter-spacing: .06em; text-transform: uppercase;
+         color: var(--secondary-text-color); }
+  .sums { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+  .gotsum { font-size: 10.5px; color: var(--secondary-text-color); opacity: .75;
+            font-variant-numeric: tabular-nums; }
   .desksum { font-size: 11.5px; color: var(--secondary-text-color); font-variant-numeric: tabular-nums; }
   .fader { display: grid; grid-template-columns: 50px 1fr 32px; align-items: center; gap: 8px; }
   .fl { font-size: 10.5px; letter-spacing: .06em; color: var(--secondary-text-color); }
