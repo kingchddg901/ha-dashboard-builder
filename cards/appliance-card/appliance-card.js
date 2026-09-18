@@ -22,7 +22,30 @@
  */
 
 import { describeEntity } from "../builder-debug-card/capability-core.js";
-import { speedControl, levelControl, kelvinControl, layoutFor, axisFor } from "./control-core.js";
+import {
+  speedControl, levelControl, kelvinControl, appearanceControl, layoutFor, axisFor,
+} from "./control-core.js";
+
+/** Rough kelvin -> sRGB, for a swatch only. Not the calibration; that lives in HA. */
+const KELVIN_STOPS = [[2000, [255, 141, 41]], [2700, [255, 175, 109]], [3400, [255, 199, 150]],
+  [4200, [255, 218, 187]], [5000, [255, 231, 211]], [6500, [255, 244, 234]]];
+function kelvinSwatch(k) {
+  if (k == null) return "transparent";
+  const st = KELVIN_STOPS;
+  if (k <= st[0][0]) return `rgb(${st[0][1].join(",")})`;
+  if (k >= st[st.length - 1][0]) return `rgb(${st[st.length - 1][1].join(",")})`;
+  for (let i = 1; i < st.length; i++) {
+    if (k <= st[i][0]) {
+      const t = (k - st[i - 1][0]) / (st[i][0] - st[i - 1][0]);
+      const c = st[i - 1][1].map((v, j) => Math.round(v + (st[i][1][j] - v) * t));
+      return `rgb(${c.join(",")})`;
+    }
+  }
+  return "transparent";
+}
+const swatchOf = (a) => a.mode === "color" && a.hs
+  ? `hsl(${a.hs[0]}, ${a.hs[1]}%, 55%)`
+  : kelvinSwatch(a.kelvin);
 
 const esc = (v) => String(v).replace(/[&<>"]/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -95,8 +118,9 @@ class ApplianceCard extends HTMLElement {
     const speed = fan ? speedControl(fan, { declaredNotches: this._config.notches }) : null;
     const level = light ? levelControl(light, { remembered: this._remembered(this._config.light) }) : null;
     const kelvin = light ? kelvinControl(light) : null;
+    const appear = light ? appearanceControl(light, { remembered: this._remembered(this._config.light) }) : null;
 
-    const sig = JSON.stringify([layout, fan?.state, light?.state, speed, level, kelvin]);
+    const sig = JSON.stringify([layout, fan?.state, light?.state, speed, level, kelvin, appear]);
     if (sig === this._sig) return;
     this._sig = sig;
 
@@ -105,7 +129,7 @@ class ApplianceCard extends HTMLElement {
       <ha-card class="${esc(layout)} ${esc(axis)}">
         <div class="hd">${esc(this._config.title)}<span class="lay">${esc(layout)} · ${esc(axis)}</span></div>
         ${fan ? this._fanBlock(fan, speed) : ""}
-        ${light ? this._lightBlock(light, level, kelvin) : ""}
+        ${light ? this._lightBlock(light, level, kelvin, appear) : ""}
       </ha-card>`;
     this._wire(fan, speed, light, level, kelvin);
   }
@@ -140,7 +164,7 @@ class ApplianceCard extends HTMLElement {
       </div>`;
   }
 
-  _lightBlock(light, level, kelvin) {
+  _lightBlock(light, level, kelvin, appear) {
     const on = light.state === "on";
     const shown = level.pct ?? level.restore ?? 0;
     const bar = level.supported
@@ -155,15 +179,24 @@ class ApplianceCard extends HTMLElement {
           <button class="power light-power" aria-label="Light power">☀</button>
           <div class="txt">
             <div class="name">Light ${on ? "on" : "off"}</div>
-            <div class="sub">${level.state === "lit" ? `${level.pct}%`
+            <div class="sub">
+              <span class="dot" style="background:${swatchOf(appear)}"></span>
+              ${level.state === "lit" ? `${level.pct}%`
         : level.state === "off-restores" ? `off · returns to ${level.restore}%`
-          : "off · level unknown"}</div>
+          : "off · level unknown"}${appear.from === "remembered"
+        ? appear.mode === "temp" ? ` at ${Math.round(appear.kelvin)} K`
+          : ` at hue ${Math.round(appear.hs[0])}°`
+        : ""}</div>
             ${kelvin ? `<div class="kel">
               <span class="klabel">colour</span>
-              <input class="ktemp" type="range" min="${kelvin.min}" max="${kelvin.max}"
-                     step="10" value="${kelvin.current ?? kelvin.min}" aria-label="Colour temperature">
-              <span class="sub">${kelvin.current ? Math.round(kelvin.current) : "—"} K
-                <span class="src">${kelvin.min}–${kelvin.max} measured</span></span>
+              <input class="ktemp ${appear.mode === "unknown" ? "idle" : ""}" type="range"
+                     min="${kelvin.min}" max="${kelvin.max}" step="10"
+                     value="${appear.kelvin ?? Math.round((kelvin.min + kelvin.max) / 2)}"
+                     aria-label="Colour temperature">
+              <span class="sub">${appear.mode === "unknown" ? "—"
+        : `${Math.round(appear.kelvin ?? 0)} K`}
+                <span class="src">${appear.from === "remembered" ? "remembered"
+          : appear.mode === "unknown" ? "unknown" : `${kelvin.min}–${kelvin.max} measured`}</span></span>
             </div>` : ""}
           </div>
         </div>
@@ -243,6 +276,10 @@ const STYLE = `
           color: var(--secondary-text-color); border: 1px dashed var(--divider-color, #555);
           border-radius: 6px; padding: 4px; }
   .kel { margin-top: 8px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%;
+         margin-right: 5px; vertical-align: baseline;
+         box-shadow: inset 0 0 0 1px rgba(255,255,255,.25); }
+  .ktemp.idle { opacity: .4; }
   .klabel { font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase;
             color: var(--secondary-text-color); }
   .ktemp { width: 100%; max-width: 220px; accent-color: var(--accent-color, #ff9900); }

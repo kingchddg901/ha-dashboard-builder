@@ -87,6 +87,30 @@ export function kelvinControl(record) {
 }
 
 /**
+ * What colour the light will come back as.
+ *
+ * HA nulls colour_temp_kelvin and hs_color at switch-off along with brightness,
+ * so a control that falls back to the range minimum is claiming the light
+ * returns at 2000 K when it returns at whatever it was. The remembered values
+ * are the only source, and when there are none the honest answer is `unknown` -
+ * never a plausible-looking default.
+ */
+export function appearanceControl(record, { remembered = null } = {}) {
+  const on = record?.state === "on";
+  const liveK = record?.raw?.color_temp_kelvin ?? null;
+  const liveHs = record?.raw?.hs_color ?? null;
+  if (on && liveK != null) return { mode: "temp", kelvin: liveK, hs: null, from: "live" };
+  if (on && liveHs) return { mode: "color", kelvin: null, hs: liveHs, from: "live" };
+  if (!on && remembered?.k != null) {
+    return { mode: "temp", kelvin: remembered.k, hs: null, from: "remembered" };
+  }
+  if (!on && remembered?.hs) {
+    return { mode: "color", kelvin: null, hs: remembered.hs, from: "remembered" };
+  }
+  return { mode: "unknown", kelvin: null, hs: null, from: on ? "live" : "none" };
+}
+
+/**
  * What a parent control can promise.
  *
  * `offered` is the union across members - keep offering it, most members honour

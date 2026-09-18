@@ -14,7 +14,8 @@ import { readFileSync } from "node:fs";
 
 import { describeEntity, groupIndex } from "../../builder-debug-card/capability-core.js";
 import {
-  speedControl, levelControl, kelvinControl, composeCapabilities, layoutFor, axisFor,
+  speedControl, levelControl, kelvinControl, appearanceControl, composeCapabilities,
+  layoutFor, axisFor,
 } from "../control-core.js";
 
 const hass = JSON.parse(readFileSync(
@@ -103,6 +104,47 @@ test("a binary light is not offered a level at all", () => {
   const kitchen = { state: "on", capabilities: { supported_color_modes: ["onoff"] }, raw: {} };
   assert.equal(levelControl(kitchen, {}).supported, false);
   assert.equal(levelControl(rec("light.ceiling_fan_calibrated"), {}).supported, true);
+});
+
+/* ------------------------------------------------------------- appearance */
+
+// RED IF: an off light falls back to the range minimum, which reads as "returns at
+// 2000 K" when it returns at 3367. HA nulls colour at switch-off exactly as it
+// nulls brightness, so the remembered value is the only truthful source.
+test("an off light reports the colour it will return to, not the range floor", () => {
+  const off = { state: "off", capabilities: { min_color_temp_kelvin: 2000, max_color_temp_kelvin: 4566 },
+                raw: { color_temp_kelvin: null, hs_color: null } };
+  const a = appearanceControl(off, { remembered: { k: 3367, pct: 31 } });
+  assert.equal(a.mode, "temp");
+  assert.equal(a.kelvin, 3367);
+  assert.equal(a.from, "remembered");
+});
+
+// RED IF: a plausible-looking default is invented when nothing is known.
+test("off with nothing remembered is unknown, not a guess", () => {
+  const a = appearanceControl({ state: "off", capabilities: {}, raw: {} }, {});
+  assert.equal(a.mode, "unknown");
+  assert.equal(a.kelvin, null);
+  assert.equal(a.from, "none");
+});
+
+// RED IF: a remembered colour is dropped because only kelvin was handled. This
+// light was measured at hue 239.5, saturation 100 - a deep blue nobody would
+// guess from a colour-temperature range.
+test("a remembered hs colour survives too", () => {
+  const a = appearanceControl({ state: "off", capabilities: {}, raw: {} },
+    { remembered: { hs: [239.528, 100.0], pct: 66 } });
+  assert.equal(a.mode, "color");
+  assert.deepEqual(a.hs, [239.528, 100.0]);
+  assert.equal(a.from, "remembered");
+});
+
+// RED IF: a lit light shows a stale remembered value instead of what it is doing.
+test("a lit light reports live colour, ignoring the memory", () => {
+  const on = rec("light.ceiling_fan_calibrated");
+  const a = appearanceControl(on, { remembered: { k: 9999 } });
+  assert.equal(a.from, "live");
+  assert.equal(a.kelvin, on.raw.color_temp_kelvin);
 });
 
 /* ----------------------------------------------------------------- kelvin */
