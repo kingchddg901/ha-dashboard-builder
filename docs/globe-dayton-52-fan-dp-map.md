@@ -561,6 +561,22 @@ matrix, which has independent anchors only near white — its own 4000 K white
 balance read 2% low, and the white-mode endpoints measured 1951 K and 4514 K.
 Trust near-white results most and saturated greens least.
 
+**The reference plane is the diffuser, and that is the right place for it.** Every measurement
+here - the primaries, the firmware's white, the three-point kelvin and the corrected checks - was
+taken through the fixture's diffusion globe, because that is how the fixture was assembled and
+how it is used. It reads like contamination and is the opposite: the globe is a fixed element of
+the light path, so what has been characterised is the **luminaire as installed** rather than a
+bare emitter. A dashboard swatch is meant to match what lands on the ceiling, and the ceiling
+only ever receives light that has already passed through the globe.
+
+Two consequences. It may explain the weakest number in the set - the green coordinate reads far
+less saturated than a green LED should, which a slightly warm or ivory diffuser would do by
+absorbing more of the short and middle wavelengths than it does red; the camera matrix was the
+other candidate, and neither makes the correction wrong, because both sit in the path for real
+use too. And it binds the calibration to this assembly: swap the globe, or let it yellow or
+gather dust over years, and the numbers drift. Recalibration is the same afternoon's work, and
+the method above is repeatable, but a clean globe is part of what was measured.
+
 **The eye cannot referee sequential states.** In a room lit only by the fixture,
 vision adapts to each state within seconds, and the corrected and uncorrected
 whites looked much alike. Judge against a second, fixed light source, or let the
