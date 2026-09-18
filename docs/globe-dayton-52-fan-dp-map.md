@@ -606,8 +606,18 @@ installation shows packages in two clearly different phosphor colours - roughly 
 and 45 pale yellow by blob count off a casual photo, so treat the numbers as indicative and the
 *two classes* as the finding. That is the warm and cool white channels, visible as hardware,
 which is what the RAW captures concluded from the other end when the 3599 K setting was
-reproduced by a combination of the two end captures to a 0.1 percent misfit. The RGB packages
-have clear encapsulant and cannot be counted the same way.
+reproduced by a combination of the two end captures to a 0.1 percent misfit.
+
+A closer frame shows **three** package types and no more: amber phosphor, pale yellow phosphor,
+and clear packages with their dies visible under the lens instead of a phosphor layer - the RGB.
+So the emitter inventory is exactly the two whites plus RGB that the measurements inferred, with
+no fourth channel anywhere on the board. The `nightlight` entity therefore cannot have an
+emitter of its own; whatever it does, it does with these.
+
+The clear packages are also visibly the minority. That is the hardware behind a number measured
+at the other end: white mode at 10 percent brightness out-shone corrected RGB at full by 1.2x,
+about twelve times the light for the same white. Fewer colour packages, and phosphor conversion
+being the more efficient way to make white, both point the same way.
 
 **The eye cannot referee sequential states.** In a room lit only by the fixture,
 vision adapts to each state within seconds, and the corrected and uncorrected
