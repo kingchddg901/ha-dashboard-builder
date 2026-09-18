@@ -110,6 +110,97 @@ export function appearanceControl(record, { remembered = null } = {}) {
   return { mode: "unknown", kelvin: null, hs: null, from: on ? "live" : "none" };
 }
 
+/* ------------------------------------------------------------------ mixer
+ *
+ * A mixing desk, not a colour wheel. Each of R, G and B is a FADER - a drive
+ * level from 0 to 100. The brightest fader sets how bright; the ratios between
+ * them set the colour. Saturation is a handle onto the same three faders, and
+ * power is a master over all of them.
+ *
+ * That model is honest for this fixture in a way a wheel is not: colour mode
+ * normalises total drive to about one channel's worth, so "brightness = the top
+ * fader x the master" matches what the firmware does, and three faders at 100
+ * give white at the same brightness as one fader at 100 gives a pure colour.
+ */
+
+/** HSV hue (0-360) of an RGB triple, or null for a grey that has no hue. */
+function hueOf(r, g, b) {
+  const M = Math.max(r, g, b), m = Math.min(r, g, b), d = M - m;
+  if (d === 0) return null;
+  let h;
+  if (M === r) h = ((g - b) / d) % 6;
+  else if (M === g) h = (b - r) / d + 2;
+  else h = (r - g) / d + 4;
+  h *= 60;
+  return h < 0 ? h + 360 : h;
+}
+
+/** Fully saturated, full-value RGB for a hue, each channel 0..1. */
+function pureOf(h) {
+  const c = 1, x = 1 - Math.abs(((h / 60) % 2) - 1);
+  const [r, g, b] = h < 60 ? [c, x, 0] : h < 120 ? [x, c, 0] : h < 180 ? [0, c, x]
+    : h < 240 ? [0, x, c] : h < 300 ? [x, 0, c] : [c, 0, x];
+  return [r, g, b];
+}
+
+/**
+ * Faders -> the service call. Only the RATIOS reach HA as rgb_color (normalised so
+ * the top channel is 255), because a light driven by hue and saturation cannot
+ * tell R 40 from R 100 - the level belongs to brightness. So R 40 alone is the
+ * same RED as R 100 alone, at 40 percent instead of 100.
+ */
+export function mixToCommand({ r = 0, g = 0, b = 0 } = {}, { power = 100 } = {}) {
+  const M = Math.max(r, g, b);
+  if (M <= 0 || power <= 0) return { off: true };
+  const rgb_color = [r, g, b].map((c) => Math.round((c / M) * 255));
+  const saturation = 1 - Math.min(r, g, b) / M;
+  return {
+    off: false,
+    rgb_color,
+    brightness_pct: Math.max(1, Math.round((M * power) / 100)),
+    hue: hueOf(r, g, b),
+    saturation,
+  };
+}
+
+/**
+ * Move the saturation handle: keep the hue and the top fader where they are, and
+ * slide the other two toward the top (paler) or toward zero (purer).
+ */
+export function setSaturation({ r = 0, g = 0, b = 0 }, s) {
+  const M = Math.max(r, g, b);
+  const h = hueOf(r, g, b);
+  if (M <= 0 || h == null) return { r, g, b };          // grey or dark: no hue to keep
+  const sat = Math.max(0, Math.min(1, s));
+  const [pr, pg, pb] = pureOf(h);
+  const f = (p) => Math.round(M * (1 - sat * (1 - p)));
+  return { r: f(pr), g: f(pg), b: f(pb) };
+}
+
+/**
+ * The light's live colour -> fader positions, so the desk opens where the light
+ * is. The top fader is parked at 100 and the master carries the brightness, which
+ * keeps the faders about colour and the master about level.
+ */
+export function colorToMix(record) {
+  const hs = record?.raw?.hs_color;
+  const brightness = record?.raw?.brightness;
+  const power = brightness == null ? 100 : Math.round(brightness / 2.55);
+  if (!Array.isArray(hs)) return { r: 100, g: 100, b: 100, saturation: 0, power, known: false };
+  const [h, s] = hs;
+  const sat = Math.max(0, Math.min(1, s / 100));
+  const [pr, pg, pb] = pureOf(((h % 360) + 360) % 360);
+  const f = (p) => Math.round(100 * (1 - sat * (1 - p)));
+  return { r: f(pr), g: f(pg), b: f(pb), saturation: sat, power, known: true };
+}
+
+/**
+ * Below this the "colour" is mostly white made from RGB, which on this fixture is
+ * about twelve times dimmer than the white emitters. A renderer should offer the
+ * white-mode control instead of letting the desk produce a dim tinted white.
+ */
+export const RGB_WHITE_TRAP_SATURATION = 0.12;
+
 /**
  * What a parent control can promise.
  *

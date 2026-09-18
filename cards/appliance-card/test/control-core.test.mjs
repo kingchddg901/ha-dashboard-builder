@@ -15,7 +15,7 @@ import { readFileSync } from "node:fs";
 import { describeEntity, groupIndex } from "../../builder-debug-card/capability-core.js";
 import {
   speedControl, levelControl, kelvinControl, appearanceControl, composeCapabilities,
-  layoutFor, axisFor,
+  layoutFor, axisFor, mixToCommand, setSaturation, colorToMix, RGB_WHITE_TRAP_SATURATION,
 } from "../control-core.js";
 
 const hass = JSON.parse(readFileSync(
@@ -145,6 +145,84 @@ test("a lit light reports live colour, ignoring the memory", () => {
   const a = appearanceControl(on, { remembered: { k: 9999 } });
   assert.equal(a.from, "live");
   assert.equal(a.kelvin, on.raw.color_temp_kelvin);
+});
+
+/* ------------------------------------------------------------------ mixer */
+
+// RED IF: a fader's level leaks into the colour. HA drives this light by hue and
+// saturation, which cannot tell R 40 from R 100 - so both must send the same RED,
+// and only the brightness may differ.
+test("a lower fader is the same colour, dimmer", () => {
+  const full = mixToCommand({ r: 100, g: 0, b: 0 });
+  const low = mixToCommand({ r: 40, g: 0, b: 0 });
+  assert.deepEqual(full.rgb_color, [255, 0, 0]);
+  assert.deepEqual(low.rgb_color, [255, 0, 0]);
+  assert.equal(full.brightness_pct, 100);
+  assert.equal(low.brightness_pct, 40);
+});
+
+// RED IF: three faders at 100 are treated as brighter than one. Colour mode
+// normalises total drive to about one channel's worth, so white-from-RGB and a
+// pure colour at the same top fader are the same brightness.
+test("all three at 100 is white at the same brightness as one at 100", () => {
+  const w = mixToCommand({ r: 100, g: 100, b: 100 });
+  assert.deepEqual(w.rgb_color, [255, 255, 255]);
+  assert.equal(w.brightness_pct, 100);
+  assert.equal(w.saturation, 0);
+  assert.equal(w.hue, null);
+});
+
+test("the master scales the level and never the colour", () => {
+  const c = mixToCommand({ r: 100, g: 50, b: 0 }, { power: 50 });
+  assert.deepEqual(c.rgb_color, [255, 128, 0]);
+  assert.equal(c.brightness_pct, 50);
+});
+
+// RED IF: all faders down sends a black colour instead of turning the light off.
+test("every fader down, or the master down, is off", () => {
+  assert.equal(mixToCommand({ r: 0, g: 0, b: 0 }).off, true);
+  assert.equal(mixToCommand({ r: 100, g: 0, b: 0 }, { power: 0 }).off, true);
+});
+
+// RED IF: the saturation handle moves the hue or the top fader. It may only slide
+// the two lower faders.
+test("saturation keeps the hue and the top fader", () => {
+  assert.deepEqual(setSaturation({ r: 100, g: 0, b: 0 }, 0.5), { r: 100, g: 50, b: 50 });
+  const orange = { r: 100, g: 50, b: 0 };
+  const half = setSaturation(orange, 0.5);
+  assert.equal(Math.max(half.r, half.g, half.b), 100, "top fader unchanged");
+  const before = mixToCommand(orange).hue;
+  const after = mixToCommand(half).hue;
+  assert.ok(Math.abs(before - after) < 1.5, `hue drifted ${before} -> ${after}`);
+});
+
+test("a grey has no hue to keep, so saturation leaves it alone", () => {
+  assert.deepEqual(setSaturation({ r: 60, g: 60, b: 60 }, 1), { r: 60, g: 60, b: 60 });
+});
+
+// RED IF: the desk opens somewhere other than where the light is. This is the
+// measured state of a real light, left at hue 239.5 and saturation 100.
+test("the desk opens at the live colour, and round-trips", () => {
+  const blue = { state: "on", raw: { hs_color: [239.528, 100.0], brightness: 169 } };
+  const mix = colorToMix(blue);
+  assert.equal(mix.known, true);
+  assert.equal(mix.power, 66);
+  assert.equal(Math.max(mix.r, mix.g, mix.b), 100);
+  const back = mixToCommand(mix, { power: mix.power });
+  assert.ok(Math.abs(back.hue - 239.528) < 1.5, `hue ${back.hue}`);
+  assert.ok(back.saturation > 0.98);
+});
+
+// RED IF: a light that reports no colour opens the desk at an invented one.
+test("no live colour opens the desk at white, marked unknown", () => {
+  const m = colorToMix({ state: "on", raw: { brightness: 80 } });
+  assert.equal(m.known, false);
+  assert.deepEqual([m.r, m.g, m.b], [100, 100, 100]);
+});
+
+test("the RGB-white trap threshold sits low but above zero", () => {
+  assert.ok(RGB_WHITE_TRAP_SATURATION > 0 && RGB_WHITE_TRAP_SATURATION < 0.25);
+  assert.ok(mixToCommand({ r: 100, g: 95, b: 92 }).saturation < RGB_WHITE_TRAP_SATURATION);
 });
 
 /* ----------------------------------------------------------------- kelvin */

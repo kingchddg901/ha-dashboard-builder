@@ -24,6 +24,7 @@
 import { describeEntity } from "../builder-debug-card/capability-core.js";
 import {
   speedControl, levelControl, kelvinControl, appearanceControl, layoutFor, axisFor,
+  mixToCommand, setSaturation, colorToMix, RGB_WHITE_TRAP_SATURATION,
 } from "./control-core.js";
 
 /** Rough kelvin -> sRGB, for a swatch only. Not the calibration; that lives in HA. */
@@ -142,7 +143,30 @@ class ApplianceCard extends HTMLElement {
     // the soft keyboard shrinks the window, the resize handler re-renders, and
     // rebuilding the DOM destroys the very input the keyboard opened for.
     if (this._dragging || this._editing) return;
-    const sig = JSON.stringify([layout, axis, fan?.state, light?.state, speed, level, kelvin, appear]);
+
+    // White or colour: the fixture is only ever in one, so the card shows one.
+    // It follows the light until the user picks, then stays where they put it.
+    const colourCapable = Boolean(light?.capabilities?.supported_color_modes?.some(
+      (m) => ["hs", "rgb", "rgbw", "rgbww", "xy"].includes(m)));
+    const mode = !colourCapable ? "white"
+      : this._mode || (light?.raw?.color_mode === "hs" ? "colour" : "white");
+
+    // The desk opens where the light is - or, when it is off, where it will
+    // come back. Re-seeded only when the light itself changes, never mid-drag,
+    // so after a release the faders settle onto what the fixture ACTUALLY did.
+    // That is the gamut made visible: ask for pure green and they settle at the
+    // saturation this fixture can reach, instead of pretending it got there.
+    const mixKey = JSON.stringify([light?.raw?.hs_color, light?.raw?.brightness, light?.state]);
+    if (light && this._mixKey !== mixKey) {
+      this._mixKey = mixKey;
+      const mem = this._remembered(this._config.light);
+      const src = light.state === "on" ? light
+        : { raw: { hs_color: mem?.hs ?? null, brightness: mem?.b ?? null } };
+      this._mix = colorToMix(src);
+    }
+
+    const sig = JSON.stringify([layout, axis, fan?.state, light?.state, speed, level, kelvin, appear,
+      mode, mixKey]);
     if (sig === this._sig) return;
     this._sig = sig;
 
@@ -151,9 +175,11 @@ class ApplianceCard extends HTMLElement {
       <ha-card class="${esc(layout)} ${esc(axis)}">
         <div class="hd">${esc(this._config.title)}<span class="lay">${esc(layout)} · ${esc(axis)}</span></div>
         ${fan ? this._fanBlock(fan, speed) : ""}
-        ${light ? this._lightBlock(light, level, kelvin, appear) : ""}
+        ${light ? this._lightBlock(light, level, kelvin, appear, mode, colourCapable) : ""}
+        ${light && mode === "colour" ? this._deskBlock() : ""}
       </ha-card>`;
     this._wire(fan, speed, light, level, kelvin);
+    if (light) this._wireDesk(mode);
   }
 
   _fanBlock(fan, speed) {
@@ -186,7 +212,7 @@ class ApplianceCard extends HTMLElement {
       </div>`;
   }
 
-  _lightBlock(light, level, kelvin, appear) {
+  _lightBlock(light, level, kelvin, appear, mode, colourCapable) {
     const on = light.state === "on";
     const shown = level.pct ?? level.restore ?? 0;
     const bar = level.supported
@@ -211,7 +237,11 @@ class ApplianceCard extends HTMLElement {
         ? appear.mode === "temp" ? ` at ${Math.round(appear.kelvin)} K`
           : ` at hue ${Math.round(appear.hs[0])}°`
         : ""}</div>
-            ${kelvin ? `<div class="kel">
+            ${colourCapable ? `<div class="modes" role="group" aria-label="Light mode">
+              <button class="mode-white ${mode === "white" ? "on" : ""}">white</button>
+              <button class="mode-colour ${mode === "colour" ? "on" : ""}">colour</button>
+            </div>` : ""}
+            ${kelvin && mode === "white" ? `<div class="kel">
               <span class="klabel">colour</span>
               <input class="ktemp ${appear.mode === "unknown" ? "idle" : ""}" type="range"
                      min="${kelvin.min}" max="${kelvin.max}" step="10"
@@ -224,8 +254,100 @@ class ApplianceCard extends HTMLElement {
             </div>` : ""}
           </div>
         </div>
-        ${bar}
+        ${mode === "white" ? bar : ""}
       </div>`;
+  }
+
+  /* The desk: three channel faders, a saturation handle over them, and a master.
+     Faders are rows in every layout for now - thumb-sized, and immune to the
+     vertical-range quirks some WebViews still have. */
+  _deskBlock() {
+    const m = this._mix;
+    const fader = (key, label, value) => `
+      <label class="fader f-${key}"><span class="fl">${label}</span>
+        <input class="fr" data-ch="${key}" type="range" min="0" max="100" value="${value}"
+               aria-label="${label}">
+        <span class="fv">${value}</span></label>`;
+    return `
+      <div class="desk">
+        <div class="deskhead"><span class="bigswatch"></span><span class="desksum"></span></div>
+        ${fader("r", "R", m.r)}
+        ${fader("g", "G", m.g)}
+        ${fader("b", "B", m.b)}
+        ${fader("s", "SAT", Math.round(m.saturation * 100))}
+        ${fader("p", "POWER", m.power)}
+        <div class="trap" hidden>near white - the white emitters give about twelve times the
+          light <button class="to-white">use white</button></div>
+      </div>`;
+  }
+
+  _wireDesk(mode) {
+    const r = this.shadowRoot;
+    const lightId = this._config.light;
+    r.querySelector(".mode-white")?.addEventListener("click", () => {
+      this._mode = "white"; this._sig = null; this._render();
+    });
+    r.querySelector(".mode-colour")?.addEventListener("click", () => {
+      this._mode = "colour"; this._sig = null; this._render();
+    });
+    if (mode !== "colour" || !this._mix) return;
+
+    const paint = () => {
+      const m = this._mix;
+      const cmd = mixToCommand(m, { power: m.power });
+      const sw = r.querySelector(".bigswatch");
+      if (sw) sw.style.background = cmd.off ? "transparent" : `rgb(${cmd.rgb_color.join(",")})`;
+      const sum = r.querySelector(".desksum");
+      if (sum) {
+        sum.textContent = cmd.off ? "off"
+          : `${cmd.brightness_pct}% · sat ${Math.round(cmd.saturation * 100)}%`
+            + (cmd.hue == null ? " · white" : ` · hue ${Math.round(cmd.hue)}°`);
+      }
+      const vals = { r: m.r, g: m.g, b: m.b, p: m.power,
+        s: cmd.off ? 0 : Math.round(cmd.saturation * 100) };
+      r.querySelectorAll(".fr").forEach((inp) => {
+        const v = vals[inp.dataset.ch];
+        if (v == null) return;
+        if (document.activeElement !== inp && r.activeElement !== inp) inp.value = v;
+        inp.parentElement.querySelector(".fv").textContent = v;
+      });
+      const trap = r.querySelector(".trap");
+      if (trap) trap.hidden = cmd.off || cmd.saturation >= RGB_WHITE_TRAP_SATURATION;
+    };
+
+    const send = () => {
+      const m = this._mix;
+      const cmd = mixToCommand(m, { power: m.power });
+      if (cmd.off) this._call("light", "turn_off", { entity_id: lightId });
+      else this._call("light", "turn_on",
+        { entity_id: lightId, rgb_color: cmd.rgb_color, brightness_pct: cmd.brightness_pct });
+    };
+
+    const release = () => {
+      if (!this._dragging) return;
+      this._dragging = false; this._sig = null; this._render();
+    };
+
+    r.querySelectorAll(".fr").forEach((inp) => {
+      inp.addEventListener("pointerdown", () => { this._dragging = true; });
+      inp.addEventListener("input", (e) => {
+        this._dragging = true;
+        const v = Number(e.target.value);
+        const ch = e.target.dataset.ch;
+        if (ch === "s") this._mix = { ...setSaturation(this._mix, v / 100), power: this._mix.power };
+        else if (ch === "p") this._mix = { ...this._mix, power: v };
+        else this._mix = { ...this._mix, [ch]: v };
+        paint();
+      });
+      inp.addEventListener("change", () => { this._dragging = false; send(); });
+      inp.addEventListener("pointercancel", release);
+      inp.addEventListener("blur", release);
+    });
+
+    r.querySelector(".to-white")?.addEventListener("click", () => {
+      this._mode = "white"; this._sig = null; this._render();
+    });
+    paint();
   }
 
   _wire(fan, speed, light, level, kelvin) {
@@ -345,6 +467,30 @@ class ApplianceCard extends HTMLElement {
 }
 
 const STYLE = `
+  .modes { display: flex; gap: 4px; margin-top: 7px; }
+  .modes button { font: inherit; font-size: 11px; padding: 2px 9px; border-radius: 4px; cursor: pointer;
+                  border: 1px solid var(--divider-color, #555); background: none;
+                  color: var(--secondary-text-color); }
+  .modes button.on { border-color: var(--accent-color, #ff9900); color: var(--primary-text-color); }
+  .desk { display: grid; gap: 4px; padding: 2px 0 12px; }
+  .deskhead { display: flex; align-items: center; gap: 9px; margin-bottom: 3px; }
+  .bigswatch { width: 30px; height: 30px; border-radius: 7px; flex: none;
+               box-shadow: inset 0 0 0 1px rgba(255,255,255,.22); }
+  .desksum { font-size: 11.5px; color: var(--secondary-text-color); font-variant-numeric: tabular-nums; }
+  .fader { display: grid; grid-template-columns: 50px 1fr 32px; align-items: center; gap: 8px; }
+  .fl { font-size: 10.5px; letter-spacing: .06em; color: var(--secondary-text-color); }
+  .fv { font-size: 11.5px; text-align: right; font-variant-numeric: tabular-nums; }
+  .fr { width: 100%; min-height: 30px; margin: 0; touch-action: none; }
+  .f-r .fr { accent-color: #e53935; }
+  .f-g .fr { accent-color: #43a047; }
+  .f-b .fr { accent-color: #1e88e5; }
+  .f-s .fr { accent-color: var(--secondary-text-color, #9b9b9b); }
+  .f-p .fr { accent-color: var(--accent-color, #ff9900); }
+  .trap { font-size: 11px; color: var(--warning-color, #ffa726); display: flex; gap: 8px;
+          align-items: center; flex-wrap: wrap; }
+  .trap[hidden] { display: none; }
+  .trap button { font: inherit; font-size: 11px; cursor: pointer; padding: 1px 8px; border-radius: 4px;
+                 border: 1px solid currentColor; background: none; color: inherit; }
   :host { display: block; }
   ha-card { padding: 10px 12px 12px; display: block; }
   .hd { font-size: 14px; font-weight: 600; display: flex; align-items: baseline; gap: 8px;
