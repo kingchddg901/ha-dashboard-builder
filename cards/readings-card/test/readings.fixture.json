@@ -1,0 +1,1968 @@
+{
+ "entities": {
+  "binary_sensor.alfred_active_run_has_error": {
+   "area_id": null,
+   "device_id": "bb9a19b52f224dfc16297bb1491308a0",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "binary_sensor.alfred_active_run_has_error",
+   "hidden": false,
+   "platform": "eufy_vacuum",
+   "suggested_display_precision": null
+  },
+  "binary_sensor.ivy_active_run_has_error": {
+   "area_id": null,
+   "device_id": "c5af4da0d51040ab5b23284100793da1",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "binary_sensor.ivy_active_run_has_error",
+   "hidden": false,
+   "platform": "eufy_vacuum",
+   "suggested_display_precision": null
+  },
+  "binary_sensor.robin_active_run_has_error": {
+   "area_id": null,
+   "device_id": "7041b9fb6a58de84a498811ac6b27ab6",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "binary_sensor.robin_active_run_has_error",
+   "hidden": false,
+   "platform": "eufy_vacuum",
+   "suggested_display_precision": null
+  },
+  "sensor.alfred_active_run_error": {
+   "area_id": null,
+   "device_id": "bb9a19b52f224dfc16297bb1491308a0",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.alfred_active_run_error",
+   "hidden": false,
+   "platform": "eufy_vacuum",
+   "suggested_display_precision": null
+  },
+  "sensor.backup_backup_manager_state": {
+   "area_id": null,
+   "device_id": "4c5de5b5ecb44cfa3c25405d3794ab6e",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.backup_backup_manager_state",
+   "hidden": false,
+   "platform": "backup",
+   "suggested_display_precision": null
+  },
+  "sensor.backup_last_attempted_automatic_backup": {
+   "area_id": null,
+   "device_id": "4c5de5b5ecb44cfa3c25405d3794ab6e",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.backup_last_attempted_automatic_backup",
+   "hidden": false,
+   "platform": "backup",
+   "suggested_display_precision": null
+  },
+  "sensor.backup_last_successful_automatic_backup": {
+   "area_id": null,
+   "device_id": "4c5de5b5ecb44cfa3c25405d3794ab6e",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.backup_last_successful_automatic_backup",
+   "hidden": false,
+   "platform": "backup",
+   "suggested_display_precision": null
+  },
+  "sensor.backup_next_scheduled_automatic_backup": {
+   "area_id": null,
+   "device_id": "4c5de5b5ecb44cfa3c25405d3794ab6e",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.backup_next_scheduled_automatic_backup",
+   "hidden": false,
+   "platform": "backup",
+   "suggested_display_precision": null
+  },
+  "sensor.ceiling_fan_speed": {
+   "area_id": "bedroom",
+   "device_id": null,
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.ceiling_fan_speed",
+   "hidden": false,
+   "platform": "template",
+   "suggested_display_precision": null
+  },
+  "sensor.date": {
+   "area_id": null,
+   "device_id": null,
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": null,
+   "hidden": false,
+   "platform": null,
+   "suggested_display_precision": null
+  },
+  "sensor.date_time": {
+   "area_id": null,
+   "device_id": null,
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": null,
+   "hidden": false,
+   "platform": null,
+   "suggested_display_precision": null
+  },
+  "sensor.date_time_iso": {
+   "area_id": null,
+   "device_id": null,
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": null,
+   "hidden": false,
+   "platform": null,
+   "suggested_display_precision": null
+  },
+  "sensor.date_time_utc": {
+   "area_id": null,
+   "device_id": null,
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": null,
+   "hidden": false,
+   "platform": null,
+   "suggested_display_precision": null
+  },
+  "sensor.epson_wf_2960_series": {
+   "area_id": null,
+   "device_id": "9642cfca080c12eb50fbb98be6a16562",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.epson_wf_2960_series",
+   "hidden": false,
+   "platform": "ipp",
+   "suggested_display_precision": null
+  },
+  "sensor.epson_wf_2960_series_black_ink": {
+   "area_id": null,
+   "device_id": "9642cfca080c12eb50fbb98be6a16562",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.epson_wf_2960_series_black_ink",
+   "hidden": false,
+   "platform": "ipp",
+   "suggested_display_precision": null
+  },
+  "sensor.epson_wf_2960_series_cyan_ink": {
+   "area_id": null,
+   "device_id": "9642cfca080c12eb50fbb98be6a16562",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.epson_wf_2960_series_cyan_ink",
+   "hidden": false,
+   "platform": "ipp",
+   "suggested_display_precision": null
+  },
+  "sensor.epson_wf_2960_series_magenta_ink": {
+   "area_id": null,
+   "device_id": "9642cfca080c12eb50fbb98be6a16562",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.epson_wf_2960_series_magenta_ink",
+   "hidden": false,
+   "platform": "ipp",
+   "suggested_display_precision": null
+  },
+  "sensor.epson_wf_2960_series_yellow_ink": {
+   "area_id": null,
+   "device_id": "9642cfca080c12eb50fbb98be6a16562",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.epson_wf_2960_series_yellow_ink",
+   "hidden": false,
+   "platform": "ipp",
+   "suggested_display_precision": null
+  },
+  "sensor.grill_active_mode": {
+   "area_id": null,
+   "device_id": "a1b4b1f8dc0880af7717a56e86d4018b",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.grill_active_mode",
+   "hidden": false,
+   "platform": "prime_polaris",
+   "suggested_display_precision": null
+  },
+  "sensor.grill_active_smoke_level": {
+   "area_id": null,
+   "device_id": "a1b4b1f8dc0880af7717a56e86d4018b",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.grill_active_smoke_level",
+   "hidden": false,
+   "platform": "prime_polaris",
+   "suggested_display_precision": null
+  },
+  "sensor.grill_chamber_temperature": {
+   "area_id": null,
+   "device_id": "a1b4b1f8dc0880af7717a56e86d4018b",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.grill_chamber_temperature",
+   "hidden": false,
+   "platform": "prime_polaris",
+   "suggested_display_precision": 1
+  },
+  "sensor.grill_last_alarm": {
+   "area_id": null,
+   "device_id": "a1b4b1f8dc0880af7717a56e86d4018b",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.grill_last_alarm",
+   "hidden": false,
+   "platform": "prime_polaris",
+   "suggested_display_precision": null
+  },
+  "sensor.grill_probe_1_eta": {
+   "area_id": null,
+   "device_id": "a1b4b1f8dc0880af7717a56e86d4018b",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.grill_probe_1_eta",
+   "hidden": false,
+   "platform": "prime_polaris",
+   "suggested_display_precision": null
+  },
+  "sensor.grill_probe_1_temperature": {
+   "area_id": null,
+   "device_id": "a1b4b1f8dc0880af7717a56e86d4018b",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.grill_probe_1_temperature",
+   "hidden": false,
+   "platform": "prime_polaris",
+   "suggested_display_precision": 1
+  },
+  "sensor.grill_probe_2_eta": {
+   "area_id": null,
+   "device_id": "a1b4b1f8dc0880af7717a56e86d4018b",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.grill_probe_2_eta",
+   "hidden": false,
+   "platform": "prime_polaris",
+   "suggested_display_precision": null
+  },
+  "sensor.grill_probe_2_temperature": {
+   "area_id": null,
+   "device_id": "a1b4b1f8dc0880af7717a56e86d4018b",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.grill_probe_2_temperature",
+   "hidden": false,
+   "platform": "prime_polaris",
+   "suggested_display_precision": 1
+  },
+  "sensor.grill_running_status": {
+   "area_id": null,
+   "device_id": "a1b4b1f8dc0880af7717a56e86d4018b",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.grill_running_status",
+   "hidden": false,
+   "platform": "prime_polaris",
+   "suggested_display_precision": null
+  },
+  "sensor.gtill_san_diego_mouse_2_0_relative_pressure": {
+   "area_id": null,
+   "device_id": "eff2c920d2ed28ee6150f61dd4a7b432",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.gtill_san_diego_mouse_2_0_relative_pressure",
+   "hidden": false,
+   "platform": "ambient_network",
+   "suggested_display_precision": 1
+  },
+  "sensor.ivy_active_run_error": {
+   "area_id": null,
+   "device_id": "c5af4da0d51040ab5b23284100793da1",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.ivy_active_run_error",
+   "hidden": false,
+   "platform": "eufy_vacuum",
+   "suggested_display_precision": null
+  },
+  "sensor.light_last_level": {
+   "area_id": null,
+   "device_id": null,
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.light_last_level",
+   "hidden": false,
+   "platform": "template",
+   "suggested_display_precision": null
+  },
+  "sensor.robin_active_run_error": {
+   "area_id": null,
+   "device_id": "7041b9fb6a58de84a498811ac6b27ab6",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.robin_active_run_error",
+   "hidden": false,
+   "platform": "eufy_vacuum",
+   "suggested_display_precision": null
+  },
+  "sensor.san_diego_mouse_2_0_daily_rain": {
+   "area_id": null,
+   "device_id": "eff2c920d2ed28ee6150f61dd4a7b432",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.san_diego_mouse_2_0_daily_rain",
+   "hidden": false,
+   "platform": "ambient_network",
+   "suggested_display_precision": 1
+  },
+  "sensor.san_diego_mouse_2_0_dew_point": {
+   "area_id": null,
+   "device_id": "eff2c920d2ed28ee6150f61dd4a7b432",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.san_diego_mouse_2_0_dew_point",
+   "hidden": false,
+   "platform": "ambient_network",
+   "suggested_display_precision": 1
+  },
+  "sensor.san_diego_mouse_2_0_feels_like": {
+   "area_id": null,
+   "device_id": "eff2c920d2ed28ee6150f61dd4a7b432",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.san_diego_mouse_2_0_feels_like",
+   "hidden": false,
+   "platform": "ambient_network",
+   "suggested_display_precision": 1
+  },
+  "sensor.san_diego_mouse_2_0_hourly_rain": {
+   "area_id": null,
+   "device_id": "eff2c920d2ed28ee6150f61dd4a7b432",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.san_diego_mouse_2_0_hourly_rain",
+   "hidden": false,
+   "platform": "ambient_network",
+   "suggested_display_precision": 1
+  },
+  "sensor.san_diego_mouse_2_0_humidity": {
+   "area_id": null,
+   "device_id": "eff2c920d2ed28ee6150f61dd4a7b432",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.san_diego_mouse_2_0_humidity",
+   "hidden": false,
+   "platform": "ambient_network",
+   "suggested_display_precision": 1
+  },
+  "sensor.san_diego_mouse_2_0_max_daily_gust": {
+   "area_id": null,
+   "device_id": "eff2c920d2ed28ee6150f61dd4a7b432",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.san_diego_mouse_2_0_max_daily_gust",
+   "hidden": false,
+   "platform": "ambient_network",
+   "suggested_display_precision": 1
+  },
+  "sensor.san_diego_mouse_2_0_temperature": {
+   "area_id": null,
+   "device_id": "eff2c920d2ed28ee6150f61dd4a7b432",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.san_diego_mouse_2_0_temperature",
+   "hidden": false,
+   "platform": "ambient_network",
+   "suggested_display_precision": 1
+  },
+  "sensor.san_diego_mouse_2_0_uv_index": {
+   "area_id": null,
+   "device_id": "eff2c920d2ed28ee6150f61dd4a7b432",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.san_diego_mouse_2_0_uv_index",
+   "hidden": false,
+   "platform": "ambient_network",
+   "suggested_display_precision": 1
+  },
+  "sensor.san_diego_mouse_2_0_wind_gust": {
+   "area_id": null,
+   "device_id": "eff2c920d2ed28ee6150f61dd4a7b432",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.san_diego_mouse_2_0_wind_gust",
+   "hidden": false,
+   "platform": "ambient_network",
+   "suggested_display_precision": 1
+  },
+  "sensor.san_diego_mouse_2_0_wind_speed": {
+   "area_id": null,
+   "device_id": "eff2c920d2ed28ee6150f61dd4a7b432",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "sensor.san_diego_mouse_2_0_wind_speed",
+   "hidden": false,
+   "platform": "ambient_network",
+   "suggested_display_precision": 1
+  },
+  "sensor.time": {
+   "area_id": null,
+   "device_id": null,
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": null,
+   "hidden": false,
+   "platform": null,
+   "suggested_display_precision": null
+  },
+  "sensor.time_date": {
+   "area_id": null,
+   "device_id": null,
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": null,
+   "hidden": false,
+   "platform": null,
+   "suggested_display_precision": null
+  },
+  "sensor.time_utc": {
+   "area_id": null,
+   "device_id": null,
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": null,
+   "hidden": false,
+   "platform": null,
+   "suggested_display_precision": null
+  },
+  "vacuum.alfred": {
+   "area_id": null,
+   "device_id": "798656a256f02839a42ae791c8affb20",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "vacuum.alfred",
+   "hidden": false,
+   "platform": "robovac_mqtt",
+   "suggested_display_precision": null
+  },
+  "vacuum.ivy": {
+   "area_id": null,
+   "device_id": "37447ddba528273af3057a004036ded6",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "vacuum.ivy",
+   "hidden": false,
+   "platform": "roborock",
+   "suggested_display_precision": null
+  },
+  "vacuum.robin": {
+   "area_id": null,
+   "device_id": "cc9270da4fba0b21dd7edc178111a065",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "vacuum.robin",
+   "hidden": false,
+   "platform": "dreame_vacuum",
+   "suggested_display_precision": null
+  },
+  "weather.forecast_home": {
+   "area_id": null,
+   "device_id": "49c8b5ad8aeea6ac9fac9f31f90d0d0f",
+   "display_precision": null,
+   "entity_category": null,
+   "entity_id": "weather.forecast_home",
+   "hidden": false,
+   "platform": "met",
+   "suggested_display_precision": null
+  }
+ },
+ "meta": {
+  "captured": "2026-09-17",
+  "note": "real house data except entries under `synthetic`"
+ },
+ "states": {
+  "binary_sensor.alfred_active_run_has_error": {
+   "attributes": {
+    "active_job_id": null,
+    "current_message": null,
+    "device_class": "problem",
+    "error_count": 0,
+    "errored_room_id": null,
+    "first_seen_at": null,
+    "first_seen_job_elapsed_seconds": null,
+    "friendly_name": "Alfred Active Run Has Error",
+    "icon": "mdi:alert-circle",
+    "recovered": false
+   },
+   "entity_id": "binary_sensor.alfred_active_run_has_error",
+   "last_changed": "2026-09-16T06:08:42.042889+00:00",
+   "state": "off"
+  },
+  "binary_sensor.ivy_active_run_has_error": {
+   "attributes": {
+    "active_job_id": null,
+    "current_message": null,
+    "device_class": "problem",
+    "error_count": 0,
+    "errored_room_id": null,
+    "first_seen_at": null,
+    "first_seen_job_elapsed_seconds": null,
+    "friendly_name": "Ivy Active Run Has Error",
+    "icon": "mdi:alert-circle",
+    "recovered": false
+   },
+   "entity_id": "binary_sensor.ivy_active_run_has_error",
+   "last_changed": "2026-09-16T06:08:42.043081+00:00",
+   "state": "off"
+  },
+  "binary_sensor.robin_active_run_has_error": {
+   "attributes": {
+    "active_job_id": null,
+    "current_message": null,
+    "device_class": "problem",
+    "error_count": 0,
+    "errored_room_id": null,
+    "first_seen_at": null,
+    "first_seen_job_elapsed_seconds": null,
+    "friendly_name": "Robin Active Run Has Error",
+    "icon": "mdi:alert-circle",
+    "recovered": false
+   },
+   "entity_id": "binary_sensor.robin_active_run_has_error",
+   "last_changed": "2026-09-16T06:08:42.043235+00:00",
+   "state": "off"
+  },
+  "sensor.alfred_active_run_error": {
+   "attributes": {
+    "friendly_name": "Alfred Active Run Error",
+    "icon": "mdi:alert-circle-outline"
+   },
+   "entity_id": "sensor.alfred_active_run_error",
+   "last_changed": "2026-09-16T06:08:42.115153+00:00",
+   "state": "none"
+  },
+  "sensor.backup_backup_manager_state": {
+   "attributes": {
+    "device_class": "enum",
+    "friendly_name": "Backup Backup Manager state",
+    "options": [
+     "idle",
+     "create_backup",
+     "blocked",
+     "receive_backup",
+     "restore_backup"
+    ]
+   },
+   "entity_id": "sensor.backup_backup_manager_state",
+   "last_changed": "2026-09-17T12:42:02.314588+00:00",
+   "state": "idle"
+  },
+  "sensor.backup_last_attempted_automatic_backup": {
+   "attributes": {
+    "device_class": "timestamp",
+    "friendly_name": "Backup Last attempted automatic backup"
+   },
+   "entity_id": "sensor.backup_last_attempted_automatic_backup",
+   "last_changed": "2026-09-17T12:40:00.005820+00:00",
+   "state": "2026-09-17T12:40:00+00:00"
+  },
+  "sensor.backup_last_successful_automatic_backup": {
+   "attributes": {
+    "device_class": "timestamp",
+    "friendly_name": "Backup Last successful automatic backup"
+   },
+   "entity_id": "sensor.backup_last_successful_automatic_backup",
+   "last_changed": "2026-09-17T12:42:01.713789+00:00",
+   "state": "2026-09-17T12:42:01+00:00"
+  },
+  "sensor.backup_next_scheduled_automatic_backup": {
+   "attributes": {
+    "device_class": "timestamp",
+    "friendly_name": "Backup Next scheduled automatic backup"
+   },
+   "entity_id": "sensor.backup_next_scheduled_automatic_backup",
+   "last_changed": "2026-09-17T12:40:00.005698+00:00",
+   "state": "2026-09-18T12:16:31+00:00"
+  },
+  "sensor.ceiling_fan_speed": {
+   "attributes": {
+    "direction": "forward",
+    "friendly_name": "Ceiling Fan Speed %",
+    "icon": "mdi:fan",
+    "preset_mode": "normal",
+    "state_class": "measurement",
+    "unit_of_measurement": "%"
+   },
+   "entity_id": "sensor.ceiling_fan_speed",
+   "last_changed": "2026-09-18T01:55:11.235178+00:00",
+   "state": "0"
+  },
+  "sensor.date": {
+   "attributes": {
+    "friendly_name": "Date",
+    "icon": "mdi:calendar"
+   },
+   "entity_id": "sensor.date",
+   "last_changed": "2026-09-17T07:00:00.005814+00:00",
+   "state": "2026-09-17"
+  },
+  "sensor.date_time": {
+   "attributes": {
+    "friendly_name": "Date & Time",
+    "icon": "mdi:calendar-clock"
+   },
+   "entity_id": "sensor.date_time",
+   "last_changed": "2026-09-18T06:03:00.001883+00:00",
+   "state": "2026-09-17, 23:03"
+  },
+  "sensor.date_time_iso": {
+   "attributes": {
+    "friendly_name": "Date & Time (ISO)",
+    "icon": "mdi:calendar-clock"
+   },
+   "entity_id": "sensor.date_time_iso",
+   "last_changed": "2026-09-18T06:03:00.001714+00:00",
+   "state": "2026-09-17T23:03:00"
+  },
+  "sensor.date_time_utc": {
+   "attributes": {
+    "friendly_name": "Date & Time (UTC)",
+    "icon": "mdi:calendar-clock"
+   },
+   "entity_id": "sensor.date_time_utc",
+   "last_changed": "2026-09-18T06:03:00.002316+00:00",
+   "state": "2026-09-18, 06:03"
+  },
+  "sensor.epson_wf_2960_series": {
+   "attributes": {
+    "command_set": "ESCPL2,BDC,D4,D4PX,ESCPR7,END4,GENEP,PWGRaster,URF",
+    "device_class": "enum",
+    "friendly_name": "EPSON WF-2960 Series",
+    "info": "EPSON WF-2960 Series",
+    "location": "",
+    "options": [
+     "idle",
+     "printing",
+     "stopped"
+    ],
+    "serial": "584235513135353869",
+    "state_message": null,
+    "state_reason": null,
+    "uri_supported": "ipps://192.168.4.60:631/ipp/print,ipp://192.168.4.60:631/ipp/print"
+   },
+   "entity_id": "sensor.epson_wf_2960_series",
+   "last_changed": "2026-09-16T06:08:41.794462+00:00",
+   "state": "idle"
+  },
+  "sensor.epson_wf_2960_series_black_ink": {
+   "attributes": {
+    "friendly_name": "EPSON WF-2960 Series Black ink",
+    "marker_high_level": 100,
+    "marker_low_level": 15,
+    "marker_type": "ink-cartridge",
+    "state_class": "measurement",
+    "unit_of_measurement": "%"
+   },
+   "entity_id": "sensor.epson_wf_2960_series_black_ink",
+   "last_changed": "2026-09-16T06:08:41.331562+00:00",
+   "state": "71"
+  },
+  "sensor.epson_wf_2960_series_cyan_ink": {
+   "attributes": {
+    "friendly_name": "EPSON WF-2960 Series Cyan ink",
+    "marker_high_level": 100,
+    "marker_low_level": 15,
+    "marker_type": "ink-cartridge",
+    "state_class": "measurement",
+    "unit_of_measurement": "%"
+   },
+   "entity_id": "sensor.epson_wf_2960_series_cyan_ink",
+   "last_changed": "2026-09-16T06:08:41.331785+00:00",
+   "state": "85"
+  },
+  "sensor.epson_wf_2960_series_magenta_ink": {
+   "attributes": {
+    "friendly_name": "EPSON WF-2960 Series Magenta ink",
+    "marker_high_level": 100,
+    "marker_low_level": 15,
+    "marker_type": "ink-cartridge",
+    "state_class": "measurement",
+    "unit_of_measurement": "%"
+   },
+   "entity_id": "sensor.epson_wf_2960_series_magenta_ink",
+   "last_changed": "2026-09-16T06:08:41.331971+00:00",
+   "state": "85"
+  },
+  "sensor.epson_wf_2960_series_yellow_ink": {
+   "attributes": {
+    "friendly_name": "EPSON WF-2960 Series Yellow ink",
+    "marker_high_level": 100,
+    "marker_low_level": 15,
+    "marker_type": "ink-cartridge",
+    "state_class": "measurement",
+    "unit_of_measurement": "%"
+   },
+   "entity_id": "sensor.epson_wf_2960_series_yellow_ink",
+   "last_changed": "2026-09-16T06:08:41.332368+00:00",
+   "state": "86"
+  },
+  "sensor.grill_active_mode": {
+   "attributes": {
+    "friendly_name": "Grill Active Mode",
+    "icon": "mdi:state-machine"
+   },
+   "entity_id": "sensor.grill_active_mode",
+   "last_changed": "2026-09-16T06:08:42.261552+00:00",
+   "state": "off"
+  },
+  "sensor.grill_active_smoke_level": {
+   "attributes": {
+    "friendly_name": "Grill Active Smoke Level",
+    "icon": "mdi:smoke",
+    "state_class": "measurement"
+   },
+   "entity_id": "sensor.grill_active_smoke_level",
+   "last_changed": "2026-09-16T06:08:42.264930+00:00",
+   "state": "unavailable"
+  },
+  "sensor.grill_chamber_temperature": {
+   "attributes": {
+    "device_class": "temperature",
+    "friendly_name": "Grill Chamber Temperature",
+    "state_class": "measurement",
+    "unit_of_measurement": "°F"
+   },
+   "entity_id": "sensor.grill_chamber_temperature",
+   "last_changed": "2026-09-18T04:55:40.175811+00:00",
+   "state": "81.0"
+  },
+  "sensor.grill_last_alarm": {
+   "attributes": {
+    "friendly_name": "Grill Last Alarm",
+    "icon": "mdi:alert-circle-outline"
+   },
+   "entity_id": "sensor.grill_last_alarm",
+   "last_changed": "2026-09-16T06:08:42.261134+00:00",
+   "state": "unknown"
+  },
+  "sensor.grill_probe_1_eta": {
+   "attributes": {
+    "friendly_name": "Grill Probe 1 ETA",
+    "icon": "mdi:timer-sand",
+    "unit_of_measurement": "min"
+   },
+   "entity_id": "sensor.grill_probe_1_eta",
+   "last_changed": "2026-09-16T06:08:42.265275+00:00",
+   "state": "unavailable"
+  },
+  "sensor.grill_probe_1_temperature": {
+   "attributes": {
+    "device_class": "temperature",
+    "friendly_name": "Grill Probe 1 Temperature",
+    "state_class": "measurement",
+    "unit_of_measurement": "°F"
+   },
+   "entity_id": "sensor.grill_probe_1_temperature",
+   "last_changed": "2026-09-16T06:08:42.260398+00:00",
+   "state": "unavailable"
+  },
+  "sensor.grill_probe_2_eta": {
+   "attributes": {
+    "friendly_name": "Grill Probe 2 ETA",
+    "icon": "mdi:timer-sand",
+    "unit_of_measurement": "min"
+   },
+   "entity_id": "sensor.grill_probe_2_eta",
+   "last_changed": "2026-09-16T06:08:42.265465+00:00",
+   "state": "unavailable"
+  },
+  "sensor.grill_probe_2_temperature": {
+   "attributes": {
+    "device_class": "temperature",
+    "friendly_name": "Grill Probe 2 Temperature",
+    "state_class": "measurement",
+    "unit_of_measurement": "°F"
+   },
+   "entity_id": "sensor.grill_probe_2_temperature",
+   "last_changed": "2026-09-16T06:08:42.260638+00:00",
+   "state": "unavailable"
+  },
+  "sensor.grill_running_status": {
+   "attributes": {
+    "friendly_name": "Grill Running Status"
+   },
+   "entity_id": "sensor.grill_running_status",
+   "last_changed": "2026-09-16T06:08:42.260830+00:00",
+   "state": "Unknown (0)"
+  },
+  "sensor.gtill_san_diego_mouse_2_0_relative_pressure": {
+   "attributes": {
+    "attribution": "Data provided by ambientnetwork.net",
+    "device_class": "pressure",
+    "friendly_name": "San Diego Mouse 2.0 Relative pressure",
+    "last_measured": "2026-09-17T22:59:03.750000-07:00",
+    "state_class": "measurement",
+    "unit_of_measurement": "hPa"
+   },
+   "entity_id": "sensor.gtill_san_diego_mouse_2_0_relative_pressure",
+   "last_changed": "2026-09-18T05:49:22.631865+00:00",
+   "state": "1014.83294773739"
+  },
+  "sensor.ivy_active_run_error": {
+   "attributes": {
+    "friendly_name": "Ivy Active Run Error",
+    "icon": "mdi:alert-circle-outline"
+   },
+   "entity_id": "sensor.ivy_active_run_error",
+   "last_changed": "2026-09-16T06:08:42.155804+00:00",
+   "state": "none"
+  },
+  "sensor.light_last_level": {
+   "attributes": {
+    "device_class": "timestamp",
+    "friendly_name": "Light last level",
+    "icon": "mdi:lightbulb-question",
+    "levels": {
+     "light.bathroom": {
+      "b": 224,
+      "hs": [
+       27.329,
+       48.02
+      ],
+      "k": 3355,
+      "pct": 88,
+      "t": "2026-09-17T23:02:00-07:00"
+     },
+     "light.bathroom1": {
+      "b": 163,
+      "hs": [
+       27.409,
+       49.564
+      ],
+      "k": 3289,
+      "pct": 64,
+      "t": "2026-09-17T23:02:00-07:00"
+     },
+     "light.bathroom3": {
+      "b": 255,
+      "hs": [
+       27.291,
+       47.241
+      ],
+      "k": 3389,
+      "pct": 100,
+      "t": "2026-09-17T23:02:00-07:00"
+     },
+     "light.bryan_s_room": {
+      "b": 169,
+      "hs": [
+       239.528,
+       100.0
+      ],
+      "k": null,
+      "pct": 66,
+      "t": "2026-09-17T23:02:00-07:00"
+     },
+     "light.ceiling_fan": {
+      "b": 79,
+      "hs": [
+       27.511,
+       51.46
+      ],
+      "k": 3210.4700000000003,
+      "pct": 31,
+      "t": "2026-09-17T23:02:00-07:00"
+     },
+     "light.ceiling_fan_calibrated": {
+      "b": 79,
+      "hs": [
+       27.505,
+       51.349
+      ],
+      "k": 3215,
+      "pct": 31,
+      "t": "2026-09-17T23:02:00-07:00"
+     },
+     "light.hall_back": {
+      "b": 255,
+      "hs": [
+       26.976,
+       19.584
+      ],
+      "k": 4975,
+      "pct": 100,
+      "t": "2026-09-17T23:02:00-07:00"
+     },
+     "light.hall_back_hall_back1": {
+      "b": 255,
+      "hs": [
+       26.976,
+       19.584
+      ],
+      "k": 4975,
+      "pct": 100,
+      "t": "2026-09-17T23:02:00-07:00"
+     },
+     "light.hall_back_hall_back2": {
+      "b": 255,
+      "hs": [
+       26.976,
+       19.584
+      ],
+      "k": 4975,
+      "pct": 100,
+      "t": "2026-09-17T23:02:00-07:00"
+     },
+     "light.hall_center1": {
+      "b": 255,
+      "hs": [
+       26.976,
+       19.584
+      ],
+      "k": 4975,
+      "pct": 100,
+      "t": "2026-09-17T23:02:00-07:00"
+     },
+     "light.hall_center2": {
+      "b": 255,
+      "hs": [
+       26.976,
+       19.584
+      ],
+      "k": 4975,
+      "pct": 100,
+      "t": "2026-09-17T23:02:00-07:00"
+     },
+     "light.hall_front2": {
+      "b": 255,
+      "hs": [
+       26.976,
+       19.584
+      ],
+      "k": 4975,
+      "pct": 100,
+      "t": "2026-09-17T23:02:00-07:00"
+     },
+     "light.hall_front_2": {
+      "b": 255,
+      "hs": [
+       26.976,
+       19.584
+      ],
+      "k": 4975,
+      "pct": 100,
+      "t": "2026-09-17T23:02:00-07:00"
+     },
+     "light.hall_master": {
+      "b": 255,
+      "hs": [
+       26.976,
+       19.584
+      ],
+      "k": 4975,
+      "pct": 100,
+      "t": "2026-09-17T23:02:00-07:00"
+     },
+     "light.hall_middle": {
+      "b": 255,
+      "hs": [
+       26.976,
+       19.584
+      ],
+      "k": 4975,
+      "pct": 100,
+      "t": "2026-09-17T23:02:00-07:00"
+     },
+     "light.hallfront1": {
+      "b": 255,
+      "hs": [
+       26.976,
+       19.584
+      ],
+      "k": 4975,
+      "pct": 100,
+      "t": "2026-09-17T23:02:00-07:00"
+     },
+     "light.living_room": {
+      "b": 245,
+      "hs": [
+       26.976,
+       19.584
+      ],
+      "k": 4975,
+      "pct": 96,
+      "t": "2026-09-17T23:02:00-07:00"
+     },
+     "light.livingroom1": {
+      "b": 245,
+      "hs": [
+       26.976,
+       19.584
+      ],
+      "k": 4975,
+      "pct": 96,
+      "t": "2026-09-17T23:02:00-07:00"
+     },
+     "light.livingroom2": {
+      "b": 245,
+      "hs": [
+       26.976,
+       19.584
+      ],
+      "k": 4975,
+      "pct": 96,
+      "t": "2026-09-17T23:02:00-07:00"
+     },
+     "light.livingroom3": {
+      "b": 245,
+      "hs": [
+       26.976,
+       19.584
+      ],
+      "k": 4975,
+      "pct": 96,
+      "t": "2026-09-17T23:02:00-07:00"
+     },
+     "light.main_house": {
+      "b": 250,
+      "hs": [
+       26.976,
+       19.584
+      ],
+      "k": 4975,
+      "pct": 98,
+      "t": "2026-09-17T23:02:00-07:00"
+     },
+     "light.washroom_bathroom2": {
+      "b": 255,
+      "hs": [
+       27.291,
+       47.241
+      ],
+      "k": 3389,
+      "pct": 100,
+      "t": "2026-09-17T23:02:00-07:00"
+     }
+    }
+   },
+   "entity_id": "sensor.light_last_level",
+   "last_changed": "2026-09-18T06:02:00.106286+00:00",
+   "state": "2026-09-18T06:02:00+00:00"
+  },
+  "sensor.robin_active_run_error": {
+   "attributes": {
+    "friendly_name": "Robin Active Run Error",
+    "icon": "mdi:alert-circle-outline"
+   },
+   "entity_id": "sensor.robin_active_run_error",
+   "last_changed": "2026-09-16T06:08:42.180029+00:00",
+   "state": "none"
+  },
+  "sensor.san_diego_mouse_2_0_daily_rain": {
+   "attributes": {
+    "attribution": "Data provided by ambientnetwork.net",
+    "device_class": "precipitation",
+    "friendly_name": "San Diego Mouse 2.0 Daily rain",
+    "last_measured": "2026-09-17T22:59:03.750000-07:00",
+    "state_class": "total_increasing",
+    "unit_of_measurement": "mm"
+   },
+   "entity_id": "sensor.san_diego_mouse_2_0_daily_rain",
+   "last_changed": "2026-09-16T06:08:42.324877+00:00",
+   "state": "0.0"
+  },
+  "sensor.san_diego_mouse_2_0_dew_point": {
+   "attributes": {
+    "attribution": "Data provided by ambientnetwork.net",
+    "device_class": "temperature",
+    "friendly_name": "San Diego Mouse 2.0 Dew point",
+    "last_measured": "2026-09-17T22:59:03.750000-07:00",
+    "state_class": "measurement",
+    "unit_of_measurement": "°F"
+   },
+   "entity_id": "sensor.san_diego_mouse_2_0_dew_point",
+   "last_changed": "2026-09-18T05:59:25.249753+00:00",
+   "state": "62.7801322216674"
+  },
+  "sensor.san_diego_mouse_2_0_feels_like": {
+   "attributes": {
+    "attribution": "Data provided by ambientnetwork.net",
+    "device_class": "temperature",
+    "friendly_name": "San Diego Mouse 2.0 Feels like",
+    "last_measured": "2026-09-17T22:59:03.750000-07:00",
+    "state_class": "measurement",
+    "unit_of_measurement": "°F"
+   },
+   "entity_id": "sensor.san_diego_mouse_2_0_feels_like",
+   "last_changed": "2026-09-18T05:59:25.249827+00:00",
+   "state": "68.904"
+  },
+  "sensor.san_diego_mouse_2_0_hourly_rain": {
+   "attributes": {
+    "attribution": "Data provided by ambientnetwork.net",
+    "device_class": "precipitation_intensity",
+    "friendly_name": "San Diego Mouse 2.0 Hourly rain",
+    "last_measured": "2026-09-17T22:59:03.750000-07:00",
+    "state_class": "measurement",
+    "unit_of_measurement": "mm/h"
+   },
+   "entity_id": "sensor.san_diego_mouse_2_0_hourly_rain",
+   "last_changed": "2026-09-16T06:08:42.325752+00:00",
+   "state": "0.0"
+  },
+  "sensor.san_diego_mouse_2_0_humidity": {
+   "attributes": {
+    "attribution": "Data provided by ambientnetwork.net",
+    "device_class": "humidity",
+    "friendly_name": "San Diego Mouse 2.0 Humidity",
+    "last_measured": "2026-09-17T22:59:03.750000-07:00",
+    "state_class": "measurement",
+    "unit_of_measurement": "%"
+   },
+   "entity_id": "sensor.san_diego_mouse_2_0_humidity",
+   "last_changed": "2026-09-18T05:59:25.249971+00:00",
+   "state": "82"
+  },
+  "sensor.san_diego_mouse_2_0_max_daily_gust": {
+   "attributes": {
+    "attribution": "Data provided by ambientnetwork.net",
+    "device_class": "wind_speed",
+    "friendly_name": "San Diego Mouse 2.0 Max daily gust",
+    "last_measured": "2026-09-17T22:59:03.750000-07:00",
+    "state_class": "measurement",
+    "unit_of_measurement": "km/h"
+   },
+   "entity_id": "sensor.san_diego_mouse_2_0_max_daily_gust",
+   "last_changed": "2026-09-17T19:31:57.037551+00:00",
+   "state": "5.4717696"
+  },
+  "sensor.san_diego_mouse_2_0_temperature": {
+   "attributes": {
+    "attribution": "Data provided by ambientnetwork.net",
+    "device_class": "temperature",
+    "friendly_name": "San Diego Mouse 2.0 Temperature",
+    "last_measured": "2026-09-17T22:59:03.750000-07:00",
+    "state_class": "measurement",
+    "unit_of_measurement": "°F"
+   },
+   "entity_id": "sensor.san_diego_mouse_2_0_temperature",
+   "last_changed": "2026-09-18T05:29:17.648596+00:00",
+   "state": "68.5"
+  },
+  "sensor.san_diego_mouse_2_0_uv_index": {
+   "attributes": {
+    "attribution": "Data provided by ambientnetwork.net",
+    "friendly_name": "San Diego Mouse 2.0 UV index",
+    "last_measured": "2026-09-17T22:59:03.750000-07:00",
+    "state_class": "measurement",
+    "unit_of_measurement": "index"
+   },
+   "entity_id": "sensor.san_diego_mouse_2_0_uv_index",
+   "last_changed": "2026-09-17T21:57:34.658797+00:00",
+   "state": "0"
+  },
+  "sensor.san_diego_mouse_2_0_wind_gust": {
+   "attributes": {
+    "attribution": "Data provided by ambientnetwork.net",
+    "device_class": "wind_speed",
+    "friendly_name": "San Diego Mouse 2.0 Wind gust",
+    "last_measured": "2026-09-17T22:59:03.750000-07:00",
+    "state_class": "measurement",
+    "unit_of_measurement": "km/h"
+   },
+   "entity_id": "sensor.san_diego_mouse_2_0_wind_gust",
+   "last_changed": "2026-09-17T23:47:59.011543+00:00",
+   "state": "0.0"
+  },
+  "sensor.san_diego_mouse_2_0_wind_speed": {
+   "attributes": {
+    "attribution": "Data provided by ambientnetwork.net",
+    "device_class": "wind_speed",
+    "friendly_name": "San Diego Mouse 2.0 Wind speed",
+    "last_measured": "2026-09-17T22:59:03.750000-07:00",
+    "state_class": "measurement",
+    "unit_of_measurement": "km/h"
+   },
+   "entity_id": "sensor.san_diego_mouse_2_0_wind_speed",
+   "last_changed": "2026-09-17T23:47:59.011631+00:00",
+   "state": "0.0"
+  },
+  "sensor.time": {
+   "attributes": {
+    "friendly_name": "Time",
+    "icon": "mdi:clock"
+   },
+   "entity_id": "sensor.time",
+   "last_changed": "2026-09-18T06:03:00.001513+00:00",
+   "state": "23:03"
+  },
+  "sensor.time_date": {
+   "attributes": {
+    "friendly_name": "Time & Date",
+    "icon": "mdi:calendar-clock"
+   },
+   "entity_id": "sensor.time_date",
+   "last_changed": "2026-09-18T06:03:00.003727+00:00",
+   "state": "23:03, 2026-09-17"
+  },
+  "sensor.time_utc": {
+   "attributes": {
+    "friendly_name": "Time (UTC)",
+    "icon": "mdi:clock"
+   },
+   "entity_id": "sensor.time_utc",
+   "last_changed": "2026-09-18T06:03:00.001231+00:00",
+   "state": "06:03"
+  },
+  "vacuum.alfred": {
+   "attributes": {
+    "active_room_ids": [],
+    "active_zone_count": 0,
+    "cleaning_area": 0,
+    "cleaning_time": 0,
+    "error_code": 0,
+    "error_message": "",
+    "fan_speed": "Standard",
+    "fan_speed_list": [
+     "Quiet",
+     "Standard",
+     "Turbo",
+     "Max",
+     "Boost_IQ"
+    ],
+    "friendly_name": "Alfred",
+    "rooms": [
+     {
+      "id": 1,
+      "name": "Bryan's Room"
+     },
+     {
+      "id": 2,
+      "name": "Bathroom"
+     },
+     {
+      "id": 3,
+      "name": "Master bedroom"
+     },
+     {
+      "id": 4,
+      "name": "Hallway"
+     },
+     {
+      "id": 5,
+      "name": "Kitchen"
+     },
+     {
+      "id": 6,
+      "name": "Living Room"
+     },
+     {
+      "id": 7,
+      "name": "Dining Room"
+     },
+     {
+      "id": 8,
+      "name": "Entryway"
+     },
+     {
+      "id": 9,
+      "name": "Home Office"
+     },
+     {
+      "id": 10,
+      "name": "Cat Room"
+     }
+    ],
+    "segments": [
+     {
+      "id": 1,
+      "name": "Bryan's Room"
+     },
+     {
+      "id": 2,
+      "name": "Bathroom"
+     },
+     {
+      "id": 3,
+      "name": "Master bedroom"
+     },
+     {
+      "id": 4,
+      "name": "Hallway"
+     },
+     {
+      "id": 5,
+      "name": "Kitchen"
+     },
+     {
+      "id": 6,
+      "name": "Living Room"
+     },
+     {
+      "id": 7,
+      "name": "Dining Room"
+     },
+     {
+      "id": 8,
+      "name": "Entryway"
+     },
+     {
+      "id": 9,
+      "name": "Home Office"
+     },
+     {
+      "id": 10,
+      "name": "Cat Room"
+     }
+    ],
+    "status_code": 3,
+    "supported_features": 30524,
+    "task_status": "Completed",
+    "trigger_source": "unknown",
+    "work_mode": "unknown"
+   },
+   "entity_id": "vacuum.alfred",
+   "last_changed": "2026-09-16T06:08:52.023675+00:00",
+   "state": "docked"
+  },
+  "vacuum.ivy": {
+   "attributes": {
+    "fan_speed": "max",
+    "fan_speed_list": [
+     "quiet",
+     "balanced",
+     "turbo",
+     "max",
+     "gentle"
+    ],
+    "friendly_name": "Ivy",
+    "supported_features": 30524
+   },
+   "entity_id": "vacuum.ivy",
+   "last_changed": "2026-09-16T06:08:44.645475+00:00",
+   "state": "docked"
+  },
+  "vacuum.robin": {
+   "attributes": {
+    "active_segments": null,
+    "ap": {
+     "bssid": "28:ec:22:9e:4a:e6",
+     "ip": "192.168.4.21",
+     "rssi": -34,
+     "ssid": "Internet"
+    },
+    "auto_add_detergent": 1,
+    "auto_drying": true,
+    "auto_dust_collecting": true,
+    "auto_empty_mode": "Standard",
+    "auto_empty_mode_list": [
+     "Off",
+     "Standard",
+     "High frequency",
+     "Low frequency"
+    ],
+    "auto_empty_status": "Idle",
+    "auto_water_refilling": false,
+    "battery": 100,
+    "capabilities": [
+     "lidar_navigation",
+     "multi_floor_map",
+     "self_wash_base",
+     "auto_empty_base",
+     "mop_pad_lifting",
+     "mop_pad_lifting_plus",
+     "customized_cleaning",
+     "auto_switch_settings",
+     "mopping_after_sweeping",
+     "wifi_map",
+     "backup_map",
+     "dnd",
+     "dnd_task",
+     "shortcuts",
+     "drainage",
+     "carpet_recognition",
+     "mop_pad_swing",
+     "mop_pad_swing_plus",
+     "off_peak_charging",
+     "max_suction_power",
+     "obstacle_image_crop",
+     "self_clean_frequency",
+     "auto_empty_mode",
+     "tight_mopping",
+     "floor_material",
+     "floor_direction_cleaning",
+     "segment_visibility",
+     "cleangenius",
+     "cleangenius_auto",
+     "intensive_carpet_cleaning",
+     "mopping_settings",
+     "cleaning_route",
+     "segment_slow_clean_route",
+     "pet_furniture",
+     "task_type",
+     "water_tank_draining",
+     "auto_rename_segment",
+     "ultra_clean_mode",
+     "clean_carpets_first",
+     "saved_furnitures",
+     "extended_furnitures",
+     "furnitures_v2",
+     "wetness",
+     "wetness_level",
+     "water_check",
+     "auto_carpet_cleaning",
+     "segment_mopping_settings",
+     "max_suction_power_extended",
+     "new_state",
+     "gen5",
+     "cleangenius_mode",
+     "washing_mode",
+     "virtual_tracks",
+     "station_cleaning",
+     "auto_add_detergent",
+     "carpet_cleanset_v2",
+     "carpet_id",
+     "auto_emptying",
+     "cleaning_sequence_v2",
+     "walls_v3",
+     "custom_cleaning_mode",
+     "map",
+     "walls"
+    ],
+    "carpet_avoidance": false,
+    "carpet_boost": true,
+    "carpet_cleaning": "Adaptation",
+    "carpet_cleaning_list": [
+     "Avoidance",
+     "Adaptation",
+     "Vacuum and mop",
+     "Ignore"
+    ],
+    "carpet_recognition": 1,
+    "charging": false,
+    "child_lock": false,
+    "clean_carpets_first": false,
+    "clean_water_tank_status": "Installed",
+    "cleaned_area": 5,
+    "cleangenius": "Off",
+    "cleangenius_cleaning": false,
+    "cleangenius_list": [
+     "Off",
+     "Routine cleaning",
+     "Deep cleaning"
+    ],
+    "cleangenius_mode": "Vacuum and mop",
+    "cleangenius_mode_list": [],
+    "cleaning_count": 52,
+    "cleaning_mode": "Sweeping",
+    "cleaning_mode_list": [
+     "Sweeping",
+     "Mopping",
+     "Sweeping and mopping",
+     "Mopping after sweeping"
+    ],
+    "cleaning_paused": 0,
+    "cleaning_route": "Standard",
+    "cleaning_route_list": [
+     "Quick",
+     "Standard"
+    ],
+    "cleaning_sequence": [
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10
+    ],
+    "cleaning_time": 5,
+    "collision_avoidance": true,
+    "cruising": false,
+    "current_segment": 7,
+    "custom_mopping_mode": 1,
+    "customized_cleaning": false,
+    "detergent_status": "Installed",
+    "device_class": "dreame_vacuum",
+    "dirty_water_tank_status": "Installed",
+    "dnd": [
+     {
+      "enabled": false,
+      "end": "08:00",
+      "id": 0,
+      "repeats": 127,
+      "ss": 0,
+      "start": "22:00"
+     }
+    ],
+    "docked": true,
+    "draining_available": true,
+    "drying": false,
+    "drying_available": true,
+    "drying_left": 0,
+    "drying_progress": 0,
+    "drying_time": 4,
+    "drying_time_list": [
+     2,
+     3,
+     4
+    ],
+    "dust_bag_status": "Installed",
+    "dust_collection_available": true,
+    "error": "No error",
+    "fan_speed": "Turbo",
+    "fan_speed_list": [
+     "Silent",
+     "Standard",
+     "Strong",
+     "Turbo"
+    ],
+    "faults": {},
+    "fill_light": true,
+    "filter_left": 95,
+    "filter_time_left": 143,
+    "firmware_version": "1636",
+    "floor_direction_cleaning": true,
+    "floor_direction_cleaning_available": true,
+    "friendly_name": "Robin",
+    "gap_cleaning_extension": true,
+    "has_error": false,
+    "has_saved_map": true,
+    "has_temporary_map": false,
+    "icon": "mdi:sleep",
+    "intensive_carpet_cleaning": true,
+    "last_updated_time": {
+     "auto_empty_status": 1789538923,
+     "cleaning_paused": 1789538923,
+     "faults": 1789538923,
+     "low_water_warning": 1789538923,
+     "task_status": 1789538923
+    },
+    "located": true,
+    "low_water": false,
+    "low_water_warning": "No warning",
+    "main_brush_left": 97,
+    "main_brush_time_left": 293,
+    "map_backup_status": "Idle",
+    "map_count": 2,
+    "map_recovery_status": "Idle",
+    "mapping": false,
+    "mapping_available": true,
+    "maps": [
+     {
+      "custom_name": "Main",
+      "date": "2026-09-15T23:08:46",
+      "id": 1,
+      "index": 1,
+      "name": "Main",
+      "recovery_map": [
+       "08/09/26 22:12:31: Map1 (Original)",
+       "08/10/26 19:32:42: Map2 (Edited)",
+       "08/30/26 18:03:50: Map3 (Backup)"
+      ]
+     },
+     {
+      "custom_name": "Test map",
+      "date": "2026-09-15T23:08:45",
+      "id": 21,
+      "index": 2,
+      "name": "Test map",
+      "recovery_map": [
+       "08/30/26 18:10:49: Map1 (Original)"
+      ]
+     }
+    ],
+    "max_suction_power": false,
+    "mop_extend": true,
+    "mop_extend_frequency": "High",
+    "mop_extend_frequency_list": [
+     "Standard",
+     "Intelligent",
+     "High"
+    ],
+    "mop_pad": true,
+    "mop_pad_humidity": "Moist",
+    "mop_pad_humidity_list": [],
+    "mop_wash_level": "Deep",
+    "mop_wash_level_list": [
+     "Deep",
+     "Daily",
+     "Water saving"
+    ],
+    "mopping_mode": 2,
+    "mopping_under_furnitures": true,
+    "multi_floor_map": true,
+    "nation_matched": "matched",
+    "obstacle_avoidance": true,
+    "off_peak_charging": false,
+    "off_peak_charging_end": "08:00",
+    "off_peak_charging_start": "22:00",
+    "paused": false,
+    "pet_focused_cleaning": true,
+    "previous_self_clean_area": 20,
+    "previous_self_clean_time": 25,
+    "relocation_status": "Located",
+    "resume_cleaning": true,
+    "returning": false,
+    "returning_paused": false,
+    "returning_to_wash": false,
+    "returning_to_wash_paused": false,
+    "rooms": {
+     "Main": [
+      {
+       "icon": "mdi:home-outline",
+       "id": 1,
+       "index": 0,
+       "name": "Entryway",
+       "type": 0
+      },
+      {
+       "icon": "mdi:home-outline",
+       "id": 2,
+       "index": 0,
+       "name": "Bryan's Room",
+       "type": 0
+      },
+      {
+       "icon": "mdi:chef-hat",
+       "id": 3,
+       "index": 0,
+       "name": "Kitchen",
+       "type": 4
+      },
+      {
+       "icon": "mdi:toilet",
+       "id": 4,
+       "index": 0,
+       "name": "Bathroom",
+       "type": 6
+      },
+      {
+       "icon": "mdi:home-outline",
+       "id": 5,
+       "index": 0,
+       "name": "Heidi & Chris",
+       "type": 0
+      },
+      {
+       "icon": "mdi:monitor-shimmer",
+       "id": 6,
+       "index": 0,
+       "name": "Office",
+       "type": 12
+      },
+      {
+       "icon": "mdi:home-outline",
+       "id": 7,
+       "index": 0,
+       "name": "Dining Room",
+       "type": 0
+      },
+      {
+       "icon": "mdi:sofa-outline",
+       "id": 8,
+       "index": 0,
+       "name": "Living Room",
+       "type": 1
+      },
+      {
+       "icon": "mdi:home-outline",
+       "id": 9,
+       "index": 0,
+       "name": "Cat Room",
+       "type": 0
+      },
+      {
+       "icon": "mdi:home-outline",
+       "id": 10,
+       "index": 0,
+       "name": "Hallway",
+       "type": 0
+      }
+     ],
+     "Test map": [
+      {
+       "icon": "mdi:home-outline",
+       "id": 1,
+       "index": 0,
+       "name": "Room 1",
+       "type": 0
+      },
+      {
+       "icon": "mdi:home-outline",
+       "id": 2,
+       "index": 0,
+       "name": "Room 2",
+       "type": 0
+      }
+     ]
+    },
+    "running": false,
+    "schedule": [],
+    "scheduled_clean": false,
+    "segment_cleaning": false,
+    "selected_map": "Main",
+    "selected_map_id": 1,
+    "selected_map_index": 1,
+    "self_clean": true,
+    "self_clean_area": 0,
+    "self_clean_area_default": 20,
+    "self_clean_area_max": 35,
+    "self_clean_area_min": 10,
+    "self_clean_frequency": "By room",
+    "self_clean_frequency_list": [
+     "By area",
+     "By time",
+     "By room"
+    ],
+    "self_clean_time_default": 25,
+    "self_clean_time_max": 50,
+    "self_clean_time_min": 10,
+    "sensor_dirty_left": 77,
+    "sensor_dirty_time_left": 23,
+    "shortcut_task": false,
+    "shortcuts": {
+     "32": {
+      "id": 32,
+      "index": 1,
+      "map_id": 1,
+      "name": "Pet Area Cleaning",
+      "running": false,
+      "tasks": [
+       [
+        {
+         "cleaning_mode": 2,
+         "cleaning_times": 1,
+         "coords": [
+          -1250,
+          3225,
+          -700,
+          3825
+         ],
+         "order": 1,
+         "suction_level": 2,
+         "task_type": 2,
+         "water_volume": 3,
+         "wetness_level": 4
+        },
+        {
+         "cleaning_mode": 0,
+         "cleaning_times": 1,
+         "coords": [
+          -5300,
+          -1125,
+          -4050,
+          -25
+         ],
+         "order": 2,
+         "suction_level": 2,
+         "task_type": 2,
+         "water_volume": 2,
+         "wetness_level": 3
+        }
+       ],
+       [
+        {
+         "cleaning_mode": 1,
+         "cleaning_times": 1,
+         "coords": [
+          -1250,
+          3225,
+          -700,
+          3825
+         ],
+         "order": 1,
+         "suction_level": 2,
+         "task_type": 2,
+         "water_volume": 3,
+         "wetness_level": 4
+        },
+        {
+         "cleaning_mode": 1,
+         "cleaning_times": 1,
+         "coords": [
+          -5300,
+          -1125,
+          -4050,
+          -25
+         ],
+         "order": 2,
+         "suction_level": 2,
+         "task_type": 2,
+         "water_volume": 2,
+         "wetness_level": 3
+        }
+       ]
+      ]
+     }
+    },
+    "side_brush_left": 99,
+    "side_brush_time_left": 199,
+    "spot_cleaning": false,
+    "started": false,
+    "station_drainage_status": "Idle",
+    "status": "Sleeping",
+    "suction_level": "Turbo",
+    "suction_level_list": [
+     "Quiet",
+     "Standard",
+     "Strong",
+     "Turbo"
+    ],
+    "supported_features": 31676,
+    "tight_mopping": false,
+    "timezone": "America/Los_Angeles",
+    "total_cleaned_area": 280,
+    "total_cleaning_time": 414,
+    "total_cruise_time": 0,
+    "total_runtime": 0,
+    "ultra_clean_mode": false,
+    "vacuum_state": "charging_completed",
+    "voice_packet_id": "EN",
+    "volume": 0,
+    "washing": false,
+    "washing_available": true,
+    "washing_paused": false,
+    "wetness_level": 20,
+    "zone_cleaning": false
+   },
+   "entity_id": "vacuum.robin",
+   "last_changed": "2026-09-16T10:04:52.618874+00:00",
+   "state": "docked"
+  },
+  "weather.forecast_home": {
+   "attributes": {
+    "attribution": "Weather forecast from met.no, delivered by the Norwegian Meteorological Institute.",
+    "cloud_coverage": 14.8,
+    "dew_point": 61,
+    "friendly_name": "Forecast Home",
+    "humidity": 72,
+    "precipitation_unit": "in",
+    "pressure": 764.01,
+    "pressure_unit": "mmHg",
+    "supported_features": 3,
+    "temperature": 70,
+    "temperature_unit": "°F",
+    "uv_index": 0.0,
+    "visibility_unit": "mi",
+    "wind_bearing": 320.1,
+    "wind_speed": 7.58,
+    "wind_speed_unit": "mph"
+   },
+   "entity_id": "weather.forecast_home",
+   "last_changed": "2026-09-18T04:22:42.783610+00:00",
+   "state": "partlycloudy"
+  }
+ },
+ "synthetic": {
+  "binary_sensor.synthetic_dishwasher_door": {
+   "attributes": {
+    "device_class": "door",
+    "friendly_name": "synthetic dishwasher door"
+   },
+   "entity_id": "binary_sensor.synthetic_dishwasher_door",
+   "last_changed": "2026-09-17T20:00:00+00:00",
+   "state": "on"
+  },
+  "binary_sensor.synthetic_front_lock": {
+   "attributes": {
+    "device_class": "lock",
+    "friendly_name": "synthetic front lock"
+   },
+   "entity_id": "binary_sensor.synthetic_front_lock",
+   "last_changed": "2026-09-17T20:00:00+00:00",
+   "state": "on"
+  },
+  "binary_sensor.synthetic_hall_motion": {
+   "attributes": {
+    "device_class": "motion",
+    "friendly_name": "synthetic hall motion"
+   },
+   "entity_id": "binary_sensor.synthetic_hall_motion",
+   "last_changed": "2026-09-17T20:00:00+00:00",
+   "state": "off"
+  },
+  "binary_sensor.synthetic_sink_leak": {
+   "attributes": {
+    "device_class": "moisture",
+    "friendly_name": "synthetic sink leak"
+   },
+   "entity_id": "binary_sensor.synthetic_sink_leak",
+   "last_changed": "2026-09-17T20:00:00+00:00",
+   "state": "off"
+  },
+  "sensor.synthetic_dishwasher_energy": {
+   "attributes": {
+    "device_class": "energy",
+    "friendly_name": "synthetic dishwasher energy",
+    "state_class": "total_increasing",
+    "unit_of_measurement": "kWh"
+   },
+   "entity_id": "sensor.synthetic_dishwasher_energy",
+   "last_changed": "2026-09-17T20:00:00+00:00",
+   "state": "412.37"
+  },
+  "sensor.synthetic_dishwasher_power": {
+   "attributes": {
+    "device_class": "power",
+    "friendly_name": "synthetic dishwasher power",
+    "state_class": "measurement",
+    "unit_of_measurement": "W"
+   },
+   "entity_id": "sensor.synthetic_dishwasher_power",
+   "last_changed": "2026-09-17T20:00:00+00:00",
+   "state": "1184.6"
+  },
+  "sensor.synthetic_illuminance": {
+   "attributes": {
+    "device_class": "illuminance",
+    "friendly_name": "synthetic illuminance",
+    "state_class": "measurement",
+    "unit_of_measurement": "lx"
+   },
+   "entity_id": "sensor.synthetic_illuminance",
+   "last_changed": "2026-09-17T20:00:00+00:00",
+   "state": "0.2"
+  },
+  "sensor.synthetic_offline_meter": {
+   "attributes": {
+    "device_class": "power",
+    "friendly_name": "synthetic offline meter",
+    "unit_of_measurement": "W"
+   },
+   "entity_id": "sensor.synthetic_offline_meter",
+   "last_changed": "2026-09-17T20:00:00+00:00",
+   "state": "unavailable"
+  },
+  "sensor.synthetic_outdoor_temperature_c": {
+   "attributes": {
+    "device_class": "temperature",
+    "friendly_name": "synthetic outdoor temperature c",
+    "state_class": "measurement",
+    "unit_of_measurement": "°C"
+   },
+   "entity_id": "sensor.synthetic_outdoor_temperature_c",
+   "last_changed": "2026-09-17T20:00:00+00:00",
+   "state": "-3.4"
+  },
+  "sensor.synthetic_voltage": {
+   "attributes": {
+    "device_class": "voltage",
+    "friendly_name": "synthetic voltage",
+    "state_class": "measurement",
+    "unit_of_measurement": "V"
+   },
+   "entity_id": "sensor.synthetic_voltage",
+   "last_changed": "2026-09-17T20:00:00+00:00",
+   "state": "121.8"
+  }
+ }
+}
