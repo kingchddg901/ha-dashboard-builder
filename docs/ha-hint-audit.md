@@ -138,6 +138,42 @@ assembled from generic controls, so this device is **excluded** from the builder
 listed here for the two facts it contributes — the open `device_class`, and the 115-primary
 prominence problem — not as a target.
 
+## One device, two integrations — capability reports are opinions
+
+The ceiling fan was later added a second time through the official Tuya cloud integration, while
+`tuya_local` kept talking to it. The same physical fixture, described twice:
+
+| | `tuya_local` | Tuya cloud |
+|---|---|---|
+| entities | 21 (2 primary) | 2 |
+| fan `supported_features` | 61 | 61 |
+| `percentage_step` | **16.667** — six notches | **1.0** — a 0–100 slider |
+| fan `preset_modes` | normal, nature, sleep | nature, sleep |
+| light `supported_features` | 4 (EFFECT), `effect_list` of 3 | **0** — no effects at all |
+| light kelvin | 2000–4570 (measured and tuned locally) | 2000–6500 |
+| device `model` | `None` | `Ceiling Fan` |
+
+The hardware has **six** fan speeds — DP 105, range 1–6 — so `percentage_step` is not reporting a
+fact about the fan, it is reporting each integration's opinion of it. One yields six notches and
+the other a hundred-step slider, and a renderer keyed on that value draws a different control
+depending on which one the user happened to install.
+
+The kelvin range splits the same way and neither is right: the cloud says 2000–6500 where the
+warm end matches the packaging and the cool end is the fiction the firmware ships;
+`tuya_local` shipped 2700–6500, wrong at both ends; the measured fixture is 1951–4514 K. Only the
+locally-edited profile carries the truth, and only because the profile is a file the user owns.
+
+So **capability detection is sound, and its inputs are only as good as the integration**. The
+same rule as the open vocabularies: read what HA says, do not treat it as a hardware fact.
+Cleaner is not the same as better — the cloud wrap is tidier (2 entities, an actual model name)
+and strictly less capable (no effects, no scenes, no presets beyond two, no DP surface at all).
+
+**And it triples the duplicates.** That fixture now answers a query for its area with
+`light.ceiling_fan` (local), `light.heidi_and_chris_room_ceiling_fan` (cloud) and
+`light.ceiling_fan_calibrated` (the correction in front of the local one) — three entities, one
+lamp, on two devices, with nothing anywhere linking them. This is the canonical-entity problem in
+its purest form, and it is the case a human has to settle.
+
 ## What groups answer — added after the first pass
 
 A light **group** publishes its own membership in the `entity_id` state attribute, and
