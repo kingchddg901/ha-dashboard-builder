@@ -56,6 +56,19 @@ export function sourceState(record) {
 }
 
 /**
+ * One line for a phone status row. An ambiguous source is left out rather than
+ * guessed - the same rule as the source picker, in the smallest shape.
+ */
+export function tvSummary(c) {
+  if (!c?.available) return "unavailable";
+  if (!c.on) return "off";
+  const parts = ["on"];
+  if (c.source.kind === "exact") parts.push(c.source.current);
+  if (c.volume.confirmed) parts.push(c.volume.muted ? `${c.volume.level}% muted` : `${c.volume.level}%`);
+  return parts.join(" · ");
+}
+
+/**
  * Everything the card needs from one media player record.
  *
  * Each group says what is OFFERED (from the flags) and what is CONFIRMED (from

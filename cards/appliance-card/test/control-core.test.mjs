@@ -17,6 +17,7 @@ import {
   speedControl, levelControl, kelvinControl, appearanceControl, composeCapabilities,
   layoutFor, axisFor, mixToCommand, setSaturation, colorToMix, RGB_WHITE_TRAP_SATURATION,
   PRESET_SLOTS, encodeSlots, decodeSlots, slotCommand, slotFromLight,
+  lightSummary, fanSummary, groupSummary, applianceSummary,
 } from "../control-core.js";
 
 const hass = JSON.parse(readFileSync(
@@ -307,6 +308,50 @@ test("saving a white takes the light's own kelvin and level", () => {
 
 test("an off light has nothing to save", () => {
   assert.equal(slotFromLight({ state: "off", raw: {} }), null);
+});
+
+/* --------------------------------------------------------------- summaries */
+
+// RED IF: a lit light's glance drops its colour, or reads the wrong level.
+test("a lit light's glance is its level and colour", () => {
+  const r = rec("light.ceiling_fan_calibrated");
+  const pct = Math.round(r.raw.brightness / 2.55);
+  assert.equal(lightSummary(r), `${pct}% · ${Math.round(r.raw.color_temp_kelvin)} K`);
+});
+
+// RED IF: a remembered value is shown as though it were live, or an unknown
+// return is filled with a guess.
+test("an off light's glance says what it returns to, or just off", () => {
+  const off = { state: "off", capabilities: { supported_color_modes: ["color_temp", "hs"] },
+                raw: { brightness: null, color_temp_kelvin: null, hs_color: null } };
+  assert.equal(lightSummary(off, { remembered: { pct: 31, k: 3367 } }), "off · returns to 31%, 3367 K");
+  assert.equal(lightSummary(off), "off");
+});
+
+test("a binary light's glance is only on or off", () => {
+  const kitchen = { state: "on", capabilities: { supported_color_modes: ["onoff"] }, raw: {} };
+  assert.equal(lightSummary(kitchen), "on");
+});
+
+// RED IF: an off fan's restore value disappears, or is shown as running. The
+// captured fan is off at 66 percent, which is notch 4 of 6.
+test("an off fan's glance says where it resumes", () => {
+  const f = rec("fan.ceiling_fan");
+  assert.equal(f.state, "off");
+  assert.equal(fanSummary(f), "off · resumes at 4");
+  assert.equal(fanSummary({ ...f, state: "on" }), "speed 4 of 6");
+});
+
+// RED IF: a group's glance trusts the group's own state instead of counting.
+test("a group's glance counts its members, and says when some are missing", () => {
+  const on = { state: "on" }, off = { state: "off" }, gone = { state: "unavailable" };
+  assert.equal(groupSummary([on, on, off]), "2 of 3 on");
+  assert.equal(groupSummary([on, gone, off]), "1 of 3 on · 1 unavailable");
+});
+
+test("an appliance's glance joins its parts", () => {
+  const s = applianceSummary({ fan: rec("fan.ceiling_fan"), light: rec("light.ceiling_fan_calibrated") });
+  assert.ok(s.startsWith("fan off · resumes at 4 · light "), s);
 });
 
 /* ----------------------------------------------------------------- kelvin */

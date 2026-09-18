@@ -299,6 +299,55 @@ export function slotFromLight(record, { mix = null } = {}) {
   return null;
 }
 
+/* ---------------------------------------------------------------- summaries
+ *
+ * One line per thing, for a phone status row: the smallest shape the control
+ * data can take. The honesty rules do not relax because the space is small - a
+ * remembered value is shown as a RETURN, never as live, and something unknown
+ * stays unknown rather than being filled with a plausible guess.
+ */
+
+export function lightSummary(record, { remembered = null } = {}) {
+  if (!record || record.state === "unavailable") return "unavailable";
+  const level = levelControl(record, { remembered });
+  if (!level.supported) return record.state === "on" ? "on" : "off";
+  const look = appearanceControl(record, { remembered });
+  const colour = look.mode === "temp" && look.kelvin != null ? `${Math.round(look.kelvin)} K`
+    : look.mode === "color" && look.hs ? `hue ${Math.round(look.hs[0])}°` : null;
+  if (level.state === "lit") return colour ? `${level.pct}% · ${colour}` : `${level.pct}%`;
+  if (level.state === "off-restores") {
+    return colour ? `off · returns to ${level.restore}%, ${colour}` : `off · returns to ${level.restore}%`;
+  }
+  return "off";
+}
+
+export function fanSummary(record, opts = {}) {
+  if (!record || record.state === "unavailable") return "unavailable";
+  const s = speedControl(record, opts);
+  const on = record.state === "on";
+  if (s.kind === "notches") {
+    if (on) return `speed ${s.index} of ${s.count}`;
+    return s.index ? `off · resumes at ${s.index}` : "off";
+  }
+  return on ? `${s.current ?? "—"}%` : "off";
+}
+
+/** "2 of 3 on" - from the members' own states, never the group's claim. */
+export function groupSummary(memberRecords) {
+  const known = memberRecords.filter((r) => r && r.state !== "unavailable" && r.state !== "unknown");
+  const on = known.filter((r) => r.state === "on").length;
+  const missing = memberRecords.length - known.length;
+  return `${on} of ${memberRecords.length} on${missing ? ` · ${missing} unavailable` : ""}`;
+}
+
+/** Fan and light together, as one appliance. */
+export function applianceSummary({ fan = null, light = null, remembered = null, declaredNotches = null } = {}) {
+  const parts = [];
+  if (fan) parts.push(`fan ${fanSummary(fan, { declaredNotches })}`);
+  if (light) parts.push(`light ${lightSummary(light, { remembered })}`);
+  return parts.join(" · ") || "—";
+}
+
 /**
  * What a parent control can promise.
  *
