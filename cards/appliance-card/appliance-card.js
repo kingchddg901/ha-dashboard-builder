@@ -56,6 +56,13 @@ class ApplianceCard extends HTMLElement {
     this.attachShadow({ mode: "open" });
     this._sig = null;
     this._width = null;
+    // The window's height, not the card's: a card grows and the page scrolls, so
+    // its own height is its output, not its constraint. See control-core.js.
+    this._height = typeof window !== "undefined" ? window.innerHeight : null;
+    this._onResize = () => {
+      const h = window.innerHeight;
+      if (h !== this._height) { this._height = h; this._sig = null; this._render(); }
+    };
   }
 
   setConfig(config) {
@@ -81,9 +88,20 @@ class ApplianceCard extends HTMLElement {
       });
       this._ro.observe(this);
     }
+    if (typeof window !== "undefined") {
+      window.addEventListener("resize", this._onResize);
+      window.addEventListener("orientationchange", this._onResize);
+      this._onResize();
+    }
   }
 
-  disconnectedCallback() { if (this._ro) { this._ro.disconnect(); this._ro = null; } }
+  disconnectedCallback() {
+    if (this._ro) { this._ro.disconnect(); this._ro = null; }
+    if (typeof window !== "undefined") {
+      window.removeEventListener("resize", this._onResize);
+      window.removeEventListener("orientationchange", this._onResize);
+    }
+  }
 
   getCardSize() { return 6; }
 
@@ -114,13 +132,13 @@ class ApplianceCard extends HTMLElement {
     const fan = this._record(this._config.fan);
     const light = this._record(this._config.light);
     const layout = layoutFor(this._width);
-    const axis = axisFor(layout);
+    const axis = axisFor(layout, this._height);
     const speed = fan ? speedControl(fan, { declaredNotches: this._config.notches }) : null;
     const level = light ? levelControl(light, { remembered: this._remembered(this._config.light) }) : null;
     const kelvin = light ? kelvinControl(light) : null;
     const appear = light ? appearanceControl(light, { remembered: this._remembered(this._config.light) }) : null;
 
-    const sig = JSON.stringify([layout, fan?.state, light?.state, speed, level, kelvin, appear]);
+    const sig = JSON.stringify([layout, axis, fan?.state, light?.state, speed, level, kelvin, appear]);
     if (sig === this._sig) return;
     this._sig = sig;
 
@@ -232,7 +250,7 @@ class ApplianceCard extends HTMLElement {
 
 const STYLE = `
   :host { display: block; }
-  ha-card { padding: 10px 12px 12px; container-type: inline-size; display: block; }
+  ha-card { padding: 10px 12px 12px; display: block; }
   .hd { font-size: 14px; font-weight: 600; display: flex; align-items: baseline; gap: 8px;
         padding-bottom: 8px; border-bottom: 1px solid var(--divider-color, #444); }
   .lay { margin-left: auto; font-size: 10.5px; font-weight: 400; letter-spacing: .04em;
@@ -284,15 +302,16 @@ const STYLE = `
             color: var(--secondary-text-color); }
   .ktemp { width: 100%; max-width: 220px; accent-color: var(--accent-color, #ff9900); }
 
-  /* Wide: the card has width and no height to spare, so the axis turns over. */
-  @container (min-width: 620px) {
-    .block { align-items: center; }
-    .track { width: auto; flex: 1 1 auto; flex-direction: row; min-height: 0; }
-    .seg { min-height: 34px; }
-    .bar { min-height: 34px; }
-    .fill { top: 0; right: auto; width: var(--v); height: auto; }
-    .side { flex: 0 0 46%; }
-  }
+  /* Horizontal when the card is wide OR the window is short. The class is set in
+     JS, which owns the decision - a parallel container query would be a second
+     source of truth and the two disagreed once already. */
+  ha-card.horizontal .block { align-items: center; }
+  ha-card.horizontal .track { width: auto; flex: 1 1 auto; flex-direction: row; min-height: 0; }
+  ha-card.horizontal .seg { min-height: 34px; }
+  ha-card.horizontal .bar { min-height: 34px; }
+  ha-card.horizontal .fill { top: 0; right: auto; width: var(--v); height: auto; }
+  ha-card.horizontal .side { flex: 0 0 46%; }
+  ha-card.horizontal.compact .side, ha-card.horizontal.regular .side { flex: 1 1 auto; }
 `;
 
 customElements.define("appliance-card", ApplianceCard);

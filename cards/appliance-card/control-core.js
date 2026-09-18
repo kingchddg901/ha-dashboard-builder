@@ -129,12 +129,28 @@ export function composeCapabilities(records) {
 /**
  * Which way up a control should be drawn.
  *
- * Keyed on the CONTAINER's width, never the viewport: a card in a narrow column
- * on a wide screen is portrait in every way that matters. A vertical notch
- * column is right where there is height and no width, and useless the other way
- * round.
+ * WIDTH comes from the CARD, never the viewport: a card in a narrow column on a
+ * wide screen is compact in every way that matters.
+ *
+ * HEIGHT comes from the WINDOW, and deliberately not from the card. A card's own
+ * height is content-driven - it grows and the page scrolls - so measuring it
+ * would feed the layout its own output. The window is the only real constraint
+ * on vertical room.
+ *
+ * That split is ported from the vacuum-agent card, which learned it the hard way
+ * (`src/state/viewport.js`, "THE HEIGHT RULE EXISTS BECAUSE THE WIDTH RULE WAS
+ * WRONG ABOUT LANDSCAPE"): rotating a 390x844 phone gives 844x390, which clears
+ * any width gate at the exact moment there is no height left. Here the symptom
+ * was milder and the same shape - a phone in landscape kept a vertical notch
+ * column, because the card was still only ~490px wide and width was never the
+ * constraint.
+ *
+ * 500px of height clears a landscape phone (~390-430) without catching a normal
+ * desktop window. A desktop window dragged shorter than that gets the horizontal
+ * axis too, which is intended: it has no vertical room either.
  */
 export const LAYOUT_BREAKPOINTS = { compact: 0, regular: 380, wide: 620 };
+export const SHORT_MAX_HEIGHT = 500;
 
 export function layoutFor(width) {
   if (!Number.isFinite(width)) return "regular";
@@ -143,7 +159,13 @@ export function layoutFor(width) {
   return "compact";
 }
 
-/** Vertical where the card is tall and narrow, horizontal where it is wide. */
-export function axisFor(layout) {
-  return layout === "wide" ? "horizontal" : "vertical";
+/**
+ * Horizontal when the card is wide, and ALSO whenever the window is short -
+ * a vertical column needs vertical room that a landscape phone does not have.
+ * An unknown height keeps the width-only behaviour rather than guessing.
+ */
+export function axisFor(layout, heightPx) {
+  if (layout === "wide") return "horizontal";
+  if (Number.isFinite(heightPx) && heightPx < SHORT_MAX_HEIGHT) return "horizontal";
+  return "vertical";
 }

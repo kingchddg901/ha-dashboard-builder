@@ -188,13 +188,26 @@ test("an all-alike parent guarantees what it offers", () => {
 // RED IF: layout is decided by the viewport. These are CONTAINER widths - a card
 // in a 300px column on a 4K screen is compact, and a vertical notch column is
 // right there and wrong when the card is wide.
-test("layout and axis follow the container width", () => {
+test("layout follows the card's width", () => {
   assert.equal(layoutFor(320), "compact");
   assert.equal(layoutFor(420), "regular");
   assert.equal(layoutFor(900), "wide");
-  assert.equal(axisFor("compact"), "vertical");
-  assert.equal(axisFor("regular"), "vertical");
-  assert.equal(axisFor("wide"), "horizontal");
+});
+
+// RED IF: the axis is decided by width alone. This is the case reported from a
+// phone: rotated to landscape the card is still only ~490px wide, so width says
+// "regular" and a vertical notch column survives into a viewport 390px tall.
+test("a short window forces the horizontal axis whatever the width says", () => {
+  assert.equal(axisFor("regular", 844), "vertical", "portrait phone keeps the column");
+  assert.equal(axisFor("regular", 390), "horizontal", "the same card rotated");
+  assert.equal(axisFor("compact", 390), "horizontal");
+  assert.equal(axisFor("wide", 2000), "horizontal", "wide is horizontal regardless");
+});
+
+// RED IF: an unknown height is guessed at instead of falling back to width only.
+test("no height measurement keeps the width-only behaviour", () => {
+  assert.equal(axisFor("regular", undefined), "vertical");
+  assert.equal(axisFor("regular", NaN), "vertical");
 });
 
 test("an unknown width falls back rather than throwing", () => {
