@@ -113,10 +113,15 @@ Its `preset_modes` are `["Starting", "Cooking", "Off", "Shutting Down", "Error"]
 vendor chose; it is not a semantic set, and a renderer that turns every `preset_modes` entry
 into a button offers the user "Error".
 
-The area is `gtill`, and — the first pass got this wrong — **the display name is `gtill` too**.
-Both halves carry the typo, so this is not the usual id-frozen/name-fixed split: renaming the
-area fixes the label and leaves the id misspelled forever. Ids are for identity, names are for
-display, and neither is trustworthy enough to *parse*.
+Its area was `gtill` in both fields when this was measured — id *and* display name. The name has
+since been corrected to **"Grill"**, and the id is still **`gtill`**, because an area id is
+frozen at creation. So this box now carries the split as a worked example rather than a warning:
+anything keyed on the id keeps working through the rename, anything keyed on the name would have
+broken at it, and anything that *shows* the id shows a typo the user has already fixed once.
+
+Ids are for identity, names are for display, and neither is safe to parse. The same area also
+has no `floor_id`, so floor-level grouping misses it entirely — placement is a hierarchy with
+holes in it, not a tree you can rely on.
 
 ### The vacuum — outside scope, but it breaks a vocabulary
 
@@ -215,7 +220,8 @@ layout:
 5. **Assign an area to every helper at creation**, or it is invisible to the graph — and do not
    group by device alone, or user-created entities disappear.
 6. **Ids for identity, names for display, parse neither.** `bedroom` displays as "Heidi and
-   chris Room"; `gtill` is misspelled in both fields; a model string carries "(big tv)".
+   chris Room"; area `gtill` now displays as "Grill" while its id keeps the typo forever; a
+   model string carries "(big tv)". Every one of these breaks a different naive assumption.
 7. **Build against the remote first.** It is the only case with zero capability information, so
    it is the one that tests whether the declaration carries real weight.
 
