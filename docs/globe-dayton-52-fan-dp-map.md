@@ -597,6 +597,15 @@ disc in moving air, which is the quantitative version of "runs cold" and makes a
 drift unlikely. (The same label gives the motor 180 Vdc at 35 W max — a DC motor, which is what
 makes six clean discrete speeds and a reverse direction cheap to implement.)
 
+Living with it says the same thing, weakly. No change in colour or apparent temperature has
+ever been noticed at five minutes, an hour or eight hours of running. That bounds the magnitude -
+nothing dramatic is happening, the sort of visible warming a struggling driver or phosphor would
+produce - but it cannot settle the question, and for a reason already established here: the eye
+could not separate corrected from uncorrected white eight seconds apart, and chromatic adaptation
+tracks a drift spread over hours far better than a sudden one. A slow shift is the case vision
+hides most completely, so "never noticed" is what an observer reports whether the drift is zero
+or moderate.
+
 The test has a direction, which makes it cheap to read. Of the three primaries the **red** die is
 the temperature-sensitive one - AlInGaP loses output and shifts wavelength as it warms, far more
 than the phosphor-converted whites do - so if there is thermal drift at all, it should appear as
