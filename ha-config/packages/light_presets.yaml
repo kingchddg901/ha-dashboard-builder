@@ -1,0 +1,17 @@
+# Presets for the appliance card - eight slots per light, each a white or a colour
+# with its brightness, stored in ONE input_text so every device and every user
+# sees the same eight. The encoding is in cards/appliance-card/control-core.js:
+#
+#   v1:t3367@31|cFFA250@100|-|-|-|-|-|-
+#
+# No `initial` value, on purpose: without one HA restores the last value across
+# restarts and reloads, which is the whole reason to keep presets here rather
+# than in a browser. Setting `initial` would wipe the slots on every restart.
+#
+# 255 is the ceiling for an input_text; eight colour slots take 98 characters.
+
+input_text:
+  ceiling_fan_presets:
+    name: Ceiling fan presets
+    icon: mdi:palette-swatch
+    max: 255

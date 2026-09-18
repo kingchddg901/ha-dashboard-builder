@@ -201,6 +201,104 @@ export function colorToMix(record) {
  */
 export const RGB_WHITE_TRAP_SATURATION = 0.12;
 
+/* ---------------------------------------------------------------- presets
+ *
+ * Eight slots per light, each holding either a white or a colour, plus its
+ * brightness - a whole preset, not just a hue. They live in ONE input_text so
+ * that they are shared by every device and every user, restored by HA across
+ * restarts, and writable by a non-admin account. That puts the budget at 255
+ * characters, so the encoding is compact:
+ *
+ *   t3367@31       white, 3367 K, 31 percent
+ *   cFFA250@100    colour, rgb FF A2 50, 100 percent
+ *   -              empty
+ *
+ * joined with "|", behind a "v1:" version so the format can change later without
+ * misreading old data. Eight colour slots take 98 characters.
+ */
+export const PRESET_SLOTS = 8;
+const PRESET_VERSION = "v1:";
+
+const hex2 = (n) => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, "0").toUpperCase();
+const clampPct = (b) => Math.max(1, Math.min(100, Math.round(Number(b))));
+
+function encodeSlot(slot) {
+  if (!slot) return "-";
+  const b = clampPct(slot.b ?? 100);
+  if (slot.mode === "temp" && Number.isFinite(slot.k)) return `t${Math.round(slot.k)}@${b}`;
+  if (slot.mode === "colour" && Array.isArray(slot.rgb) && slot.rgb.length === 3) {
+    return `c${slot.rgb.map(hex2).join("")}@${b}`;
+  }
+  return "-";
+}
+
+function decodeSlot(text) {
+  const t = String(text || "").trim();
+  let m = /^t(\d{3,5})@(\d{1,3})$/.exec(t);
+  if (m) return { mode: "temp", k: Number(m[1]), b: clampPct(m[2]) };
+  m = /^c([0-9A-Fa-f]{6})@(\d{1,3})$/.exec(t);
+  if (m) {
+    const h = m[1];
+    return { mode: "colour", rgb: [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)), b: clampPct(m[2]) };
+  }
+  return null;
+}
+
+/** Eight slots -> the stored string. Anything unrecognisable is stored as empty. */
+export function encodeSlots(slots) {
+  const eight = Array.from({ length: PRESET_SLOTS }, (_, i) => slots?.[i] ?? null);
+  return PRESET_VERSION + eight.map(encodeSlot).join("|");
+}
+
+/**
+ * The stored string -> eight slots. Never throws and never lets one bad slot
+ * take the others with it: a helper edited by hand, truncated, or empty still
+ * yields eight slots, with only the unreadable ones empty.
+ */
+export function decodeSlots(text) {
+  const out = Array.from({ length: PRESET_SLOTS }, () => null);
+  let body = String(text ?? "");
+  if (body.startsWith(PRESET_VERSION)) body = body.slice(PRESET_VERSION.length);
+  else if (/^v\d+:/.test(body)) return out;               // a newer format this code cannot read
+  body.split("|").slice(0, PRESET_SLOTS).forEach((part, i) => { out[i] = decodeSlot(part); });
+  return out;
+}
+
+/** A slot -> the light.turn_on data that recreates it. */
+export function slotCommand(slot) {
+  if (!slot) return null;
+  if (slot.mode === "temp") return { color_temp_kelvin: slot.k, brightness_pct: slot.b };
+  return { rgb_color: slot.rgb.slice(), brightness_pct: slot.b };
+}
+
+/**
+ * What to save from the light as it is now.
+ *
+ * White comes from the light's own state. Colour comes from the desk's INTENT
+ * when there is one - what was asked, not what the fixture reported - because
+ * re-sending the asked colour reproduces the same state exactly, whereas
+ * re-sending the reported one would run an already-corrected colour through the
+ * correction a second time. With no desk in play, the light's live colour is used.
+ */
+export function slotFromLight(record, { mix = null } = {}) {
+  if (!record || record.state !== "on") return null;
+  const raw = record.raw || {};
+  const b = raw.brightness == null ? 100 : clampPct(raw.brightness / 2.55);
+  // The desk wins when it is in play. Saving while looking at a mix means THAT
+  // colour, and the light can still be reporting colour temperature - mid-tune,
+  // or inside the echo window after a release - so checking the light's mode
+  // first stored a white when a colour was on screen.
+  if (mix) {
+    const cmd = mixToCommand(mix, { power: mix.power });
+    if (!cmd.off) return { mode: "colour", rgb: cmd.rgb_color, b: cmd.brightness_pct };
+  }
+  if (raw.color_mode === "color_temp" && Number.isFinite(raw.color_temp_kelvin)) {
+    return { mode: "temp", k: Math.round(raw.color_temp_kelvin), b };
+  }
+  if (Array.isArray(raw.rgb_color)) return { mode: "colour", rgb: raw.rgb_color.slice(0, 3), b };
+  return null;
+}
+
 /**
  * What a parent control can promise.
  *

@@ -16,6 +16,7 @@ import { describeEntity, groupIndex } from "../../builder-debug-card/capability-
 import {
   speedControl, levelControl, kelvinControl, appearanceControl, composeCapabilities,
   layoutFor, axisFor, mixToCommand, setSaturation, colorToMix, RGB_WHITE_TRAP_SATURATION,
+  PRESET_SLOTS, encodeSlots, decodeSlots, slotCommand, slotFromLight,
 } from "../control-core.js";
 
 const hass = JSON.parse(readFileSync(
@@ -223,6 +224,89 @@ test("no live colour opens the desk at white, marked unknown", () => {
 test("the RGB-white trap threshold sits low but above zero", () => {
   assert.ok(RGB_WHITE_TRAP_SATURATION > 0 && RGB_WHITE_TRAP_SATURATION < 0.25);
   assert.ok(mixToCommand({ r: 100, g: 95, b: 92 }).saturation < RGB_WHITE_TRAP_SATURATION);
+});
+
+/* ---------------------------------------------------------------- presets */
+
+const WHITE = { mode: "temp", k: 3367, b: 31 };
+const GOLD = { mode: "colour", rgb: [255, 162, 80], b: 100 };
+
+// RED IF: a slot does not survive being stored and read back.
+test("white and colour slots round-trip through the stored string", () => {
+  const text = encodeSlots([WHITE, null, GOLD]);
+  assert.equal(text, "v1:t3367@31|-|cFFA250@100|-|-|-|-|-");
+  const back = decodeSlots(text);
+  assert.equal(back.length, PRESET_SLOTS);
+  assert.deepEqual(back[0], WHITE);
+  assert.equal(back[1], null);
+  assert.deepEqual(back[2], GOLD);
+});
+
+// RED IF: eight full slots overflow the 255-character limit of an input_text.
+test("eight colour slots fit an input_text with room to spare", () => {
+  const full = encodeSlots(Array.from({ length: 8 }, () => ({ mode: "colour", rgb: [255, 255, 255], b: 100 })));
+  assert.ok(full.length <= 255, `${full.length} characters`);
+  assert.ok(full.length < 110);
+});
+
+// RED IF: one damaged slot empties the others, or a bad string throws. The helper
+// can be edited by hand in HA, so this is a real input, not a hypothetical one.
+test("a damaged string loses only the unreadable slots", () => {
+  const back = decodeSlots("v1:t3367@31|garbage|cFFA250@100");
+  assert.deepEqual(back[0], WHITE);
+  assert.equal(back[1], null);
+  assert.deepEqual(back[2], GOLD);
+  assert.equal(decodeSlots("").every((x) => x === null), true);
+  assert.equal(decodeSlots(null).length, PRESET_SLOTS);
+  assert.equal(decodeSlots(undefined).every((x) => x === null), true);
+});
+
+// RED IF: a future format is misread by old code instead of being left alone.
+test("an unknown format version reads as empty rather than as garbage", () => {
+  assert.equal(decodeSlots("v9:whatever|else").every((x) => x === null), true);
+});
+
+// RED IF: applying a slot sends the wrong service data.
+test("a slot recreates its own state", () => {
+  assert.deepEqual(slotCommand(WHITE), { color_temp_kelvin: 3367, brightness_pct: 31 });
+  assert.deepEqual(slotCommand(GOLD), { rgb_color: [255, 162, 80], brightness_pct: 100 });
+  assert.equal(slotCommand(null), null);
+});
+
+// RED IF: saving a colour stores what the fixture REPORTED instead of what was
+// ASKED. Re-sending the reported colour would push an already-corrected value
+// through the correction a second time. Measured case: goldenrod was asked as a
+// mix and reported back at hue 28, sat 69.
+test("saving a colour keeps the intent, not the reported outcome", () => {
+  const light = { state: "on", raw: { color_mode: "hs", brightness: 255,
+    hs_color: [28.03, 68.58], rgb_color: [255, 162, 80] } };
+  const asked = { r: 100, g: 75, b: 0, power: 100 };
+  const slot = slotFromLight(light, { mix: asked });
+  assert.equal(slot.mode, "colour");
+  assert.deepEqual(slot.rgb, [255, 191, 0], "the asked mix, normalised");
+  assert.equal(slot.b, 100);
+  // and with no desk in play, the live colour is the only source
+  assert.deepEqual(slotFromLight(light).rgb, [255, 162, 80]);
+});
+
+// RED IF: the light's reported mode outranks the desk. Found in the harness: the
+// light still reported colour temperature while a mix was on screen, and "save"
+// stored a white. The card only passes a mix when it is showing the desk.
+test("saving from the desk stores the colour even while the light still reports white", () => {
+  const light = { state: "on", raw: { color_mode: "color_temp", color_temp_kelvin: 3367, brightness: 80 } };
+  const slot = slotFromLight(light, { mix: { r: 100, g: 75, b: 0, power: 31 } });
+  assert.equal(slot.mode, "colour");
+  assert.deepEqual(slot.rgb, [255, 191, 0]);
+  assert.equal(slot.b, 31);
+});
+
+test("saving a white takes the light's own kelvin and level", () => {
+  const light = { state: "on", raw: { color_mode: "color_temp", color_temp_kelvin: 3367, brightness: 80 } };
+  assert.deepEqual(slotFromLight(light), { mode: "temp", k: 3367, b: 31 });
+});
+
+test("an off light has nothing to save", () => {
+  assert.equal(slotFromLight({ state: "off", raw: {} }), null);
 });
 
 /* ----------------------------------------------------------------- kelvin */

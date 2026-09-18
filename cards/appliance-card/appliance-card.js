@@ -19,12 +19,14 @@
  * light: light.ceiling_fan_calibrated      # the corrected one, not the raw one
  * last_level: sensor.light_last_level      # optional, for off-state restore
  * notches: 6                               # optional, overrides percentage_step
+ * presets: input_text.ceiling_fan_presets  # optional, eight shared slots
  */
 
 import { describeEntity } from "../builder-debug-card/capability-core.js";
 import {
   speedControl, levelControl, kelvinControl, appearanceControl, layoutFor, axisFor,
   mixToCommand, setSaturation, colorToMix, RGB_WHITE_TRAP_SATURATION,
+  PRESET_SLOTS, encodeSlots, decodeSlots, slotCommand, slotFromLight,
 } from "./control-core.js";
 
 /** Rough kelvin -> sRGB, for a swatch only. Not the calibration; that lives in HA. */
@@ -173,8 +175,9 @@ class ApplianceCard extends HTMLElement {
       }
     }
 
+    const presetsText = this._config.presets ? this._hass.states?.[this._config.presets]?.state : null;
     const sig = JSON.stringify([layout, axis, fan?.state, light?.state, speed, level, kelvin, appear,
-      mode, mixKey]);
+      mode, mixKey, presetsText, this._saving]);
     if (sig === this._sig) return;
     this._sig = sig;
 
@@ -185,9 +188,11 @@ class ApplianceCard extends HTMLElement {
         ${fan ? this._fanBlock(fan, speed) : ""}
         ${light ? this._lightBlock(light, level, kelvin, appear, mode, colourCapable) : ""}
         ${light && mode === "colour" ? this._deskBlock(light) : ""}
+        ${light && this._config.presets ? this._presetsBlock(decodeSlots(presetsText)) : ""}
       </ha-card>`;
     this._wire(fan, speed, light, level, kelvin);
     if (light) this._wireDesk(mode);
+    if (light && this._config.presets) this._wirePresets(light, mode, decodeSlots(presetsText));
   }
 
   _fanBlock(fan, speed) {
@@ -295,6 +300,80 @@ class ApplianceCard extends HTMLElement {
         <div class="trap" hidden>near white - the white emitters give about twelve times the
           light <button class="to-white">use white</button></div>
       </div>`;
+  }
+
+  /* Eight shared slots. Tap a filled one to apply it; tap "save", then a slot, to
+     store the light as it is now. Save is a separate, explicit step so a stray
+     tap can never overwrite a colour somebody spent a while tuning. */
+  _presetsBlock(slots) {
+    const saving = Boolean(this._saving);
+    const cell = (slot, i) => {
+      if (!slot) {
+        return `<button class="slot empty ${saving ? "armed" : ""}" data-i="${i}"
+                  aria-label="Empty slot ${i + 1}">${saving ? "+" : ""}</button>`;
+      }
+      const bg = slot.mode === "temp" ? kelvinSwatch(slot.k) : `rgb(${slot.rgb.join(",")})`;
+      const what = slot.mode === "temp" ? `${slot.k} K` : "colour";
+      return `<button class="slot ${saving ? "armed" : ""}" data-i="${i}" style="--sw:${bg}"
+                title="${what} · ${slot.b}%" aria-label="Slot ${i + 1}: ${what}, ${slot.b} percent">
+                <span class="lvl">${slot.b}</span></button>`;
+    };
+    return `
+      <div class="presets ${saving ? "saving" : ""}">
+        <div class="slots">${slots.map(cell).join("")}</div>
+        <div class="phead">
+          ${saving
+        ? `<span class="hint">tap a slot to save the light as it is now</span>
+             <button class="psave cancel">cancel</button>`
+        : `<span class="hint">${slots.some(Boolean) ? "tap to apply" : "no saved colours yet"}</span>
+             <button class="psave">save</button>`}
+        </div>
+        ${this._saveNote ? `<div class="pnote">${esc(this._saveNote)}</div>` : ""}
+      </div>`;
+  }
+
+  _wirePresets(light, mode, slots) {
+    const r = this.shadowRoot;
+    const lightId = this._config.light;
+    const presetsId = this._config.presets;
+
+    r.querySelector(".psave")?.addEventListener("click", () => {
+      this._saving = !this._saving;
+      this._saveNote = null;
+      this._sig = null; this._render();
+    });
+
+    r.querySelectorAll(".slot").forEach((btn) => btn.addEventListener("click", () => {
+      const i = Number(btn.dataset.i);
+      if (this._saving) {
+        const slot = slotFromLight(light, { mix: mode === "colour" ? this._mix : null });
+        this._saving = false;
+        if (!slot) {
+          this._saveNote = "turn the light on to save it";
+        } else {
+          const next = slots.slice();
+          next[i] = slot;
+          this._call("input_text", "set_value", { entity_id: presetsId, value: encodeSlots(next) });
+          this._saveNote = null;
+        }
+        this._sig = null; this._render();
+        return;
+      }
+      const slot = slots[i];
+      const data = slotCommand(slot);
+      if (!data) return;
+      // Match the card to what is about to happen, and treat the light's reply as
+      // our own echo so the desk does not snap back to the reported colour.
+      this._mode = slot.mode === "temp" ? "white" : "colour";
+      if (slot.mode === "colour") {
+        const [r8, g8, b8] = slot.rgb;
+        this._mix = { r: Math.round(r8 / 2.55), g: Math.round(g8 / 2.55), b: Math.round(b8 / 2.55),
+          saturation: 0, power: slot.b };
+      }
+      this._echoUntil = Date.now() + 7000;
+      this._call("light", "turn_on", { entity_id: lightId, ...data });
+      this._sig = null; this._render();
+    }));
   }
 
   _wireDesk(mode) {
@@ -485,6 +564,22 @@ class ApplianceCard extends HTMLElement {
 }
 
 const STYLE = `
+  .presets { padding: 8px 0 4px; border-top: 1px solid var(--divider-color, #333); }
+  .slots { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+  .slot { position: relative; aspect-ratio: 1; min-height: 34px; border-radius: 8px; cursor: pointer;
+          border: 1px solid rgba(255,255,255,.18); background: var(--sw, transparent); padding: 0; }
+  .slot.empty { border-style: dashed; border-color: var(--divider-color, #555); background: none;
+                color: var(--secondary-text-color); font-size: 16px; }
+  .slot.armed { outline: 2px solid var(--accent-color, #ff9900); outline-offset: 1px; }
+  .slot .lvl { position: absolute; right: 3px; bottom: 2px; font-size: 9px; font-weight: 600;
+               color: rgba(0,0,0,.62); font-variant-numeric: tabular-nums; }
+  .phead { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+  .phead .hint { flex: 1; font-size: 11px; color: var(--secondary-text-color); }
+  .psave { font: inherit; font-size: 11px; padding: 3px 12px; border-radius: 4px; cursor: pointer;
+           border: 1px solid var(--accent-color, #ff9900); background: none;
+           color: var(--primary-text-color); }
+  .psave.cancel { border-color: var(--divider-color, #555); color: var(--secondary-text-color); }
+  .pnote { font-size: 11px; color: var(--warning-color, #ffa726); margin-top: 4px; }
   .modes { display: flex; gap: 4px; margin-top: 7px; }
   .modes button { font: inherit; font-size: 11px; padding: 2px 9px; border-radius: 4px; cursor: pointer;
                   border: 1px solid var(--divider-color, #555); background: none;
