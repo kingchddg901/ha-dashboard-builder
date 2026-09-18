@@ -214,7 +214,11 @@ Two things follow for a renderer:
 * **There is no single "show the last value while off" rule.** For a fan the restore value is
   there and worth showing, provided the off state is unmistakable — a filled slider with no
   off-treatment reads as running. For a light the value does not exist, so a dashboard that wants
-  to promise "it will come back at 32%" has to remember that itself.
+  to promise "it will come back at 32%" has to remember that itself. Built for this house as
+  [`ha-config/packages/light_last_level.yaml`](../ha-config/packages/light_last_level.yaml): one
+  trigger-based sensor whose `levels` attribute holds the last on-level per light. Note what it
+  is *not* — it cannot be backfilled, because the recorder here returns no attributes for
+  history, so the value has to be caught as it happens.
 * **The capability exists in the hardware either way.** This fixture has power-on-behaviour data
   points — last state, or a default colour — and the vendor app exposes them as settings. So the
   light *does* restore; HA's light entity simply will not say to what. Hardware knows, the vendor

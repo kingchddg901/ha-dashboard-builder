@@ -1,0 +1,96 @@
+# Last level, remembered.
+#
+# Home Assistant nulls a light's brightness, colour temperature and colour the
+# moment it goes off - that is the light spec, not a bug - and the recorder on
+# this box returns no attributes for history, so the value cannot be recovered
+# after the fact. A fan is the opposite: its percentage survives being off,
+# because that value IS the restore field the device resumes at.
+#
+# This closes the gap for lights: one entity remembering the last level each
+# light was ON at, so a dashboard can say "off, will return to 32 percent".
+#
+# It captures on two occasions:
+#   * any tracked light changing state, taking the new level if it has one;
+#   * HA starting, or this template reloading, seeding from every light that is
+#     on at that moment.
+# The second is what makes it recoverable: turn the house on, reload, done.
+#
+# Attribute `levels` is {entity_id: {b, pct, k, hs, t}} - raw 0-255 brightness,
+# the same as a percentage, kelvin, hue/saturation, and when it was seen.
+
+template:
+  - unique_id: light_last_level_pack
+    trigger:
+      - platform: state
+        entity_id:
+          - light.bathroom
+          - light.bathroom1
+          - light.bathroom3
+          - light.bryan_s_room
+          - light.ceiling_fan
+          - light.ceiling_fan_calibrated
+          - light.dinning_room
+          - light.entryway
+          - light.entryway1
+          - light.entryway2
+          - light.hall_back
+          - light.hall_back_hall_back1
+          - light.hall_back_hall_back2
+          - light.hall_center1
+          - light.hall_center2
+          - light.hall_front2
+          - light.hall_front_2
+          - light.hall_master
+          - light.hall_middle
+          - light.hallfront1
+          - light.heidi_and_chris_room_ceiling_fan
+          - light.kitchen
+          - light.living_room
+          - light.livingroom1
+          - light.livingroom2
+          - light.livingroom3
+          - light.local_ceiling_fan_nightlight
+          - light.main_house
+          - light.office
+          - light.washroom_bathroom2
+      - platform: homeassistant
+        event: start
+      - platform: event
+        event_type: event_template_reloaded
+      # Fired by hand to seed from whatever is on right now:
+      #   POST /api/events/light_last_level_seed
+      - platform: event
+        event_type: light_last_level_seed
+      # Safety net: a light switched on and off between two state events, or a
+      # reload that raced the entity's setup, is picked up within two minutes.
+      - platform: time_pattern
+        minutes: "/2"
+    sensor:
+      - name: Light last level
+        unique_id: light_last_level
+        icon: mdi:lightbulb-question
+        # The state is when the last capture happened; the payload is the
+        # attribute. `this` is only available in state and attribute templates,
+        # never in `variables`, which is where this lived until it did not work.
+        device_class: timestamp
+        state: "{{ now().isoformat() }}"
+        attributes:
+          levels: >-
+            {% set prev = (this.attributes | default({})).get('levels', {}) %}
+            {% set ns = namespace(d=prev) %}
+            {% if trigger is defined and trigger.platform == 'state' %}
+              {% set cand = [trigger.to_state] if trigger.to_state else [] %}
+            {% else %}
+              {% set cand = states.light | list %}
+            {% endif %}
+            {% for s in cand %}
+              {% if s.state == 'on' and s.attributes.get('brightness') is not none %}
+                {% set ns.d = dict(ns.d, **{s.entity_id: {
+                      'b': s.attributes.get('brightness'),
+                      'pct': (s.attributes.get('brightness') / 2.55) | round | int,
+                      'k': s.attributes.get('color_temp_kelvin'),
+                      'hs': s.attributes.get('hs_color'),
+                      't': now().isoformat(timespec='seconds')}}) %}
+              {% endif %}
+            {% endfor %}
+            {{ ns.d }}
