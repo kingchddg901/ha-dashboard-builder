@@ -595,9 +595,19 @@ broadband light and asked to judge a narrow-band green - as the leading candidat
 untested. Neither possibility makes the correction wrong, because both sat in the path during
 use exactly as they did during measurement.
 
-It does bind the calibration to this assembly: swap the globe, or let it yellow or gather dust
-over years, and the numbers drift. Recalibration is the same afternoon's work with the method
-above, but a clean globe is part of what was measured.
+It does bind the calibration to this assembly, though less than plastic would: the cover is
+**glass**, which does not yellow with heat or UV the way an acrylic diffuser does. The drift
+paths that remain are dust on the globe and the LEDs ageing, not the diffuser turning amber.
+Recalibration is the same afternoon's work with the method above, but a clean globe is part of
+what was measured.
+
+**The board corroborates the two-emitter white.** A photograph of the LED board taken before
+installation shows packages in two clearly different phosphor colours - roughly 30 deep amber
+and 45 pale yellow by blob count off a casual photo, so treat the numbers as indicative and the
+*two classes* as the finding. That is the warm and cool white channels, visible as hardware,
+which is what the RAW captures concluded from the other end when the 3599 K setting was
+reproduced by a combination of the two end captures to a 0.1 percent misfit. The RGB packages
+have clear encapsulant and cannot be counted the same way.
 
 **The eye cannot referee sequential states.** In a room lit only by the fixture,
 vision adapts to each state within seconds, and the corrected and uncorrected
