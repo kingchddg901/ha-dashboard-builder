@@ -806,6 +806,41 @@ compared with theirs; the proportion is independent of exposure.)
 5000 K setting gives about 1.35× the luminance of the 2000 K setting
 (1.19–1.47 across matrices).
 
+**How much of the error is the fixture, and how much is the profile.** Kelvin is a misleading
+unit for this - the same chromaticity step is worth far more kelvin at the cool end - so the
+three measured points are better read in mired, where equal steps are roughly equally visible:
+
+| DP | vendor's own intent | measured | offset | against the shipped profile |
+|---|---|---|---|---|
+| 0 | 2000 K | 1951 K | +12.6 mired | +142.2 mired |
+| 533 | 3599 K | 3473 K | +10.1 mired | +76.3 mired |
+| 1000 | 5000 K | 4514 K | +21.5 mired | +67.7 mired |
+
+Read that way the error splits in two, and the halves are not close in size. Against
+`tuya_local`'s shipped 2700-6500 K guess the fixture is 68-142 mired out, which is 14 to 28
+just-noticeable steps and the reason a kelvin value typed into HA landed nowhere near the light
+it produced. Against the vendor's own linear 2000-5000 K intent, the same fixture is only 10-21
+mired warm - two to four steps, visible side by side and easy to miss alone. **The profile was
+the dominant error by five to seven times.**
+
+What remains - a consistent 10-21 mired warm bias, worst at the cool end - is the part that
+belongs to the hardware and the optics, and the existing captures cannot apportion it. Three
+candidates produce almost the same signature:
+
+* **Die binning.** Both white channels shipping from slightly warm bins. Cheap LEDs are binned
+  loosely, and buying the warmer side of a bin is the cheaper side.
+* **The glass.** Any slight warm tilt in the diffuser applies a near-constant chromaticity
+  offset, which is a near-constant mired offset - the shape seen here.
+* **An impure cool end.** If the firmware does not drive the cool channel to 100 percent at
+  DP 1000, leaving a little warm in the mix, the cool end lands warm for a reason that is
+  neither the die nor the glass.
+
+One cheap experiment separates the second from the other two: capture the same three settings
+**with the globe off and with it on**, at one fixed exposure. The difference is the diffuser's
+contribution and nothing else. Separating binning from an impure blend needs the cool end
+examined for the warm phosphor's red hump - the CD spectroscope is enough to see whether it is
+there.
+
 **This unit runs a tighter mapping than the published one.** The best straight
 line through the three measurements runs from 2000 K at DP 0 to about 4570 K at
 DP 1000, which puts every label within about 100 K of the measurement rather
