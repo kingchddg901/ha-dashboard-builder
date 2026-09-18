@@ -138,6 +138,7 @@ class ApplianceCard extends HTMLElement {
     const kelvin = light ? kelvinControl(light) : null;
     const appear = light ? appearanceControl(light, { remembered: this._remembered(this._config.light) }) : null;
 
+    if (this._dragging) return;
     const sig = JSON.stringify([layout, axis, fan?.state, light?.state, speed, level, kelvin, appear]);
     if (sig === this._sig) return;
     this._sig = sig;
@@ -188,6 +189,7 @@ class ApplianceCard extends HTMLElement {
     const bar = level.supported
       ? `<div class="track bar" role="group" aria-label="Brightness">
            <div class="fill ${level.state}" style="--v:${shown}%"></div>
+           <div class="thumb" style="--v:${shown}%"><span class="readout">${shown}%</span></div>
            <input class="range" type="range" min="1" max="100" value="${shown}" aria-label="Brightness">
          </div>`
       : `<div class="track none">on / off only</div>`;
@@ -199,9 +201,10 @@ class ApplianceCard extends HTMLElement {
             <div class="name">Light ${on ? "on" : "off"}</div>
             <div class="sub">
               <span class="dot" style="background:${swatchOf(appear)}"></span>
-              ${level.state === "lit" ? `${level.pct}%`
-        : level.state === "off-restores" ? `off · returns to ${level.restore}%`
-          : "off · level unknown"}${appear.from === "remembered"
+              ${level.supported && level.state !== "off-unknown"
+        ? `<button class="typed" title="Tap to type a level">${level.state === "lit"
+          ? `${level.pct}%` : `off · returns to ${level.restore}%`}</button>`
+        : level.state === "off-unknown" ? "off · level unknown" : `${level.pct}%`}${appear.from === "remembered"
         ? appear.mode === "temp" ? ` at ${Math.round(appear.kelvin)} K`
           : ` at hue ${Math.round(appear.hs[0])}°`
         : ""}</div>
@@ -211,8 +214,8 @@ class ApplianceCard extends HTMLElement {
                      min="${kelvin.min}" max="${kelvin.max}" step="10"
                      value="${appear.kelvin ?? Math.round((kelvin.min + kelvin.max) / 2)}"
                      aria-label="Colour temperature">
-              <span class="sub">${appear.mode === "unknown" ? "—"
-        : `${Math.round(appear.kelvin ?? 0)} K`}
+              <span class="sub"><span class="kvalue">${appear.mode === "unknown" ? "—"
+        : `${Math.round(appear.kelvin ?? 0)} K`}</span>
                 <span class="src">${appear.from === "remembered" ? "remembered"
           : appear.mode === "unknown" ? "unknown" : `${kelvin.min}–${kelvin.max} measured`}</span></span>
             </div>` : ""}
@@ -241,10 +244,63 @@ class ApplianceCard extends HTMLElement {
 
     r.querySelector(".light-power")?.addEventListener("click", () =>
       this._call("light", light.state === "on" ? "turn_off" : "turn_on", { entity_id: lightId }));
-    r.querySelector(".range")?.addEventListener("change", (e) =>
-      this._call("light", "turn_on", { entity_id: lightId, brightness_pct: Number(e.target.value) }));
-    r.querySelector(".ktemp")?.addEventListener("change", (e) =>
-      this._call("light", "turn_on", { entity_id: lightId, color_temp_kelvin: Number(e.target.value) }));
+    // Live feedback during the drag, one service call on release. Re-renders are
+    // suppressed while dragging so an incoming state update cannot yank the thumb
+    // out from under a finger.
+    const range = r.querySelector(".range");
+    if (range) {
+      const paint = (v) => {
+        r.querySelector(".fill").style.setProperty("--v", `${v}%`);
+        const t = r.querySelector(".thumb");
+        t.style.setProperty("--v", `${v}%`);
+        t.querySelector(".readout").textContent = `${v}%`;
+        const typed = r.querySelector(".typed");
+        if (typed) typed.textContent = `${v}%`;
+      };
+      range.addEventListener("pointerdown", () => { this._dragging = true; });
+      range.addEventListener("input", (e) => { this._dragging = true; paint(Number(e.target.value)); });
+      range.addEventListener("change", (e) => {
+        this._dragging = false;
+        this._call("light", "turn_on", { entity_id: lightId, brightness_pct: Number(e.target.value) });
+      });
+    }
+
+    // Tap the percentage to type one. A number is faster than a drag for "make it 20".
+    r.querySelector(".typed")?.addEventListener("click", (e) => {
+      const btn = e.currentTarget;
+      const input = document.createElement("input");
+      input.type = "number"; input.min = "1"; input.max = "100"; input.className = "typein";
+      input.value = String(level.pct ?? level.restore ?? 50);
+      btn.replaceWith(input);
+      input.focus();
+      input.select?.();
+      const commit = () => {
+        const v = Math.max(1, Math.min(100, Number(input.value)));
+        if (Number.isFinite(v)) {
+          this._call("light", "turn_on", { entity_id: lightId, brightness_pct: v });
+        }
+        this._sig = null;
+        this._render();
+      };
+      input.addEventListener("keydown", (ev) => {
+        if (ev.key === "Enter") commit();
+        if (ev.key === "Escape") { this._sig = null; this._render(); }
+      });
+      input.addEventListener("blur", commit);
+    });
+
+    const ktemp = r.querySelector(".ktemp");
+    if (ktemp) {
+      const kOut = r.querySelector(".kvalue");
+      ktemp.addEventListener("input", (e) => {
+        this._dragging = true;
+        if (kOut) kOut.textContent = `${e.target.value} K`;
+      });
+      ktemp.addEventListener("change", (e) => {
+        this._dragging = false;
+        this._call("light", "turn_on", { entity_id: lightId, color_temp_kelvin: Number(e.target.value) });
+      });
+    }
   }
 }
 
@@ -289,7 +345,22 @@ const STYLE = `
   .fill.off-restores { background: repeating-linear-gradient(45deg,
                        var(--secondary-text-color, #888) 0 6px, transparent 6px 12px); }
   .fill.off-unknown { background: none; }
-  .bar .range { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+  .bar .range { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer;
+                touch-action: none; }
+  .thumb { position: absolute; left: 0; right: 0; bottom: calc(var(--v) - 2px); height: 4px;
+           background: var(--accent-color, #ff9900); pointer-events: none; }
+  .readout { position: absolute; right: 4px; bottom: 5px; font-size: 11px; font-weight: 600;
+             color: var(--accent-color, #ff9900); font-variant-numeric: tabular-nums;
+             text-shadow: 0 1px 3px rgba(0,0,0,.8); }
+  ha-card.horizontal .thumb { left: calc(var(--v) - 2px); right: auto; top: 0; bottom: 0;
+                              width: 4px; height: auto; }
+  ha-card.horizontal .readout { right: auto; left: 7px; bottom: 50%; transform: translateY(50%); }
+  .typed { font: inherit; font-size: 11.5px; color: var(--secondary-text-color); cursor: pointer;
+           background: none; border: 0; border-bottom: 1px dotted var(--secondary-text-color);
+           padding: 0 1px; }
+  .typein { font: inherit; font-size: 12px; width: 62px; padding: 1px 4px;
+            color: var(--primary-text-color); background: var(--secondary-background-color, #1c2126);
+            border: 1px solid var(--accent-color, #ff9900); border-radius: 3px; }
   .none { display: grid; place-items: center; font-size: 10.5px; text-align: center;
           color: var(--secondary-text-color); border: 1px dashed var(--divider-color, #555);
           border-radius: 6px; padding: 4px; }
@@ -310,8 +381,8 @@ const STYLE = `
   ha-card.horizontal .seg { min-height: 34px; }
   ha-card.horizontal .bar { min-height: 34px; }
   ha-card.horizontal .fill { top: 0; right: auto; width: var(--v); height: auto; }
-  ha-card.horizontal .side { flex: 0 0 46%; }
-  ha-card.horizontal.compact .side, ha-card.horizontal.regular .side { flex: 1 1 auto; }
+  ha-card.horizontal .side { flex: 1 1 46%; min-width: 0; }
+  ha-card.horizontal .track { flex: 1 1 46%; min-width: 150px; }
 `;
 
 customElements.define("appliance-card", ApplianceCard);
