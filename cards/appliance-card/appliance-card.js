@@ -138,7 +138,10 @@ class ApplianceCard extends HTMLElement {
     const kelvin = light ? kelvinControl(light) : null;
     const appear = light ? appearanceControl(light, { remembered: this._remembered(this._config.light) }) : null;
 
-    if (this._dragging) return;
+    // Never repaint under a finger or a keyboard. Typing matters most: on a phone
+    // the soft keyboard shrinks the window, the resize handler re-renders, and
+    // rebuilding the DOM destroys the very input the keyboard opened for.
+    if (this._dragging || this._editing) return;
     const sig = JSON.stringify([layout, axis, fan?.state, light?.state, speed, level, kelvin, appear]);
     if (sig === this._sig) return;
     this._sig = sig;
@@ -258,6 +261,17 @@ class ApplianceCard extends HTMLElement {
         if (typed) typed.textContent = `${v}%`;
       };
       range.addEventListener("pointerdown", () => { this._dragging = true; });
+      // A drag that ends without a `change` - cancelled by a scroll gesture, or the
+      // finger lifting off the element - must still release the guard, or the card
+      // stops following HA for good.
+      const release = () => {
+        if (!this._dragging) return;
+        this._dragging = false;
+        this._sig = null;
+        this._render();
+      };
+      range.addEventListener("pointercancel", release);
+      range.addEventListener("blur", release);
       range.addEventListener("input", (e) => { this._dragging = true; paint(Number(e.target.value)); });
       range.addEventListener("change", (e) => {
         this._dragging = false;
@@ -268,25 +282,43 @@ class ApplianceCard extends HTMLElement {
     // Tap the percentage to type one. A number is faster than a drag for "make it 20".
     r.querySelector(".typed")?.addEventListener("click", (e) => {
       const btn = e.currentTarget;
+      const startPct = level.pct ?? level.restore ?? 50;
       const input = document.createElement("input");
-      input.type = "number"; input.min = "1"; input.max = "100"; input.className = "typein";
-      input.value = String(level.pct ?? level.restore ?? 50);
+      input.type = "number";
+      input.inputMode = "numeric";          // a number pad, not a full keyboard
+      input.enterKeyHint = "done";
+      input.min = "1"; input.max = "100";
+      input.className = "typein";
+      input.value = String(startPct);
+      this._editing = true;
       btn.replaceWith(input);
       input.focus();
       input.select?.();
-      const commit = () => {
-        const v = Math.max(1, Math.min(100, Number(input.value)));
-        if (Number.isFinite(v)) {
-          this._call("light", "turn_on", { entity_id: lightId, brightness_pct: v });
+
+      // One commit, however it ends. Enter, blur and the element being torn down
+      // can all arrive for the same edit, and only the first one counts. Nothing
+      // is sent when the value did not change, so dismissing the keyboard is not
+      // a service call.
+      let done = false;
+      const finish = (send) => {
+        if (done) return;
+        done = true;
+        this._editing = false;
+        const v = Math.round(Number(input.value));
+        if (send && Number.isFinite(v)) {
+          const pct = Math.max(1, Math.min(100, v));
+          if (pct !== startPct) {
+            this._call("light", "turn_on", { entity_id: lightId, brightness_pct: pct });
+          }
         }
         this._sig = null;
         this._render();
       };
       input.addEventListener("keydown", (ev) => {
-        if (ev.key === "Enter") commit();
-        if (ev.key === "Escape") { this._sig = null; this._render(); }
+        if (ev.key === "Enter") { ev.preventDefault(); finish(true); }
+        if (ev.key === "Escape") finish(false);
       });
-      input.addEventListener("blur", commit);
+      input.addEventListener("blur", () => finish(true));
     });
 
     const ktemp = r.querySelector(".ktemp");
@@ -296,6 +328,14 @@ class ApplianceCard extends HTMLElement {
         this._dragging = true;
         if (kOut) kOut.textContent = `${e.target.value} K`;
       });
+      const kRelease = () => {
+        if (!this._dragging) return;
+        this._dragging = false;
+        this._sig = null;
+        this._render();
+      };
+      ktemp.addEventListener("pointercancel", kRelease);
+      ktemp.addEventListener("blur", kRelease);
       ktemp.addEventListener("change", (e) => {
         this._dragging = false;
         this._call("light", "turn_on", { entity_id: lightId, color_temp_kelvin: Number(e.target.value) });
