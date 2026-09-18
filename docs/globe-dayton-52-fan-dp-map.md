@@ -589,8 +589,13 @@ construction says why: the LED board mounts to a solid aluminium plate spanning 
 diameter - a heat spreader rather than a bracket, turning the whole ceiling-facing disc into a
 radiator - and it sits in air the fan itself stirs. The plate is a few millimetres thick by hand
 estimate; no photograph of it carries a scale reference, so treat that as an impression and the
-*full-diameter solid plate* as the fact. The typical setting on this kit is also around 31
-percent, nowhere near full drive.
+*full-diameter solid plate* as the fact.
+
+The receiver's label puts a number on it: **light output 180 Vdc, 18 W max**. At the usual
+setting near 31 percent that is something like five or six watts spread across a solid aluminium
+disc in moving air, which is the quantitative version of "runs cold" and makes a large thermal
+drift unlikely. (The same label gives the motor 180 Vdc at 35 W max — a DC motor, which is what
+makes six clean discrete speeds and a reverse direction cheap to implement.)
 
 The test has a direction, which makes it cheap to read. Of the three primaries the **red** die is
 the temperature-sensitive one - AlInGaP loses output and shifts wavelength as it warms, far more
@@ -855,6 +860,24 @@ directly: `Mapped dps 102 value from None to True`. Mapping an absent value to
 **Product identification.** Filling in the commented-out `products:` block with
 the Globe SKU is the change with the most practical value — it is currently
 impossible to find this profile by the name on the box.
+
+The receiver module carries the identifiers that neither Home Assistant nor
+either integration exposes. From its label:
+
+| | |
+|---|---|
+| Model / HVIN | **GE27109TX** |
+| FCC ID | **2AQUQGE27109TX** |
+| IC (Canada) | **8290A-GE27109TX** |
+| Input | AC 120 V / 60 Hz |
+| Light output | **180 Vdc, 18 W max** |
+| Motor output | **180 Vdc, 35 W max** |
+
+The FCC ID is the useful one for an upstream report: it is a public registry
+entry, tied to a grantee code rather than to a retail brand, so it identifies
+the module across every white-label fan it is fitted to. `GE27109TX` is worth
+putting in the profile's comments for the same reason — a person holding this
+receiver can search for it, where nobody can search for "Tuya / model: None".
 
 ## Still open
 
