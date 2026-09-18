@@ -584,10 +584,13 @@ as either cold or warm - only as internally consistent, each run holding its sta
 seconds apart. Every comparison here is therefore sound, and the absolute thermal dependence is
 simply unmeasured.
 
-Two things suggest the dependence is small. The fixture **runs cold**: the LED board mounts to a
-thick aluminium plate, two to three millimetres or more, spanning its whole diameter, and it sits
-in air the fan itself stirs. And the typical setting on this kit is around 31 percent, nowhere
-near full drive.
+Two things suggest the dependence is small. The fixture **runs cold to the touch**, and the
+construction says why: the LED board mounts to a solid aluminium plate spanning its full
+diameter - a heat spreader rather than a bracket, turning the whole ceiling-facing disc into a
+radiator - and it sits in air the fan itself stirs. The plate is a few millimetres thick by hand
+estimate; no photograph of it carries a scale reference, so treat that as an impression and the
+*full-diameter solid plate* as the fact. The typical setting on this kit is also around 31
+percent, nowhere near full drive.
 
 The test has a direction, which makes it cheap to read. Of the three primaries the **red** die is
 the temperature-sensitive one - AlInGaP loses output and shifts wavelength as it warms, far more
