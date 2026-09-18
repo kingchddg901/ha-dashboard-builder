@@ -569,6 +569,20 @@ the light path, so what has been characterised is the **luminaire as installed**
 bare emitter. A dashboard swatch is meant to match what lands on the ceiling, and the ceiling
 only ever receives light that has already passed through the globe.
 
+Why that is more than a convenient framing: each primary was driven **alone** and measured
+through the globe, so whatever the globe does to it - attenuate, scatter, tint - is a fixed
+transform folded into that primary's column of `P`. The inversion `P` inverse therefore solves
+for delivered light, and it is exact for as long as the same globe sits in the path. It would be
+contamination only for a different goal: characterising the dies themselves, which would need
+bare dies driven one at a time, and this fixture cannot be taken apart that way.
+
+The condition is that everything in the path stays **fixed and linear per primary**. Passive
+diffusion is. What is not guaranteed is thermal behaviour: LED output and colour shift with
+junction temperature, and every capture here was taken within a couple of minutes of switching
+on, so the calibration describes a fixture near that thermal state. All the comparisons are
+sound - each run held its states about eight seconds apart, so they share a warm-up point - but
+absolute accuracy after an hour of running is untested. It is one capture to find out.
+
 Two consequences. It may explain the weakest number in the set - the green coordinate reads far
 less saturated than a green LED should, which a slightly warm or ivory diffuser would do by
 absorbing more of the short and middle wavelengths than it does red; the camera matrix was the
@@ -801,6 +815,8 @@ impossible to find this profile by the name on the box.
 ## Still open
 
 * `mix_light_scene` (36) — find the app control that writes it
+* Whether the calibration holds warm: recapture one white setting after an hour of running
+  and compare against the same setting measured cold
 * Refit the colour model with the validation captures included, to tighten the
   greens
 * DPs 108, 109 and 111 — what they control
