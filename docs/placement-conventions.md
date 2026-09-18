@@ -42,11 +42,12 @@ Both halves are readable. A group publishes its members in its `entity_id` attri
 member's area resolves from the registry (its own, or its device's). So one predicate separates
 the two kinds of group:
 
-* Members resolve to the group's **own area** → the group is the **object**, and its members are
-  parts of it. `light.hall_back` is not a convenience over two bulbs, it is *one fixture* —
-  `Hall back1` and `Hall back2` are separate devices because HA has no concept of a fixture, so
-  the group is the only place that fact exists. `light.bathroom` over its three bulbs is the
-  same move one size up. Show the group; the parts are for diagnostics.
+* Members resolve to the group's **own area** → the group is a thing in that place rather than
+  the place itself. It is either *one fixture* (`light.hall_back` is a single lamp holding two
+  bulbs — `Hall back1` and `Hall back2` are separate devices because HA has no concept of a
+  fixture, so the group is the only record that they are one object) or *a mental grouping*
+  (`light.bathroom` is three separate lamps the household thinks of as one). Those two need
+  different handling and **no rule can tell them apart** — see below.
 * Members resolve to **other** areas → the group's area is a **parent** of those areas — a
   *place*, not an object. That is `hallway` and `public_areas`. Here both levels are real
   controls and **neither should be buried**: the house this came from uses the zone when it
@@ -56,6 +57,41 @@ the two kinds of group:
 Nothing is named specially, no label or prefix is required, and a user who happens to build that
 shape without reading this gets the hierarchy anyway — because the shape genuinely means what
 the rule says it means.
+
+## The one question worth asking: fixture, or mental grouping?
+
+For a group whose members sit in its own area, the data cannot say which kind it is. These two
+are identical in every readable field:
+
+| | `light.hall_back` — one lamp, two bulbs | `light.bathroom` — three lamps |
+|---|---|---|
+| platform | matter | matter |
+| manufacturer / model | Leedarson / Smart RGBTW Bulb | Leedarson / Smart RGBTW Bulb |
+| device names | `Hall back1`, `Hall back2` | `Bathroom1`, `Bathroom2`, `Bathroom3` |
+| area | all `hall_back` | all `washroom` |
+
+Same platform, same model, same trailing-digit naming, same area, same group shape. Any
+heuristic that calls the first a fixture calls the second one too, and is wrong. The difference
+is physical and exists nowhere in the system.
+
+So **ask, once, at setup: is this a fixture or a grouping?** One checkbox per local group — six
+for the house above — and it is the first thing in this project that genuinely cannot be
+derived, which is exactly what a declaration is for.
+
+What the answer changes:
+
+* **Fixture** → the parts are not independently meaningful. Nobody lights half a lamp. Show the
+  object; keep the bulbs for diagnostics.
+* **Mental grouping** → the parts *are* meaningful. Someone may want the vanity light without
+  the shower light. Show the group, collapsed, with the members reachable.
+
+**Default when unanswered: mental grouping.** Hiding a control someone needs is worse than
+showing one they do not, so the safe default never removes function. A parent group needs no
+question at all — its members are in other areas, so it is a place, and both levels stay.
+
+One edge: a group with no area of its own. Then "its own area" is undefined, and the fallback is
+its members — if they all agree on one area, treat it as local and ask the question; if they
+spread, it is a parent whose area was never set.
 
 ## What the shape does not tell you
 
