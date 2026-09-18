@@ -77,7 +77,16 @@ template:
         attributes:
           levels: >-
             {% set prev = (this.attributes | default({})).get('levels', {}) %}
-            {% set ns = namespace(d=prev) %}
+            {# Carry forward only entities that still exist. states[id] is None
+               solely when an entity is GONE - an offline or unavailable light
+               still has a state object, so it keeps its memory and a deleted
+               one is forgotten. #}
+            {% set ns = namespace(d={}) %}
+            {% for k, v in prev.items() %}
+              {% if states[k] is not none %}
+                {% set ns.d = dict(ns.d, **{k: v}) %}
+              {% endif %}
+            {% endfor %}
             {% if trigger is defined and trigger.platform == 'state' %}
               {% set cand = [trigger.to_state] if trigger.to_state else [] %}
             {% else %}
@@ -94,3 +103,14 @@ template:
               {% endif %}
             {% endfor %}
             {{ ns.d }}
+
+# A button for the event above: capture every light that is on right now, and
+# drop any that no longer exist. Use it after adding or removing lights instead
+# of waiting for the two-minute sweep.
+script:
+  light_last_level_capture_now:
+    alias: Light last level - capture now
+    icon: mdi:lightbulb-question
+    mode: single
+    sequence:
+      - event: light_last_level_seed
