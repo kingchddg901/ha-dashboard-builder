@@ -577,11 +577,24 @@ contamination only for a different goal: characterising the dies themselves, whi
 bare dies driven one at a time, and this fixture cannot be taken apart that way.
 
 The condition is that everything in the path stays **fixed and linear per primary**. Passive
-diffusion is. What is not guaranteed is thermal behaviour: LED output and colour shift with
-junction temperature, and every capture here was taken within a couple of minutes of switching
-on, so the calibration describes a fixture near that thermal state. All the comparisons are
-sound - each run held its states about eight seconds apart, so they share a warm-up point - but
-absolute accuracy after an hour of running is untested. It is one capture to find out.
+diffusion is. What is not guaranteed is thermal behaviour, since LED output and colour both shift
+with junction temperature. **The thermal state was not logged during any of these captures**, and
+the fixture had been running before several of the runs, so it is wrong to describe the numbers
+as either cold or warm - only as internally consistent, each run holding its states about eight
+seconds apart. Every comparison here is therefore sound, and the absolute thermal dependence is
+simply unmeasured.
+
+Two things suggest the dependence is small. The fixture **runs cold**: the LED board mounts to a
+thick aluminium plate, two to three millimetres or more, spanning its whole diameter, and it sits
+in air the fan itself stirs. And the typical setting on this kit is around 31 percent, nowhere
+near full drive.
+
+The test has a direction, which makes it cheap to read. Of the three primaries the **red** die is
+the temperature-sensitive one - AlInGaP loses output and shifts wavelength as it warms, far more
+than the phosphor-converted whites do - so if there is thermal drift at all, it should appear as
+red's share falling after a long run, pulling colour mode toward cyan. Recapture one saturated
+red and one white at the same fixed exposure after an hour of running, compare against what is
+recorded above, and either the drift is visible in red or the question is closed.
 
 **What the globe actually is** matters for how far this travels: a plain frosted-white opal
 dome over the hub, the commonest diffuser in the category rather than a shaped optic. Two things
@@ -843,8 +856,8 @@ impossible to find this profile by the name on the box.
 ## Still open
 
 * `mix_light_scene` (36) — find the app control that writes it
-* Whether the calibration holds warm: recapture one white setting after an hour of running
-  and compare against the same setting measured cold
+* Whether the calibration holds warm - unmeasured, not suspected: recapture a saturated red and
+  a white after an hour of running. Red is where drift would show first
 * Refit the colour model with the validation captures included, to tighten the
   greens
 * DPs 108, 109 and 111 — what they control
