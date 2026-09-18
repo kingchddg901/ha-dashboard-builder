@@ -70,6 +70,34 @@ test("a step that implies too many positions is rejected", () => {
   assert.equal(speedControl({ capabilities: { percentage_step: 0.7 }, raw: {} }).kind, "slider");
 });
 
+/* -------------------------------------------------------------- speed mode */
+
+// RED IF: the integration's claim outranks the user's choice. The local fan says
+// six notches; a user who wants a slider gets a slider.
+test("linear gives a slider even when the integration says notches", () => {
+  const c = speedControl(rec("fan.ceiling_fan"), { mode: "linear" });
+  assert.equal(c.kind, "slider");
+  assert.equal(c.source, "declared");
+});
+
+test("steps gives notches even when the integration claims a hundred positions", () => {
+  const cloudFan = { state: "off", capabilities: { percentage_step: 1.0 }, raw: { percentage: 60 } };
+  const c = speedControl(cloudFan, { mode: "steps", steps: 6 });
+  assert.equal(c.kind, "notches");
+  assert.equal(c.count, 6);
+  assert.equal(c.source, "declared");
+});
+
+test("steps with no count uses the count the integration implies", () => {
+  const c = speedControl(rec("fan.ceiling_fan"), { mode: "steps" });
+  assert.equal(c.count, 6);
+  assert.equal(c.source, "percentage_step");
+});
+
+test("auto is what it always was", () => {
+  assert.deepEqual(speedControl(rec("fan.ceiling_fan"), { mode: "auto" }), speedControl(rec("fan.ceiling_fan")));
+});
+
 /* ------------------------------------------------------------------ level */
 
 // RED IF: an off light is drawn as though HA still knew its level. It does not -

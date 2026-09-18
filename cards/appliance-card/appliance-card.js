@@ -18,7 +18,8 @@
  * fan: fan.ceiling_fan
  * light: light.ceiling_fan_calibrated      # the corrected one, not the raw one
  * last_level: sensor.light_last_level      # optional, for off-state restore
- * notches: 6                               # optional, overrides percentage_step
+ * speed: auto                              # auto | linear | steps
+ * steps: 6                                 # with speed: steps (notches: 6 still works)
  * presets: input_text.ceiling_fan_presets  # optional, eight shared slots
  */
 
@@ -110,6 +111,41 @@ class ApplianceCard extends HTMLElement {
 
   static getStubConfig() { return { fan: "", light: "" }; }
 
+  /** The older `notches: n` means steps mode with n steps. */
+  _speedOpts() {
+    const c = this._config;
+    const mode = c.speed || (c.notches ? "steps" : "auto");
+    return { mode, steps: c.steps || c.notches || null };
+  }
+
+  /* HA builds the visual editor from this schema - the speed setting is a real
+     choice in the card editor rather than a line of YAML. */
+  static getConfigForm() {
+    return {
+      schema: [
+        { name: "title", selector: { text: {} } },
+        { name: "fan", selector: { entity: { filter: { domain: "fan" } } } },
+        { name: "light", selector: { entity: { filter: { domain: "light" } } } },
+        {
+          type: "grid", name: "", schema: [
+            { name: "speed", selector: { select: { mode: "dropdown", options: [
+              { value: "auto", label: "Auto - believe the integration" },
+              { value: "linear", label: "Linear - a slider" },
+              { value: "steps", label: "Steps - notches" },
+            ] } } },
+            { name: "steps", selector: { number: { min: 2, max: 12, mode: "box" } } },
+          ],
+        },
+        { name: "last_level", selector: { entity: { filter: { domain: "sensor" } } } },
+        { name: "presets", selector: { entity: { filter: { domain: "input_text" } } } },
+      ],
+      computeLabel: (s) => ({ speed: "Fan speed control", steps: "Number of steps",
+        last_level: "Remembered-level sensor", presets: "Preset store" }[s.name]),
+      computeHelper: (s) => (s.name === "steps"
+        ? "Only used with Steps. Leave empty to use the count the integration implies." : undefined),
+    };
+  }
+
   _record(id) {
     if (!id || !this._hass?.states?.[id]) return null;
     return describeEntity({
@@ -136,7 +172,7 @@ class ApplianceCard extends HTMLElement {
     const light = this._record(this._config.light);
     const layout = layoutFor(this._width);
     const axis = axisFor(layout, this._height);
-    const speed = fan ? speedControl(fan, { declaredNotches: this._config.notches }) : null;
+    const speed = fan ? speedControl(fan, this._speedOpts()) : null;
     const level = light ? levelControl(light, { remembered: this._remembered(this._config.light) }) : null;
     const kelvin = light ? kelvinControl(light) : null;
     const appear = light ? appearanceControl(light, { remembered: this._remembered(this._config.light) }) : null;

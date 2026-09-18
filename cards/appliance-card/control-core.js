@@ -25,25 +25,41 @@ const NO_OPINION_STEP = 1;
 /**
  * How a fan's speed should be offered.
  *
- * `notches` when the step divides 100 into a small number of positions, `slider`
- * when it genuinely is continuous or nothing is known. `declared` always wins:
- * the audit found no way to derive the true count when an integration misreports
- * it, so a human gets to say.
+ * `mode` is the user's choice, and it outranks everything the integration says:
+ *   - `auto`   believe percentage_step - notches when it divides 100 into a few
+ *              positions, a slider otherwise;
+ *   - `linear` a slider, whatever the integration claims;
+ *   - `steps`  notches, `steps` of them - or, if no count was given, as many as
+ *              the integration implies.
+ * The audit found no way to derive the true count when an integration misreports
+ * it - the same fan reads 16.667 locally and 1.0 through the cloud - so a human
+ * gets the last word, and the source is always reported so it is clear who had it.
+ * `declaredNotches` is the older spelling of `steps` and still works.
  */
-export function speedControl(record, { declaredNotches = null } = {}) {
+function derivedNotches(step) {
+  if (!(Number.isFinite(step) && step > NO_OPINION_STEP)) return null;
+  const n = Math.round(100 / step);
+  return n >= 2 && n <= 12 && Math.abs(100 / n - step) < 0.5 ? n : null;
+}
+
+export function speedControl(record, { declaredNotches = null, mode = "auto", steps = null } = {}) {
   const step = record?.capabilities?.percentage_step;
   const current = record?.raw?.percentage ?? null;
+  const asked = steps || declaredNotches;
   let count = null;
   let source = "none";
-  if (declaredNotches) {
-    count = declaredNotches;
+  if (mode === "linear") {
+    return { kind: "slider", current, step: 1, source: "declared" };
+  }
+  if (mode === "steps") {
+    count = asked || derivedNotches(step);
+    source = asked ? "declared" : count ? "percentage_step" : "none";
+  } else if (asked) {
+    count = asked;
     source = "declared";
-  } else if (Number.isFinite(step) && step > NO_OPINION_STEP) {
-    const n = Math.round(100 / step);
-    if (n >= 2 && n <= 12 && Math.abs(100 / n - step) < 0.5) {
-      count = n;
-      source = "percentage_step";
-    }
+  } else {
+    count = derivedNotches(step);
+    source = count ? "percentage_step" : "none";
   }
   if (!count) {
     return { kind: "slider", current, step: Number.isFinite(step) ? step : 1, source };
@@ -341,9 +357,10 @@ export function groupSummary(memberRecords) {
 }
 
 /** Fan and light together, as one appliance. */
-export function applianceSummary({ fan = null, light = null, remembered = null, declaredNotches = null } = {}) {
+export function applianceSummary({ fan = null, light = null, remembered = null, declaredNotches = null,
+  mode = "auto", steps = null } = {}) {
   const parts = [];
-  if (fan) parts.push(`fan ${fanSummary(fan, { declaredNotches })}`);
+  if (fan) parts.push(`fan ${fanSummary(fan, { declaredNotches, mode, steps })}`);
   if (light) parts.push(`light ${lightSummary(light, { remembered })}`);
   return parts.join(" · ") || "—";
 }
