@@ -246,8 +246,25 @@ about what it wraps:
 
 `light.kitchen` is a Shelly 1 Gen4 relay driving a dumb fixture, which is the commonest mixed
 case in any real house: binary because the hardware is, not because anything is misconfigured.
-Two of the three wrapper kinds describe themselves, so the template wrapper is the only one
-where a human has to say which entity is canonical.
+Two of the three wrapper kinds describe themselves - but only **within one integration**, which
+turned out to be the weaker claim. The same Shelly 1 Gen4 is also paired through Shelly's native
+integration, and that second path is invisible to `switch_as_x`:
+
+| path | device | relay | also exposes |
+|---|---|---|---|
+| Matter | `Kitchen` | `switch.shelly_1_gen4` - hidden, wrapped as `light.kitchen` | nothing extra |
+| native Shelly | `shelly1g4-48f6eed269f0` | `switch.shelly1g4_48f6eed269f0` - **visible** | `input_0`, the wall switch itself |
+
+One relay, two devices, both in the kitchen. HA merges devices through a shared connection or
+identifier, and these share neither: the native device carries the MAC, the Matter one only a
+Matter node id. So no wrapper can dedupe it, and the second path is not pure noise either - it is
+the only place the physical wall switch is visible at all.
+
+This is the third instance in one house of **one device, several integrations, unlinked**: the
+ceiling fan through `tuya_local` and the Tuya cloud, Big TV through two Samsung integrations at
+once, and this relay through Matter and native Shelly. It is common enough that "which entity is
+canonical" is not a template-light edge case but a routine question, and it is the one the
+declaration's `canonical` field has to answer.
 
 So the template light stays the case that needs a declaration, and it is the one that carries
 the colour correction.
