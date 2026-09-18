@@ -43,11 +43,11 @@ member's area resolves from the registry (its own, or its device's). So one pred
 the two kinds of group:
 
 * Members resolve to the group's **own area** → the group is a thing in that place rather than
-  the place itself. It is either *one fixture* (`light.hall_back` is a single lamp holding two
-  bulbs — `Hall back1` and `Hall back2` are separate devices because HA has no concept of a
-  fixture, so the group is the only record that they are one object) or *a mental grouping*
-  (`light.bathroom` is three separate lamps the household thinks of as one). Those two need
-  different handling and **no rule can tell them apart** — see below.
+  the place itself, most often **one fixture**. `light.hall_back` is a single lamp holding two
+  bulbs and `light.bathroom` is a three-light fixture set that *is* the room's lighting; in both
+  cases the separate devices are bulbs, and the group is the only record that they are one
+  object, because HA has no concept of a fixture. What that means for the controls is a separate
+  question — see below.
 * Members resolve to **other** areas → the group's area is a **parent** of those areas — a
   *place*, not an object. That is `hallway` and `public_areas`. Here both levels are real
   controls and **neither should be buried**: the house this came from uses the zone when it
@@ -58,40 +58,51 @@ Nothing is named specially, no label or prefix is required, and a user who happe
 shape without reading this gets the hierarchy anyway — because the shape genuinely means what
 the rule says it means.
 
-## The one question worth asking: fixture, or mental grouping?
+## The one question worth asking: are the parts used?
 
-For a group whose members sit in its own area, the data cannot say which kind it is. These two
-are identical in every readable field:
+It is tempting to ask "is this one fixture or several things grouped?" and hide the parts of a
+fixture. The bathroom kills that rule. It is a **three-light fixture set** — one object, and it
+*is* the room's lighting — and its bulbs are still controlled individually, because running one
+or two instead of three is how you get less light. Identity says "one object"; the controls that
+are actually wanted are per-bulb. The two do not follow from each other.
 
-| | `light.hall_back` — one lamp, two bulbs | `light.bathroom` — three lamps |
+Nor can the data answer either one. These are identical in every readable field:
+
+| | `light.hall_back` | `light.bathroom` |
 |---|---|---|
 | platform | matter | matter |
 | manufacturer / model | Leedarson / Smart RGBTW Bulb | Leedarson / Smart RGBTW Bulb |
 | device names | `Hall back1`, `Hall back2` | `Bathroom1`, `Bathroom2`, `Bathroom3` |
 | area | all `hall_back` | all `washroom` |
 
-Same platform, same model, same trailing-digit naming, same area, same group shape. Any
-heuristic that calls the first a fixture calls the second one too, and is wrong. The difference
-is physical and exists nowhere in the system.
+Same platform, model, trailing-digit naming, area and group shape. Any heuristic that gets one
+right gets the other wrong.
 
-So **ask, once, at setup: is this a fixture or a grouping?** One checkbox per local group — six
-for the house above — and it is the first thing in this project that genuinely cannot be
-derived, which is exactly what a declaration is for.
+So ask the question the dashboard actually needs, once per local group, at setup:
 
-What the answer changes:
+> **Do you ever control these individually?**
 
-* **Fixture** → the parts are not independently meaningful. Nobody lights half a lamp. Show the
-  object; keep the bulbs for diagnostics.
-* **Mental grouping** → the parts *are* meaningful. Someone may want the vanity light without
-  the shower light. Show the group, collapsed, with the members reachable.
+A user answers that from habit. "Is it ontologically one fixture?" they have to think about, and
+the answer would not tell us what to draw anyway.
 
-**Default when unanswered: mental grouping.** Hiding a control someone needs is worse than
-showing one they do not, so the safe default never removes function. A parent group needs no
-question at all — its members are in other areas, so it is a place, and both levels stay.
+* **Yes** → the group is the main control and the parts stay reachable, collapsed beneath it.
+  The bathroom, where fewer bulbs is the dimmer.
+* **No** → show the object; the parts are diagnostics.
+
+**Default when unanswered: yes.** Hiding a control that someone needs is worse than showing one
+they do not, so the safe default never removes function. A parent group needs no question — its
+members are in other areas, so it is a place, and both levels stay.
 
 One edge: a group with no area of its own. Then "its own area" is undefined, and the fallback is
-its members — if they all agree on one area, treat it as local and ask the question; if they
-spread, it is a parent whose area was never set.
+its members — if they all agree on one area, treat it as local and ask; if they spread, it is a
+parent whose area was never set.
+
+### An affordance this suggests
+
+If a fixture's parts are used to get less light, then *how many bulbs are lit* is a control in
+its own right — "1 / 2 / 3" beside the brightness slider, not buried in three separate toggles.
+Worth remembering when the renderer gets built; it is the kind of control that only exists if
+the fixture is understood as one object with parts.
 
 ## What the shape does not tell you
 
