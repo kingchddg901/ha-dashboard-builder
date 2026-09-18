@@ -158,6 +158,12 @@ fact about the fan, it is reporting each integration's opinion of it. One yields
 the other a hundred-step slider, and a renderer keyed on that value draws a different control
 depending on which one the user happened to install.
 
+The vendor's own app settles it. Its fan control is a segmented vertical slider, and measured off
+a screenshot the track holds four filled blocks of 52 px on a 54 px pitch with a 108 px unfilled
+run above — six slots, four lit, labelled *Speed 4*. So the app agrees with the DP range and with
+`tuya_local`, and the cloud integration is not offering a different view of the fan, it is
+**wrong about it**: Tuya's own API wrapper contradicts Tuya's own client.
+
 The kelvin range splits the same way and neither is right: the cloud says 2000–6500 where the
 warm end matches the packaging and the cool end is the fiction the firmware ships;
 `tuya_local` shipped 2700–6500, wrong at both ends; the measured fixture is 1951–4514 K. Only the
