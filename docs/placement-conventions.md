@@ -85,17 +85,48 @@ So ask the question the dashboard actually needs, once per local group, at setup
 A user answers that from habit. "Is it ontologically one fixture?" they have to think about, and
 the answer would not tell us what to draw anyway.
 
-* **Yes** → the group is the main control and the parts stay reachable, collapsed beneath it.
-  The bathroom, where fewer bulbs is the dimmer.
-* **No** → show the object; the parts are diagnostics.
+* **Yes** → open by default. The bathroom, where fewer bulbs is the dimmer.
+* **No** → closed by default.
 
-**Default when unanswered: yes.** Hiding a control that someone needs is worse than showing one
-they do not, so the safe default never removes function. A parent group needs no question — its
-members are in other areas, so it is a place, and both levels stay.
+Note what that is *not*: nothing is hidden either way. With a nested control (below) the parts
+are always one click away, so the answer sets a default and nothing else. **Unanswered means
+closed**, and being wrong costs a click rather than a missing control — which also means the
+answer can simply be *learned* from use, by remembering what gets opened. The checkbox is a head
+start, not a requirement. A parent group needs no question at all: its members are in other
+areas, so it is a place, and every level stays.
 
 One edge: a group with no area of its own. Then "its own area" is undefined, and the fallback is
 its members — if they all agree on one area, treat it as local and ask; if they spread, it is a
 parent whose area was never set.
+
+### What it renders as
+
+One recursive disclosure control, because every level of the tree is the same shape — a control
+that acts on everything beneath it, over parts that are themselves controls:
+
+```
+Public Areas ⌄
+  Hallway ⌄
+    Hall front ⌄
+      Hallfront1
+      Hall front2
+    Hall center ⌄
+    Hall back ⌄
+  Living Room ⌄
+Bathroom ⌄
+  Bathroom 1
+  Bathroom 2
+  Bathroom 3
+```
+
+Fixture-over-bulbs and zone-over-rooms differ only in depth, so there is one renderer, not two,
+and the checkbox above only decides which rows start open.
+
+The constraint this runs into is **depth against width**. Four levels of indentation is
+comfortable on a desktop and hostile at phone-portrait width, so the same tree wants two
+presentations: nested in place where there is room, and drill-in — tap a row to descend, with a
+breadcrumb back — where there is not. That is a presentation choice over one data shape, which
+is the point: the tree is derived once and rendered per form factor.
 
 ### An affordance this suggests
 
