@@ -164,6 +164,20 @@ run above — six slots, four lit, labelled *Speed 4*. So the app agrees with th
 `tuya_local`, and the cloud integration is not offering a different view of the fan, it is
 **wrong about it**: Tuya's own API wrapper contradicts Tuya's own client.
 
+It is worse than a wrong number: the cloud integration **claims a granularity it does not have**.
+Read at the same moment, with the fan sitting on speed 4, `tuya_local` reports `percentage: 66`
+(4 of 6) and the cloud entity reports `percentage: 60` — and 60 is the fourth of the only six
+values it ever emits, `[1, 21, 41, 60, 80, 100]`. Those six were measured empirically in an
+earlier session and hard-coded into a hand-built card as its `speed_map`, precisely because
+`percentage_step: 1.0` could not be believed. A hundred-position slider that accepts six values
+is not a simplification, it is a false contract.
+
+A consequence worth noting for any card: that map is **integration-specific**. Pointed at the
+local entity, whose speeds land on 16.7 / 33.3 / 50 / 66.7 / 83.3 / 100, the cloud-derived map
+mis-reads the two lowest speeds as one notch high. The same physical fan needs a different
+translation table per integration, which is the strongest possible argument for keeping the
+notch count in the capability layer and the percentages out of it.
+
 The kelvin range splits the same way and neither is right: the cloud says 2000–6500 where the
 warm end matches the packaging and the cool end is the fiction the firmware ships;
 `tuya_local` shipped 2700–6500, wrong at both ends; the measured fixture is 1951–4514 K. Only the
