@@ -128,6 +128,31 @@ presentations: nested in place where there is room, and drill-in — tap a row t
 breadcrumb back — where there is not. That is a presentation choice over one data shape, which
 is the point: the tree is derived once and rendered per form factor.
 
+### Mixed capability: the parent over-reports
+
+Children under one parent need not be alike, and the parent's own report will not warn you.
+Measured on this house:
+
+| entity | `supported_color_modes` | kelvin |
+|---|---|---|
+| `light.kitchen` (a `switch_as_x` switch) | `["onoff"]` | none |
+| `light.main_house`, **which contains it** | `["color_temp", "hs", "xy"]` | 1801–6535 |
+
+HA's group takes the **union** of its members and drops `onoff` once anything richer is present,
+so the parent looks fully colour-capable while one of its six children can only be on or off. A
+control built from the parent's report alone offers "warm white at 20%" and the kitchen comes on
+at full.
+
+The rule that follows, and it applies to every parent in the tree:
+
+* **Union is what is offered.** Keep offering the rich control, because most children honour it.
+* **Intersection is what is guaranteed.** For `light.main_house` that is on/off and nothing else.
+* **The difference must be visible, not silent.** This is where nesting earns its place: expand
+  the parent and the kitchen row shows a bare toggle next to its dimmable siblings, so the limit
+  explains itself at the exact spot it applies. No warning copy required.
+
+Walking the children to compute both is cheap, because the tree is already derived.
+
 ### An affordance this suggests
 
 If a fixture's parts are used to get less light, then *how many bulbs are lit* is a control in
