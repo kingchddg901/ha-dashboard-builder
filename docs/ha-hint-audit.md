@@ -166,6 +166,19 @@ not make the group the truth about where anything is, and both the group and its
 answer the same area query. Which of them becomes the control is the dashboard's policy, to be
 used or overridden per view; the capability layer reports both edges and resolves neither.
 
+## A third level, without a third level
+
+HA stores two levels of placement and the area record has no parent field, so sub-areas do not
+exist. This house has three anyway: an area holding **only a group control whose members live in
+other areas** acts as their parent — `public_areas` over six rooms, `hallway` over hall_front,
+hall_center and hall_back.
+
+It is detectable rather than declarable, because both halves are readable: membership from the
+group's `entity_id` attribute, placement from the registry. One predicate splits the two kinds
+of group — members in the group's *own* area means a local control to dedupe, members in *other*
+areas means the group's area is their parent. Written up as a teachable convention in
+[`placement-conventions.md`](placement-conventions.md).
+
 ## The unused native surface
 
 **There are 0 labels on this install.** HA's label registry is a first-class, per-entity,
