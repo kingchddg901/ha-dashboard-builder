@@ -224,7 +224,9 @@ const STYLE = `
   .sent .dim { opacity: .7; }
 `;
 
-customElements.define("tv-card", TvCard);
+// Guarded: the panel and a Lovelace resource can both load this module, and a
+// second define would throw and take the whole module down with it.
+if (!customElements.get("tv-card")) customElements.define("tv-card", TvCard);
 
 window.customCards = window.customCards || [];
 window.customCards.push({

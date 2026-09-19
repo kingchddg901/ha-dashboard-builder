@@ -175,7 +175,9 @@ SamsungTvPlusCard.styles = `
   @media (max-width:460px){ .nx { display:none; } }
 `;
 
-customElements.define("samsung-tvplus-card", SamsungTvPlusCard);
+// Guarded: the panel and a Lovelace resource can both load this module, and a
+// second define would throw and take the whole module down with it.
+if (!customElements.get("samsung-tvplus-card")) customElements.define("samsung-tvplus-card", SamsungTvPlusCard);
 
 window.customCards = window.customCards || [];
 window.customCards.push({

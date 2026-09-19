@@ -1,0 +1,19 @@
+# Dashboard Builder as a real sidebar panel.
+#
+# As a panel, HA hands the element the whole area and draws no toolbar - the
+# panel provides its own sidebar button on narrow screens. module_url is the
+# STABLE loader, which reads current.json past the browser cache and imports the
+# current versioned tree, so deploys never touch this file.
+#
+# panel_custom is read at startup only: adding, removing or changing this file
+# takes a Home Assistant restart.
+panel_custom:
+  - name: dashboard-builder-panel
+    url_path: house-panel
+    sidebar_title: House
+    sidebar_icon: mdi:view-dashboard-variant
+    module_url: /local/dashboard-builder/loader.js
+    embed_iframe: false
+    require_admin: false
+    config:
+      title: House

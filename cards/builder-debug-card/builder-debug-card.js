@@ -193,7 +193,9 @@ const STYLE = `
   }
 `;
 
-customElements.define("builder-debug-card", BuilderDebugCard);
+// Guarded: the panel and a Lovelace resource can both load this module, and a
+// second define would throw and take the whole module down with it.
+if (!customElements.get("builder-debug-card")) customElements.define("builder-debug-card", BuilderDebugCard);
 
 window.customCards = window.customCards || [];
 window.customCards.push({

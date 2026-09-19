@@ -726,7 +726,9 @@ const STYLE = `
   ha-card.horizontal .track { flex: 1 1 46%; min-width: 150px; }
 `;
 
-customElements.define("appliance-card", ApplianceCard);
+// Guarded: the panel and a Lovelace resource can both load this module, and a
+// second define would throw and take the whole module down with it.
+if (!customElements.get("appliance-card")) customElements.define("appliance-card", ApplianceCard);
 
 window.customCards = window.customCards || [];
 window.customCards.push({

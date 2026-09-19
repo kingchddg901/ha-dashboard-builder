@@ -3,7 +3,9 @@
 Adjudication of the GPT handoff against what is actually on disk. The handoff is the design;
 this is the delta. Nothing here restates it — read it alongside.
 
-**Status:** repo stood up 2026-09-15. Design and measurement only — no dashboard code yet.
+**Status:** repo stood up 2026-09-15. Dashboard 1.0 built 2026-09-19 — the panel and its layout
+engine, hosting the level-2 controls; see [../panel/README.md](../panel/README.md). This file is
+the scoping record and has not been re-audited against that build.
 
 **Framing (2026-09-15).** A fun pastime while VA 2.2.0 soaks — not a deadline project. And the
 cards get **rebuilt as LCARS-native first-class citizens** rather than wrapped. See §2.5, which
