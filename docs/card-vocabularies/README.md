@@ -90,8 +90,8 @@ Keep the interaction pattern; own the primitive.
 ### 7. `ha-prime-polaris-card` reads two variables, both shared
 
 `--error-color` and `--paper-font-body1_-_font-family`. Your own card is effectively unthemeable
-today — a second consumer needing the same retrofit as VA, and a second reason to build the HA
-theme adapter once in the kit rather than per card.
+today — a second consumer needing the same retrofit as VA. Reading HA's theme is host-owned
+(SCOPE §2.1), so each host needs a reader. Whether the hosts share one is still undecided.
 
 ---
 

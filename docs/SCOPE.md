@@ -38,14 +38,19 @@ where HA hands you the whole area and draws no chrome.
 The shape is right and I'd keep it. `computeVars` and `editorModel` are pure, the core carries no
 domain knowledge, and the four studs are the correct extension points. But:
 
-**Gap A — the HA *theme* adapter does not exist.** `src/adapters/ha.js` is a *persistence*
-adapter: it writes values to `frontend/set_user_data` over the websocket. The precedence ladder in
-the handoff has "Home Assistant theme adapter" as layer 2 of 5 — the layer that lets existing HA
-themes contribute where their vocabulary maps cleanly. Nothing in the kit reads HA's theme.
-That layer is unbuilt.
+**Gap A — reading HA's theme. Ruled: the HOST owns it, not the kit.** `src/adapters/ha.js` is a
+*persistence* adapter: it writes values to `frontend/set_user_data` over the websocket. The
+precedence ladder in the handoff has "Home Assistant theme adapter" as layer 2 of 5 — the layer
+that lets existing HA themes contribute where their vocabulary maps cleanly. Nothing in the kit
+reads HA's theme, and nothing should.
 
-This is the same gap I was scoping inside VA an hour ago, and it should be built **once, in the
-kit**, where VA and the dashboard both get it.
+The kit is a plugin a host loads — the dashboard, later VA — not an HA integration in its own
+right. So whatever talks to Home Assistant belongs to the host, and the kit stays HA-agnostic. The
+dashboard's reader is `baseValues` in `panel/theme-core.js`. This replaces an earlier line here
+that said to build the layer once, in the kit.
+
+Not decided by that ruling: whether several hosts share one reader (a helper they both import)
+or each keeps its own. The kit's existing `adapters/ha.js` is also outside it and stays as is.
 
 **Gap B — 411 tokens has never actually gone through the kit.**
 `test/large-registry.test.mjs` says so outright: *"the eufy_vacuum card's ~406-token registry
@@ -298,9 +303,8 @@ Decided 2026-09-15. This is the right first build target and it is cheaper than 
 
 - `previewTarget` is not set. The panel paints instead, because it has to write only chosen
   layers and hold the status floor.
-- The inbound Home Assistant theme layer (Gap A) is `baseValues` in `panel/theme-core.js`, not in
-  the kit. The kit has one consumer so far. §6 still places it in the kit, and moving it there is
-  a public push.
+- The inbound Home Assistant theme layer (Gap A) is `baseValues` in `panel/theme-core.js`. The
+  host owns it, per the §2.1 ruling.
 
 **It mirrors VA exactly** — VA's theme editor is a tab inside the card it themes, and that has
 shipped for months. So the pattern is proven, not speculative.
@@ -445,10 +449,10 @@ real control, and none of it waits on the capability layer.
 
 - **Dashboard → new private repo.** Correct call. Personal, exploratory, and the layout/LCARS
   character is yours.
-- **Kit stays public.** `token-theme-kit` is MIT. The HA theme adapter (Gap A) and the scale
-  proof (Gap B) belong in it, publicly, because VA and the dashboard both consume them. Splitting
-  them into the private repo forks the engine, which is the one thing the kit's own concepts doc
-  argues against.
+- **Kit stays public.** `token-theme-kit` is MIT. The scale proof (Gap B) belongs in it,
+  publicly, because VA and the dashboard both consume the engine it proves. Splitting it into the
+  private repo forks the engine, which is the one thing the kit's own concepts doc argues against.
+  Reading HA's theme (Gap A) is **not** kit work: the host owns it (§2.1).
 - **MIT requires keeping the notice.** Consuming the kit as a dependency is clean; vendoring the
   source into the private repo means carrying `LICENSE` with it.
 
