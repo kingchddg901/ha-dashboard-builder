@@ -1,7 +1,12 @@
 # Samsung TV Plus card
 
-Your saved channels, what is on, tap to tune. **Search** the whole lineup (a channel, a show, a
-category or a number) and save from the results; **Edit list** reorders or removes.
+Your saved channels and what is on. **Tap a channel to select it**: its detail opens underneath
+with the show on now, **◀ ▶** to step through what is on later, and **Tune**. **Search** the whole
+lineup (a channel, a show, a category or a number) and save from there; **Edit list** reorders or
+removes.
+
+Tuning always changes the channel now. When the detail is showing a later show, the card says so
+rather than implying it can tune ahead.
 
 **No integration, no backend, no API key, no subscription.** The lineup comes from a public
 JSON file the browser fetches directly (CORS is open), and tuning goes through

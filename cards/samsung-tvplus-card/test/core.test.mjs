@@ -4,7 +4,7 @@ import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import {
   indexLineup, airing, tuneCommand, tuneDuration, KEY_GAP_MS, whatsOn, upcoming, loadLineup,
-  groupsOf, searchChannels, toggleSaved, moveSaved, savedKey,
+  groupsOf, searchChannels, toggleSaved, moveSaved, savedKey, slotsFrom,
 } from "../tvplus-core.js";
 
 /**
@@ -130,6 +130,26 @@ test("a category alone lists that category; the limit reports what it hides", ()
   const cut = searchChannels(ix, { query: "", limit: 3, now: AT });
   assert.equal(cut.results.length, 3);
   assert.equal(cut.total, 5);
+});
+
+/* ---------- stepping through a channel's schedule ---------- */
+
+// RED IF: a finished show is offered, the show on now is not first, or a slot
+// has no end - the step view prints "8:30-9:00" from these.
+test("a channel's slots run from the show on now, each with its end", () => {
+  const progs = [[1000, "Old"], [2000, "On now"], [3000, "Next"], [4000, "Last"]];
+  const s = slotsFrom(progs, 2500);
+  assert.deepEqual(s.map((x) => x.title), ["On now", "Next", "Last"]);
+  assert.deepEqual(s.map((x) => [x.start, x.end]), [[2000, 3000], [3000, 4000], [4000, 7600]]);
+  assert.deepEqual(s.map((x) => x.onNow), [true, false, false]);
+});
+
+test("between listings, the first slot is the next show, not on now", () => {
+  const s = slotsFrom([[5000, "Later"]], 4000);
+  assert.equal(s.length, 1);
+  assert.equal(s[0].onNow, false);
+  assert.deepEqual(slotsFrom([[1000, "Gone"]], 9999), []);
+  assert.deepEqual(slotsFrom(null, 0), []);
 });
 
 /* ---------- the saved list ---------- */

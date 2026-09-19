@@ -87,6 +87,25 @@ export function tuneDuration(chno, { platform = null, gapMs = KEY_GAP_MS } = {})
   return gaps * per;
 }
 
+/**
+ * One channel's schedule from the show on now onward - the steps a "later"
+ * button walks through. Each slot carries its END, which the lineup does not:
+ * a show ends when the next begins, and the last one is given an hour, the same
+ * rule `airing` uses. Shows that have ended are left out; there is nothing to
+ * tune back to.
+ */
+export function slotsFrom(programs, now = Date.now() / 1000) {
+  const out = [];
+  const list = Array.isArray(programs) ? programs : [];
+  for (let i = 0; i < list.length; i++) {
+    const [start, title] = list[i];
+    const end = list[i + 1] ? list[i + 1][0] : start + 3600;
+    if (end <= now) continue;
+    out.push({ start, end, title, onNow: start <= now });
+  }
+  return out;
+}
+
 /** Find what is airing right now across every channel, optionally filtered. */
 export function whatsOn(index, { match = null, now = Date.now() / 1000 } = {}) {
   const hits = [];

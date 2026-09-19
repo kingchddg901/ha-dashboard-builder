@@ -25,13 +25,17 @@
 
 import {
   loadLineup, airing, tuneCommand, tuneDuration, groupsOf, searchChannels,
-  toggleSaved, moveSaved, savedKey,
+  toggleSaved, moveSaved, savedKey, slotsFrom,
 } from "./tvplus-core.js";
 
 const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const fmt = (t) => new Date(t * 1000).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 const RESULT_LIMIT = 40;
+const mins = (sec) => {
+  const m = Math.max(0, Math.round(sec / 60));
+  return m < 60 ? `${m} min` : `${Math.floor(m / 60)} h ${m % 60} min`;
+};
 
 class SamsungTvPlusCard extends HTMLElement {
   constructor() {
@@ -45,6 +49,8 @@ class SamsungTvPlusCard extends HTMLElement {
     this._group = null;
     this._stored = undefined;     // undefined = not read yet, null = nothing saved
     this._note = "";
+    this._selected = null;        // the channel whose detail is open
+    this._slotStart = null;       // which of its shows the detail is showing
   }
 
   setConfig(config) {
@@ -275,26 +281,20 @@ class SamsungTvPlusCard extends HTMLElement {
     rows.innerHTML = saved.map((name, i) => {
       const ch = this._channels[name];
       if (!ch) missing++;
-      const tools = edit ? `<span class="tools">
-          <button type="button" class="ib" data-act="up" data-name="${esc(name)}" aria-label="Move ${esc(name)} up" ${i ? "" : "disabled"}>↑</button>
-          <button type="button" class="ib" data-act="down" data-name="${esc(name)}" aria-label="Move ${esc(name)} down" ${i < saved.length - 1 ? "" : "disabled"}>↓</button>
-          <button type="button" class="tb" data-act="save" data-name="${esc(name)}">Remove</button></span>` : "";
-      if (!ch) {
+      if (!ch || edit) {
+        const tools = edit ? `<span class="tools">
+            <button type="button" class="ib" data-act="up" data-name="${esc(name)}" aria-label="Move ${esc(name)} up" ${i ? "" : "disabled"}>↑</button>
+            <button type="button" class="ib" data-act="down" data-name="${esc(name)}" aria-label="Move ${esc(name)} down" ${i < saved.length - 1 ? "" : "disabled"}>↓</button>
+            <button type="button" class="tb" data-act="save" data-name="${esc(name)}">Remove</button></span>` : "";
         // a renamed or dropped channel: say so, do not guess at a number
-        return `<div class="row gone"><span class="no">—</span><span class="mid">
-          <span class="nm">${esc(name)}</span><span class="pg">not in the current lineup</span></span>${tools}</div>`;
+        return `<div class="row ${ch ? "" : "gone"}"><span class="no">${ch ? ch.n : "—"}</span><span class="mid">
+          <span class="nm">${esc(name)}</span>
+          <span class="pg">${ch ? "" : "not in the current lineup"}</span></span>${tools}</div>`;
       }
-      const { cur, next } = airing(ch.programs);
-      const sending = this._sending === name;
-      const body = `<span class="no">${ch.n}</span>
-        <span class="mid"><span class="nm">${esc(name)}</span>
-          <span class="pg">${sending ? "sending…" : cur ? `${esc(cur.title)} · until ${fmt(cur.end)}` : "no listing"}</span></span>`;
-      return edit
-        ? `<div class="row">${body}${tools}</div>`
-        : `<button type="button" class="row ${sending ? "sent" : ""}" data-act="tune" data-name="${esc(name)}">${body}
-            <span class="nx">${next ? esc(`${fmt(next.start)} ${next.title}`) : ""}</span></button>`;
+      return this._channelRow(name, ch, { saved: true });
     }).join("");
     sub.textContent = missing ? `${missing} not in lineup` : "";
+    this._revealDetail();
   }
 
   _renderResults(rows, sub) {
@@ -306,21 +306,72 @@ class SamsungTvPlusCard extends HTMLElement {
       return;
     }
     if (!results.length) { rows.innerHTML = `<div class="msg">Nothing matches.</div>`; return; }
-    rows.innerHTML = results.map((c) => {
-      const isSaved = saved.has(c.name);
-      const sending = this._sending === c.name;
-      return `<div class="row result">
-        <span class="no">${c.n}</span>
-        <span class="mid"><span class="nm">${esc(c.name)}</span>
-          <span class="pg">${sending ? "sending…" : c.cur ? `${esc(c.cur.title)} · until ${fmt(c.cur.end)}` : "no listing"}</span>
-          <span class="grp">${esc(c.group || "")}${c.next ? ` · next ${fmt(c.next.start)} ${esc(c.next.title)}` : ""}</span></span>
-        <span class="tools">
-          <button type="button" class="tb" data-act="tune" data-name="${esc(c.name)}">Tune</button>
-          <button type="button" class="tb ${isSaved ? "on" : ""}" data-act="save" data-name="${esc(c.name)}"
-                  aria-pressed="${isSaved}">${isSaved ? "Saved" : "Save"}</button></span>
-      </div>`;
-    }).join("") + (total > results.length
-      ? `<div class="msg">${total - results.length} more - add a word or pick a category to narrow it.</div>` : "");
+    rows.innerHTML = results.map((c) => this._channelRow(c.name, this._channels[c.name],
+      { saved: saved.has(c.name), inSearch: true })).join("")
+      + (total > results.length
+        ? `<div class="msg">${total - results.length} more - add a word or pick a category to narrow it.</div>` : "");
+    this._revealDetail();
+  }
+
+  /** One channel: tap to select it; the selected one opens its detail underneath. */
+  _channelRow(name, ch, { saved = false, inSearch = false } = {}) {
+    const selected = this._selected === name;
+    const { cur, next } = airing(ch.programs);
+    const sending = this._sending === name;
+    return `<button type="button" class="row ${selected ? "sel" : ""}" data-act="select" data-name="${esc(name)}"
+        aria-expanded="${selected}">
+      <span class="no">${ch.n}</span>
+      <span class="mid"><span class="nm">${esc(name)}${inSearch && saved ? ` <span class="badge">saved</span>` : ""}</span>
+        <span class="pg">${sending ? "sending…" : cur ? `${esc(cur.title)} · until ${fmt(cur.end)}` : "no listing"}</span>
+        ${inSearch ? `<span class="grp">${esc(ch.group || "")}</span>` : ""}</span>
+      ${inSearch ? "" : `<span class="nx">${next ? esc(`${fmt(next.start)} ${next.title}`) : ""}</span>`}
+    </button>${selected ? this._detailHtml(name, ch, saved) : ""}`;
+  }
+
+  /** The show the detail is on: the one picked with the arrows, else the first. */
+  _slotIndex(slots) {
+    const i = slots.findIndex((x) => x.start === this._slotStart);
+    return i < 0 ? 0 : i;
+  }
+
+  /**
+   * The selected channel: step through its shows with the arrows, then tune.
+   * Tuning changes the channel NOW whatever show is on screen here, and the card
+   * says so rather than implying it can tune to a later show.
+   */
+  _detailHtml(name, ch, saved) {
+    const slots = slotsFrom(ch.programs);
+    const i = this._slotIndex(slots);
+    const slot = slots[i] || null;
+    const now = Date.now() / 1000;
+    const firstLater = slots[0]?.onNow ? 1 : 0;
+    const label = !slot ? "" : slot.onNow ? "On now" : i === firstLater ? "Next" : "Later";
+    const rel = !slot ? "" : slot.onNow ? `ends in ${mins(slot.end - now)}` : `starts in ${mins(slot.start - now)}`;
+    const sending = this._sending === name;
+    const n = esc(name);
+    return `<div class="detail" role="group" aria-label="${n}">
+      ${slot ? `<div class="slot">
+        <button type="button" class="ib step" data-act="prev" data-name="${n}" aria-label="Earlier show" ${i > 0 ? "" : "disabled"}>◀</button>
+        <div class="slot-body" aria-live="polite">
+          <span class="when">${label} · ${fmt(slot.start)}–${fmt(slot.end)} · <span class="rel">${rel}</span></span>
+          <span class="what">${esc(slot.title)}</span>
+          <span class="pos">${i + 1} of ${slots.length} listed</span>
+        </div>
+        <button type="button" class="ib step" data-act="next" data-name="${n}" aria-label="Later show" ${i < slots.length - 1 ? "" : "disabled"}>▶</button>
+      </div>` : `<div class="msg">No listing for this channel.</div>`}
+      <div class="acts">
+        <button type="button" class="tb tune" data-act="tune" data-name="${n}">${sending ? "Sending…" : `Tune to ${ch.n}`}</button>
+        <button type="button" class="tb ${saved ? "on" : ""}" data-act="save" data-name="${n}" aria-pressed="${saved}">${saved ? "Saved" : "Save"}</button>
+      </div>
+      ${slot && !slot.onNow ? `<div class="hint">Tuning changes the channel now; this show starts at ${fmt(slot.start)}.</div>` : ""}
+    </div>`;
+  }
+
+  /** Keep an opened detail on screen - on a phone it can open below the fold. */
+  _revealDetail() {
+    if (!this._reveal) return;
+    this._reveal = false;
+    this.shadowRoot.querySelector(".detail")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }
 
   _onRowClick(e) {
@@ -328,7 +379,17 @@ class SamsungTvPlusCard extends HTMLElement {
     if (!b || b.disabled) return;
     const name = b.dataset.name;
     const act = b.dataset.act;
-    if (act === "tune") this._tune(name);
+    if (act === "select") {
+      const open = this._selected !== name;
+      this._selected = open ? name : null;
+      this._slotStart = null;
+      this._reveal = open;
+      this._renderRows();
+    } else if (act === "prev" || act === "next") {
+      const slots = slotsFrom(this._channels?.[name]?.programs);
+      const j = this._slotIndex(slots) + (act === "next" ? 1 : -1);
+      if (slots[j]) { this._slotStart = slots[j].start; this._renderRows(); }
+    } else if (act === "tune") this._tune(name);
     else if (act === "save") this._save(toggleSaved(this._saved(), name));
     else if (act === "up") this._save(moveSaved(this._saved(), name, -1));
     else if (act === "down") this._save(moveSaved(this._saved(), name, 1));
@@ -377,7 +438,21 @@ SamsungTvPlusCard.styles = `
   .tb { padding:6px 12px; font-size:12.5px; min-width:58px; }
   .ib { width:34px; padding:6px 0; font-size:14px; }
   .ib:disabled { opacity:.35; cursor:default; }
-  .row.sent .pg { color:var(--accent-color, #ff9900); }
+  .row.sel { background:var(--secondary-background-color); box-shadow:inset 3px 0 0 var(--accent-color,#ff9900); }
+  .badge { font-size:10.5px; color:var(--accent-color,#ff9900); border:1px solid currentColor; border-radius:6px;
+           padding:0 4px; margin-left:4px; vertical-align:1px; }
+  .detail { display:flex; flex-direction:column; gap:10px; padding:8px 12px 12px 16px;
+            background:var(--secondary-background-color); border-bottom:1px solid var(--divider-color,#444); }
+  .slot { display:flex; align-items:center; gap:10px; }
+  .slot-body { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; text-align:center; }
+  .when { font-size:12px; color:var(--secondary-text-color); font-variant-numeric:tabular-nums; }
+  .rel { opacity:.8; }
+  .what { font-size:15px; font-weight:600; overflow-wrap:anywhere; }
+  .pos { font-size:11px; color:var(--secondary-text-color); opacity:.7; }
+  .ib.step { width:44px; height:44px; font-size:15px; flex:none; }
+  .acts { display:flex; gap:8px; }
+  .tb.tune { flex:1; padding:10px 14px; font-size:14px; font-weight:600; border-color:var(--accent-color,#ff9900); }
+  .hint { font-size:11.5px; color:var(--secondary-text-color); }
   .row.gone { opacity:.55; }
   .row.gone .no { color:var(--secondary-text-color); }
   @media (max-width:460px){ .nx { display:none; } .tb { min-width:0; padding:6px 9px; } }
