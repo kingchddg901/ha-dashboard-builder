@@ -116,8 +116,11 @@ class VaRoomCard extends HTMLElement {
 
     const g = !byRoom ? this._glance(this._config.vacuum) : null;
     const stCls = !g ? "" : !g.available ? "unavailable" : g.error ? "error" : g.running ? "on" : "off";
+    // By room the second line is long ("cleaned 6 d ago by Robin Dreame"), so it
+    // sits under the title instead of squeezing beside it in a narrow tile.
     this.shadowRoot.querySelector(".content").innerHTML = `
-      <div class="hd"><span class="t">${esc(title)}</span><span class="st st-${stCls}">${esc(right)}</span></div>
+      <div class="hd ${byRoom ? "stack" : ""}"><span class="t">${esc(title)}</span>
+        <span class="st st-${stCls}">${esc(right)}</span></div>
       ${this._note ? `<div class="note">${esc(this._note)}</div>` : ""}
       ${entries.length ? `<div class="rows">${entries.map((e) => this._entryHtml(e, byRoom, single)).join("")}</div>`
         : `<div class="msg">${byRoom ? "No robot has rooms from Vacuum Agent." : "No rooms from Vacuum Agent for this robot."}</div>`}`;
@@ -232,6 +235,8 @@ const STYLE = `
   .hd { display: flex; align-items: baseline; gap: 8px; padding: 0 14px 8px; }
   .t { font-size: 14px; font-weight: 600; }
   .st { margin-left: auto; font-size: 11px; letter-spacing: .04em; color: var(--secondary-text-color); text-align: right; }
+  .hd.stack { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .hd.stack .st { margin-left: 0; text-align: left; }
   .st-on { color: var(--success-color, #66bb6a); }
   .st-error { color: var(--error-color, #ff5252); }
   .st-unavailable { text-decoration: line-through; }
@@ -246,7 +251,7 @@ const STYLE = `
   .row.off { opacity: .55; }
   .row.sel { background: var(--secondary-background-color, #1c2126); box-shadow: inset 3px 0 0 var(--accent-color, #ff9900); }
   .row:focus-visible, .tb:focus-visible, .close:focus-visible { outline: 2px solid var(--accent-color, #ff9900); outline-offset: 1px; }
-  .nm { flex: 1; min-width: 0; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .nm { flex: 1; min-width: 0; font-size: 14px; overflow-wrap: anywhere; }
   .alias { font-size: 11.5px; color: var(--secondary-text-color); }
   .lc { font-size: 11.5px; color: var(--secondary-text-color); }
   .badge { font-size: 10.5px; color: var(--accent-color, #ff9900); border: 1px solid currentColor; border-radius: 6px;

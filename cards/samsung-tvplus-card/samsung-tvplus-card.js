@@ -554,6 +554,9 @@ class SamsungTvPlusCard extends HTMLElement {
 
 SamsungTvPlusCard.styles = `
   ha-card { padding: 0 0 6px; }
+  /* The search bar and categories set display:flex, which beats the hidden
+     attribute - so both showed in the saved list too. Hidden means hidden. */
+  [hidden] { display: none !important; }
   /* The header, search box and categories stay put while a long list scrolls
      under them - in a tile, and in the remote's pop-up. */
   .top { position: sticky; top: 0; z-index: 2; padding-top: 10px;

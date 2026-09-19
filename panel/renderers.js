@@ -17,7 +17,7 @@
 import { describeEntity } from "../cards/builder-debug-card/capability-core.js";
 import { applianceSummary } from "../cards/appliance-card/control-core.js";
 import { tvControls, tvSummary } from "../cards/tv-card/tv-core.js";
-import { readingOf, summary as readingSummary, robotGlance } from "../cards/readings-card/readings-core.js";
+import { readingOf, summary as readingSummary, robotGlance, relativeTime } from "../cards/readings-card/readings-core.js";
 import { lightNode, treeSummary, rowState } from "../cards/light-tree-card/light-tree-core.js";
 import { roomsFor, robotName, roomAcrossRobots, lastCleanedAcross } from "../cards/va-room-card/va-room-core.js";
 
@@ -95,11 +95,12 @@ function glanceHtml(hass, cfg) {
 export const RENDERERS = Object.freeze({
   appliance: {
     label: "Fan & light", size: { w: 4, h: 5 },
+    noun: (cfg) => (cfg.fan && cfg.light ? "fan & light" : cfg.fan ? "fan" : "light"),
     load: () => import("../cards/appliance-card/appliance-card.js"), tag: "appliance-card",
     summary: applianceRow,
   },
   lights: {
-    label: "Light group", size: { w: 5, h: 6 },
+    label: "Light group", size: { w: 5, h: 6 }, noun: () => "group",
     load: () => import("../cards/light-tree-card/light-tree-card.js"), tag: "light-tree-card",
     summary: (hass, cfg) => {
       const node = lightNode(cfg.entity, hass?.states || {});
@@ -107,7 +108,7 @@ export const RENDERERS = Object.freeze({
     },
   },
   "va-rooms": {
-    label: "Robot rooms", size: { w: 4, h: 7 },
+    label: "Robot rooms", size: { w: 4, h: 7 }, noun: () => "robot",
     load: () => import("../cards/va-room-card/va-room-card.js"), tag: "va-room-card",
     summary: (hass, cfg) => {
       const g = robotGlance(hass?.states || {}, String(cfg.vacuum || "").split(".")[1]);
@@ -118,7 +119,7 @@ export const RENDERERS = Object.freeze({
     },
   },
   "va-room": {
-    label: "Room robots", size: { w: 4, h: 6 },
+    label: "Room robots", size: { w: 4, h: 6 }, noun: () => "robots",
     load: () => import("../cards/va-room-card/va-room-card.js"), tag: "va-room-card",
     summary: (hass, cfg) => {
       const states = hass?.states || {};
@@ -127,24 +128,24 @@ export const RENDERERS = Object.freeze({
       const last = lastCleanedAcross(entries);
       const who = (v) => robotName(hass?.panels, v, states);
       const text = busy.length ? `${busy.map((e) => who(e.vacuum)).join(", ")} running`
-        : last ? `cleaned ${new Date(last.at).toLocaleDateString()} by ${who(last.vacuum)}` : "not cleaned yet";
+        : last ? `cleaned ${relativeTime(new Date(last.at))} by ${who(last.vacuum)}` : "not cleaned yet";
       return { text, state: busy.length ? "on" : "off" };
     },
   },
   tv: {
-    label: "TV", size: { w: 6, h: 6 },
+    label: "TV", size: { w: 6, h: 6 }, noun: () => "TV",
     load: () => import("../cards/tv-card/tv-card.js"), tag: "tv-card",
     summary: tvRow,
   },
   tvplus: {
-    label: "TV Plus guide", size: { w: 6, h: 6 },
+    label: "TV Plus guide", size: { w: 6, h: 6 }, noun: () => "guide",
     load: () => import("../cards/samsung-tvplus-card/samsung-tvplus-card.js"), tag: "samsung-tvplus-card",
     // The saved list lives in HA's frontend storage, which a summary cannot read
     // synchronously - so the row says what the tile is, not a count it would guess.
     summary: () => ({ text: "saved channels · search the lineup", state: "none" }),
   },
   glance: {
-    label: "Glance", size: { w: 6, h: 4 },
+    label: "Glance", size: { w: 6, h: 4 }, noun: () => "glance",
     html: glanceHtml,
     summary: glanceRow,
   },

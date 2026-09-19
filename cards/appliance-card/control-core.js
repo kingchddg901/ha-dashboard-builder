@@ -418,9 +418,15 @@ export function layoutFor(width) {
  * Horizontal when the card is wide, and ALSO whenever the window is short -
  * a vertical column needs vertical room that a landscape phone does not have.
  * An unknown height keeps the width-only behaviour rather than guessing.
+ *
+ * Except a COMPACT card: two columns need width it does not have. Measured on a
+ * landscape phone, where the panel's tiles are ~370px - the short window sent
+ * the TV and fan cards side by side and their controls landed on each other. A
+ * compact card stays one column and its tile scrolls.
  */
 export function axisFor(layout, heightPx) {
   if (layout === "wide") return "horizontal";
+  if (layout === "compact") return "vertical";
   if (Number.isFinite(heightPx) && heightPx < SHORT_MAX_HEIGHT) return "horizontal";
   return "vertical";
 }

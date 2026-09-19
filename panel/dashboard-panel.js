@@ -259,10 +259,20 @@ class DashboardBuilderPanel extends HTMLElement {
   }
 
   _rowsHtml(tab) {
+    // Two "Kitchen" rows (the light and the room) read the same; where titles
+    // repeat on a tab, each row says what kind of thing it is.
+    const count = {};
+    for (const t of tab.tiles) { const k = String(t.title || t.id).toLowerCase(); count[k] = (count[k] || 0) + 1; }
+    const kind = (t) => {
+      if (count[String(t.title || t.id).toLowerCase()] < 2) return "";
+      const r = rendererFor(t.kind);
+      const noun = r?.noun ? r.noun(t.config || {}) : r?.label;
+      return noun ? ` <span class="row-kind">${esc(noun)}</span>` : "";
+    };
     return `<div class="rows">
       ${readingOrder(tab.tiles).map((t) => `<button class="row" data-id="${esc(t.id)}">
         <span class="mark" aria-hidden="true"></span>
-        <span class="row-title">${esc(t.title || t.id)}</span>
+        <span class="row-title">${esc(t.title || t.id)}${kind(t)}</span>
         <span class="row-sum"></span>
         <span class="chev" aria-hidden="true">›</span>
       </button>`).join("") || `<div class="shelf-empty">Nothing on this tab yet.</div>`}
@@ -593,6 +603,8 @@ const STYLE = `
          column-gap: 10px; align-items: center; text-align: left; width: 100%; min-height: 60px; padding: 8px 12px;
          border: 0; border-radius: 0 20px 20px 0; cursor: pointer; background: var(--db-line); color: var(--db-text); }
   .row-title { grid-area: title; text-transform: uppercase; letter-spacing: .05em; font-size: 15px; }
+  .row-kind { font-size: 11px; letter-spacing: .08em; padding: 1px 7px; margin-left: 6px; border-radius: 8px;
+              vertical-align: 2px; background: var(--db-frame); color: var(--db-frame-text); }
   .row-sum { grid-area: sum; font-size: 13px; opacity: .85; font-variant-numeric: tabular-nums; }
   .chev { grid-area: chev; font-size: 22px; opacity: .7; }
   .mark { grid-area: mark; width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--db-text); opacity: .5; }

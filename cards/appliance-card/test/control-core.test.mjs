@@ -435,7 +435,9 @@ test("layout follows the card's width", () => {
 test("a short window forces the horizontal axis whatever the width says", () => {
   assert.equal(axisFor("regular", 844), "vertical", "portrait phone keeps the column");
   assert.equal(axisFor("regular", 390), "horizontal", "the same card rotated");
-  assert.equal(axisFor("compact", 390), "horizontal");
+  // RED IF a compact card goes side by side: on a landscape phone the panel's
+  // ~370px tiles did, and the TV and fan controls overlapped.
+  assert.equal(axisFor("compact", 390), "vertical", "too narrow for two columns");
   assert.equal(axisFor("wide", 2000), "horizontal", "wide is horizontal regardless");
 });
 

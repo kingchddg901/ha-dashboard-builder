@@ -41,6 +41,12 @@ import { subscribeSaved } from "../samsung-tvplus-card/saved-list.js";
 // TV Plus is Samsung's; only these remotes get favourites unless the card asks.
 const TVPLUS_PLATFORMS = new Set(["samsungtv_smart", "samsungtv"]);
 
+// The IEC power symbol, drawn: the ⏻ character is missing from some phone fonts
+// and showed as an empty box on the Android app.
+const POWER_ICON = `<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none"
+  stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 3.5v8"/>
+  <path d="M6.6 7a7.5 7.5 0 1 0 10.8 0"/></svg>`;
+
 const esc = (v) => String(v).replace(/[&<>"]/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
@@ -252,7 +258,7 @@ class TvCard extends HTMLElement {
         <div class="body">
           <div class="col main">
             <div class="row power-row">
-              <button class="power" aria-label="Power">⏻</button>
+              <button class="power" aria-label="Power">${POWER_ICON}</button>
               <div class="vol ${c.on ? "" : "dim"}">
                 <button class="vbtn vdown" aria-label="Volume down" ${c.on && c.volume.step ? "" : "disabled"}>−</button>
                 <span class="vlevel">${c.volume.confirmed ? `${c.volume.level}%` : "—"}</span>

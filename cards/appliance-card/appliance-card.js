@@ -220,7 +220,8 @@ class ApplianceCard extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <style>${STYLE}</style>
       <ha-card class="${esc(layout)} ${esc(axis)}">
-        <div class="hd">${esc(this._config.title)}<span class="lay">${esc(layout)} · ${esc(axis)}</span></div>
+        <div class="hd">${esc(this._config.title)}${this._config.debug
+          ? `<span class="lay">${esc(layout)} · ${esc(axis)}</span>` : ""}</div>
         ${fan ? this._fanBlock(fan, speed) : ""}
         ${light ? this._lightBlock(light, level, kelvin, appear, mode, colourCapable) : ""}
         ${light && mode === "colour" ? this._deskBlock(light) : ""}
@@ -270,7 +271,7 @@ class ApplianceCard extends HTMLElement {
            <div class="thumb" style="--v:${shown}%"><span class="readout">${shown}%</span></div>
            <input class="range" type="range" min="1" max="100" value="${shown}" aria-label="Brightness">
          </div>`
-      : `<div class="track none">on / off only</div>`;
+      : "";            // an on/off light says so in its text; there is no level to draw
     return `
       <div class="block light ${on ? "on" : "off"}">
         <div class="side">
@@ -278,8 +279,9 @@ class ApplianceCard extends HTMLElement {
           <div class="txt">
             <div class="name">Light ${on ? "on" : "off"}</div>
             <div class="sub">
-              <span class="dot" style="background:${swatchOf(appear)}"></span>
-              ${level.supported && level.state !== "off-unknown"
+              ${level.supported ? `<span class="dot" style="background:${swatchOf(appear)}"></span>` : ""}
+              ${!level.supported ? "switches on and off only"
+        : level.state !== "off-unknown"
         ? `<button class="typed" title="Tap to type a level">${level.state === "lit"
           ? `${level.pct}%` : `off · returns to ${level.restore}%`}</button>`
         : level.state === "off-unknown" ? "off · level unknown" : `${level.pct}%`}${appear.from === "remembered"
