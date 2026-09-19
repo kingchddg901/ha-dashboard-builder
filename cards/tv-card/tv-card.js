@@ -174,6 +174,8 @@ class TvCard extends HTMLElement {
       }
     }
     if (this._guide) modal.querySelector(".mbody").replaceChildren(this._guide);
+    // The guide names itself; the bar says which TV it will tune.
+    modal.querySelector(".mt").textContent = this._config.title;
     modal.hidden = false;
     modal.querySelector(".close").focus({ preventScroll: true });
   }
@@ -234,7 +236,7 @@ class TvCard extends HTMLElement {
     if (!this.shadowRoot.querySelector(".content")) {
       this.shadowRoot.innerHTML = `<style>${STYLE}</style><div class="content"></div>
         <div class="modal" hidden role="dialog" aria-modal="true" aria-label="TV Plus guide">
-          <div class="sheet"><div class="bar"><span>TV Plus guide</span>
+          <div class="sheet"><div class="bar"><span class="mt"></span>
             <button type="button" class="close">Close</button></div><div class="mbody"></div></div>
         </div>`;
       const m = this.shadowRoot.querySelector(".modal");
@@ -387,7 +389,9 @@ const STYLE = `
          border-bottom: 1px solid var(--divider-color, #444); font-size: 13px; }
   .close { font: inherit; cursor: pointer; border-radius: 12px; padding: 6px 14px; border: 1px solid var(--divider-color, #555);
            background: none; color: var(--primary-text-color); }
-  .mbody { overflow: auto; padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .mbody { flex: 1; min-height: 0; overflow: auto; padding-bottom: env(safe-area-inset-bottom, 0px); }
+  /* Searching or browsing the whole lineup: the pop-up takes the full height. */
+  .sheet:has(samsung-tvplus-card[data-mode="search"]) { height: 90dvh; }
 `;
 
 // Guarded: the panel and a Lovelace resource can both load this module, and a

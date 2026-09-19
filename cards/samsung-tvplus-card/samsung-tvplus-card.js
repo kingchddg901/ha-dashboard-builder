@@ -38,7 +38,8 @@ import {
 const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const fmt = (t) => new Date(t * 1000).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-const RESULT_LIMIT = 40;
+// No cap: "All" is for browsing the whole lineup, and 600 short rows is cheap.
+const RESULT_LIMIT = Infinity;
 const mins = (sec) => {
   const m = Math.max(0, Math.round(sec / 60));
   return m < 60 ? `${m} min` : `${Math.floor(m / 60)} h ${m % 60} min`;
@@ -213,6 +214,7 @@ class SamsungTvPlusCard extends HTMLElement {
   _build() {
     this.shadowRoot.innerHTML = `<style>${SamsungTvPlusCard.styles}</style>
       <ha-card>
+        <div class="top">
         <div class="hd"><span class="t"></span><span class="sub"></span>
           <button class="hb search-btn" type="button">Search</button>
           <button class="hb edit-btn" type="button">Edit list</button></div>
@@ -223,6 +225,7 @@ class SamsungTvPlusCard extends HTMLElement {
         </div>
         <div class="cats" hidden role="group" aria-label="Categories"></div>
         <div class="note" hidden></div>
+        </div>
         <div class="rows"></div>
       </ha-card>`;
     const r = this.shadowRoot;
@@ -246,7 +249,10 @@ class SamsungTvPlusCard extends HTMLElement {
   _setMode(mode) {
     this._mode = mode;
     this._render();
-    if (mode === "search") {
+    // On a touch screen the keyboard would cover the list you came to browse,
+    // so the search box waits for a tap there; elsewhere it takes focus.
+    const touch = typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches;
+    if (mode === "search" && !touch) {
       const q = this.shadowRoot.querySelector(".q");
       q.focus({ preventScroll: true });
       q.select();
@@ -258,6 +264,9 @@ class SamsungTvPlusCard extends HTMLElement {
     if (!this._built) this._build();
     const r = this.shadowRoot;
     const search = this._mode === "search";
+    // Lets whatever hosts the guide size itself by mode (the remote's pop-up
+    // goes full height while searching).
+    this.dataset.mode = this._mode;
     r.querySelector(".t").textContent = this._config.title;
     r.querySelector(".searchbar").hidden = !search;
     r.querySelector(".cats").hidden = !search;
@@ -318,11 +327,10 @@ class SamsungTvPlusCard extends HTMLElement {
   _renderResults(rows, sub) {
     const { results, total } = searchChannels(this._channels, { query: this._query, group: this._group, limit: RESULT_LIMIT });
     const saved = new Set(this._saved());
-    sub.textContent = "";
-    if (!this._query.trim() && !this._group) {
-      rows.innerHTML = `<div class="msg">Type a channel, a show, a category or a number - or pick a category.</div>`;
-      return;
-    }
+    const browsing = !this._query.trim();
+    // Nothing typed is browsing: every channel, or every channel in the category.
+    sub.textContent = browsing ? (this._group ? `${total} in ${this._group}` : `all ${total} channels`)
+      : `${total} ${total === 1 ? "match" : "matches"}`;
     if (!results.length) { rows.innerHTML = `<div class="msg">Nothing matches.</div>`; return; }
     rows.innerHTML = results.map((c) => this._channelRow(c.name, this._channels[c.name],
       { saved: saved.has(c.name), inSearch: true })).join("")
@@ -545,7 +553,12 @@ class SamsungTvPlusCard extends HTMLElement {
 }
 
 SamsungTvPlusCard.styles = `
-  ha-card { padding: 10px 0 6px; }
+  ha-card { padding: 0 0 6px; }
+  /* The header, search box and categories stay put while a long list scrolls
+     under them - in a tile, and in the remote's pop-up. */
+  .top { position: sticky; top: 0; z-index: 2; padding-top: 10px;
+         background: var(--ha-card-background, var(--card-background-color, #111)); }
+  .row { content-visibility: auto; contain-intrinsic-size: auto 48px; }
   * { box-sizing: border-box; }
   .hd { display:flex; align-items:center; gap:8px; padding:2px 12px 8px 16px; }
   .t { font-size:16px; font-weight:600; }
