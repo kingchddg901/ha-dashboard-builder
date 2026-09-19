@@ -27,6 +27,7 @@ import {
 } from "./layout-core.js";
 import { RENDERERS, rendererFor } from "./renderers.js";
 import { tokenVar as T } from "./tokens.js";
+import { clockParts, hour12For, msToNextTick } from "../cards/clock-card/clock-core.js";
 
 const STORE_KEY = "dashboard_builder.layout";
 const TAB_KEY = "dashboard_builder.tab";
@@ -84,9 +85,11 @@ class DashboardBuilderPanel extends HTMLElement {
     }
     document.addEventListener("keydown", this._onKey);
     this._measure();
+    this._tickClock();
   }
 
   disconnectedCallback() {
+    clearTimeout(this._clockT); this._clockT = null;
     this._ro?.disconnect(); this._ro = null;
     document.removeEventListener("keydown", this._onKey);
   }
@@ -107,6 +110,37 @@ class DashboardBuilderPanel extends HTMLElement {
       if (mode === "phone") this._edit = false;
       this._render();
     }
+  }
+
+  /* -------------------------------------------------------------- clock */
+
+  /* The house's time in the header band: Home Assistant's zone and 12/24-hour
+     setting, turning over on the minute. `clock: false` in the panel's config
+     (or the card's) takes it out. */
+  _clockOn() {
+    const c = this._asCard ? this._cardConfig : this._panel?.config;
+    return c?.clock !== false;
+  }
+
+  _clockParts() {
+    return clockParts(Date.now(), { timeZone: this._hass?.config?.time_zone || undefined,
+      hour12: hour12For(this._hass?.locale?.time_format),
+      language: this._hass?.locale?.language || this._hass?.language || undefined });
+  }
+
+  _clockHtml() {
+    if (!this._clockOn()) return "";
+    const p = this._clockParts();
+    return `<span class="clock" title="${esc(`${p.date} · ${p.zone}`)}">${esc(p.time)}${p.ampm
+      ? `<span class="clock-ampm">${esc(p.ampm)}</span>` : ""}</span>`;
+  }
+
+  _tickClock() {
+    clearTimeout(this._clockT);
+    if (!this.isConnected) return;
+    const el = this.shadowRoot.querySelector(".clock");
+    if (el) el.outerHTML = this._clockHtml();
+    this._clockT = setTimeout(() => this._tickClock(), msToNextTick(Date.now()) + 20);
   }
 
   /* ------------------------------------------------------------ storage */
@@ -177,6 +211,7 @@ class DashboardBuilderPanel extends HTMLElement {
         <header class="bar">
           ${menu && phone ? menuBtn : ""}
           <div class="band"></div>
+          ${this._clockHtml()}
           <h1 class="title">${esc(this._cardConfig?.title || this._panel?.config?.title || "House")}</h1>
           <div class="cap"></div>
         </header>
@@ -527,6 +562,11 @@ const STYLE = `
   .title { margin: 0; font-size: 30px; line-height: 1; font-weight: 400; letter-spacing: .06em;
            text-transform: uppercase; color: var(--db-active); white-space: nowrap; }
   .cap { width: 34px; height: 22px; background: var(--db-frame); border-radius: 0 11px 11px 0; flex: none; }
+  /* The band breaks for the time, as LCARS bars break for text. */
+  .clock { flex: none; font-size: 24px; line-height: 22px; letter-spacing: .05em; white-space: nowrap;
+           color: var(--db-text); font-variant-numeric: tabular-nums; }
+  .clock-ampm { font-size: .6em; margin-left: .25em; letter-spacing: .08em; opacity: .85; }
+  .phone .clock { font-size: 20px; line-height: 18px; }
 
   .rail { grid-area: rail; display: flex; flex-direction: column; gap: 5px; min-height: 0; overflow-y: auto; }
   .tab { border: 0; cursor: pointer; min-height: 56px; padding: 6px 10px; text-align: right;
