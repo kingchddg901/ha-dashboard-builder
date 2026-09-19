@@ -1,0 +1,23 @@
+{
+  "source": "https://github.com/kingchddg901/token-theme-kit.git",
+  "commit": "4918061fd26729429af040aa696747cb85a1ce39",
+  "license": "MIT",
+  "files": {
+    "src/adapters/ha.js": "a4f237e6060ec33ad8c32c40fbcf52b29dbf77bd40c70daa7d15b32656ec42fa",
+    "src/adapters/local-storage.js": "132903479701ab0e6395a57e1c552dc7bf0999c54fa9c76f3b7417203d99ce9f",
+    "src/apply.js": "5c34ab906e1e3fbafc75eeef05a28e8cbdfad6d4357af34d117cbed37a430934",
+    "src/color.js": "5352a78cb8572230d0f12507e383d5fe521975b77fbc565185a0570c8b50573c",
+    "src/control-types.js": "5cbb5aa3279b10b491d74bc0661d572a97c5c4b0e1cb2d5594ac00f05518d59b",
+    "src/editor-model.js": "317b63a9332a5a3799baeaf04256b8e641bdddfe4c3c03d35a2790e4e6d79253",
+    "src/editor-style.js": "c391888509de61dd252c40c05f6ecb80d3d68cc01e700edf5949f0ae3556e379",
+    "src/element.js": "5a4785c835f92b2924b1f285477dcd04fdb61fa0316893f570938f35223e2ffa",
+    "src/index.js": "a493946bcb456abfc228c2dde3db869c5ea6e0733f7649d494158f281731db77",
+    "src/kit.js": "c9b8b545ba778190fa2dc42fd2b76dea7b087f41de237df7e413d0dc8c80826d",
+    "src/plugins/cvd.js": "cf2c23fd48c7cf39bfc51888e05e6cb65b91a5fc0fac14959c6548ba210127f2",
+    "src/registry.js": "57e237cc5679727d38c37604614ce915a592937650561c619f2582d011c928b5",
+    "src/reset.js": "54cbc91a8a246e03dd7875bb2834c31e1ba88e32802bb7076ba9c0275824f893",
+    "src/validators.js": "aa91a1f87143571d585607cfeec06fc080e5bc7c76a06bb11406c16dea4e80ed",
+    "src/widgets.js": "ffa995a60edeaddd102eb2d685ebb10726a00a401691f6ed2fb53214dac944c1",
+    "LICENSE": "178dd441cd6d33b3510f5ec6d3f27dda0e92276f5c864b9904b434b6d332bef2"
+  }
+}

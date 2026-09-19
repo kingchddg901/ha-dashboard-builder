@@ -1,11 +1,20 @@
 /**
- * Themes for the panel - which variables a theme sets, and keeping its status
- * colours readable. No DOM.
+ * Themes for the panel - where each theme token's value comes from, which
+ * variables the panel sets, and keeping status colours readable. No DOM.
  *
- * A theme is a set of LCARS colour roles (./themes.js). Applied to the panel,
- * the roles set the --lcars-* variables the frame reads, and the panel maps
- * Home Assistant's standard variables onto them, so every tile - and every
- * pop-up a tile opens - wears the same theme with no change to the cards.
+ * The tokens are ./token-groups.js (the mined LCARS vocabulary). Their values
+ * come in layers, bottom to top:
+ *
+ *   1. the mined default                    - always there
+ *   2. Home Assistant's theme               - where it sets the variable
+ *   3. a picked LCARS theme (./themes.js)   - where it sets the token
+ *   4. your own changes, from the theme tab
+ *
+ * 1-3 are the BASE: what the editor shows for a token you have not changed, and
+ * what a reset puts back. The panel writes only 3 and 4 onto itself; 1 and 2
+ * reach it through the cascade anyway. It maps Home Assistant's standard
+ * variables onto the tokens, so every tile - and every pop-up a tile opens -
+ * wears the result with no change to the cards.
  *
  * The one thing a theme is not trusted with: its status colours.
  * Measured on the mined set, 21 of the 24 themes carry one below 3:1
@@ -14,7 +23,11 @@
  * toward the background's opposite until they reach 3:1, keeping their hue.
  */
 
-import { ROLE_VARS } from "./themes.js";
+import { TOKEN_GROUPS } from "./token-groups.js";
+import { BUILTIN_CONTROL_TYPES } from "../vendor/token-theme-kit/src/control-types.js";
+
+/** Every theme token, flat, in editor order. */
+export const THEME_TOKENS = Object.freeze(TOKEN_GROUPS.flatMap((g) => g.tokens));
 
 export const STATUS_ROLES = Object.freeze(["success", "warning", "error"]);
 export const MIN_STATUS_CONTRAST = 3;
@@ -96,12 +109,105 @@ export function legibleStatus(roles = {}) {
   return out;
 }
 
-/** A theme's roles -> the CSS variables to set on the panel. */
-export function themeVars(roles = {}) {
-  const fixed = { ...roles, ...legibleStatus(roles) };
+const has = (o, k) => Object.prototype.hasOwnProperty.call(o || {}, k);
+
+/**
+ * A variable's CSS value read back as a token value, or undefined when there is
+ * none. "35px" is 35 to a number token; a colour is normalised to #rrggbb so the
+ * colour picker can show it, and one it cannot parse is kept as written.
+ */
+export function fromCss(token, css) {
+  const s = String(css ?? "").trim();
+  if (!s) return undefined;
+  if (token.type === "number" || token.type === "size") {
+    const n = parseFloat(s);
+    return Number.isFinite(n) ? n : undefined;
+  }
+  if (token.type === "color") {
+    const c = parseColor(s);
+    return c ? hex(c) : s;
+  }
+  return s;
+}
+
+/**
+ * Layers 1-3 for every token: the picked theme if it sets the token, else Home
+ * Assistant's theme if it sets the variable, else the mined default.
+ * `read(cssVar)` is what the page gives that variable ABOVE the panel ("" for
+ * nothing) - read above it, because the panel's own writes would answer back.
+ */
+export function baseValues(tokens, { preset = null, read = () => "" } = {}) {
   const out = {};
-  for (const [role, value] of Object.entries(fixed)) {
-    if (ROLE_VARS[role] && value != null) out[ROLE_VARS[role]] = value;
+  for (const t of tokens) {
+    if (preset && preset[t.key] != null) { out[t.key] = preset[t.key]; continue; }
+    const fromHa = fromCss(t, read(t.cssVar));
+    out[t.key] = fromHa !== undefined ? fromHa : t.default;
   }
   return out;
+}
+
+/**
+ * The token groups with each default replaced by the base. Registered on the
+ * kit, the editor then shows what is on screen, and a reset - which deletes
+ * your change - lands on the theme you started from, not on the mined one.
+ */
+export function groupsWithDefaults(groups, base = {}) {
+  return groups.map((g) => ({
+    ...g,
+    tokens: g.tokens.map((t) => (has(base, t.key) ? { ...t, default: base[t.key] } : t)),
+  }));
+}
+
+const toCss = (t, v) => (BUILTIN_CONTROL_TYPES[t.type] || BUILTIN_CONTROL_TYPES.raw).toCss(v, t);
+
+/**
+ * The variables the panel sets on itself: layers 3 and 4, and nothing else. A
+ * token nobody chose is left unset so Home Assistant's theme keeps showing
+ * through it - writing it would pin it to today's value, and a later change to
+ * the HA theme would never arrive. Last, the status floor: a status colour that
+ * would vanish on the background is written readable, whoever chose it.
+ */
+export function paintVars(tokens, { base = {}, preset = null, overrides = {} } = {}) {
+  const out = {};
+  for (const t of tokens) {
+    const own = has(overrides, t.key);
+    if (!own && !(preset && preset[t.key] != null)) continue;
+    out[t.cssVar] = toCss(t, own ? overrides[t.key] : preset[t.key]);
+  }
+  const resolved = { ...base, ...overrides };
+  for (const t of tokens) {
+    if (!STATUS_ROLES.includes(t.key) || resolved[t.key] == null) continue;
+    const shown = legibleOn(resolved[t.key], resolved.background);
+    if (shown !== resolved[t.key]) out[t.cssVar] = shown;
+  }
+  return out;
+}
+
+/**
+ * A token-theme-kit validator: tells you, on the control itself, when a status
+ * colour will be shown lighter (or darker) than you chose, and why - otherwise
+ * the editor would show one colour and the panel another.
+ */
+export function statusVerdicts(values = {}) {
+  const out = [];
+  for (const k of STATUS_ROLES) {
+    const v = values[k];
+    const shown = legibleOn(v, values.background);
+    if (v && shown !== v) {
+      out.push({ key: k, level: "warn",
+        message: `${v} is ${contrast(v, values.background).toFixed(2)}:1 on the background, too faint to read - the panel shows ${shown}` });
+    }
+  }
+  return out;
+}
+
+/**
+ * Every "<name>-text" token paired with "<name>", for the kit's contrast
+ * validator: the editor warns before text disappears into its own colour.
+ */
+export function textPairs(tokens) {
+  const byKey = new Map(tokens.map((t) => [t.key, t]));
+  return tokens
+    .filter((t) => t.key.endsWith("-text") && byKey.has(t.key.slice(0, -5)))
+    .map((t) => ({ fg: t.key, bg: t.key.slice(0, -5), label: `${t.label} on ${byKey.get(t.key.slice(0, -5)).label}` }));
 }

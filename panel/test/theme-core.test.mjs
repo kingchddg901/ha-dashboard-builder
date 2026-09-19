@@ -1,6 +1,7 @@
 /**
- * Tests for panel themes: the theme table against the mined files, contrast,
- * and the rescue of status colours that vanish on their own background.
+ * Tests for panel themes: the theme and token tables against the mined files,
+ * contrast, the rescue of status colours that vanish on their own background,
+ * the value layers, and the kit building the theme tab from the token groups.
  *
  *   node --test panel/test/theme-core.test.mjs
  */
@@ -10,7 +11,14 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 import { THEMES, ROLE_VARS } from "../themes.js";
-import { parseColor, contrast, legibleOn, legibleStatus, themeVars, MIN_STATUS_CONTRAST } from "../theme-core.js";
+import { TOKEN_GROUPS } from "../token-groups.js";
+import {
+  parseColor, contrast, legibleOn, legibleStatus, MIN_STATUS_CONTRAST,
+  THEME_TOKENS, baseValues, groupsWithDefaults, paintVars, statusVerdicts, textPairs,
+} from "../theme-core.js";
+import { createThemeKit } from "../../vendor/token-theme-kit/src/kit.js";
+import { resetValues } from "../../vendor/token-theme-kit/src/reset.js";
+import { cvdValidator } from "../../vendor/token-theme-kit/src/plugins/cvd.js";
 
 const read = (p) => JSON.parse(readFileSync(new URL(p, import.meta.url), "utf8"));
 const presets = read("../../tokens/lcars/presets.json").presets;
@@ -74,9 +82,87 @@ test("every mined theme ends up with readable status colours", () => {
   assert.ok(lifted > 0, "the mined set does need the rescue");
 });
 
-test("a theme becomes the panel's variables", () => {
-  const vars = themeVars(THEMES["LCARS 25C"]);
-  assert.equal(vars["--lcars-ui-accent-color"], "#ff7700");
-  assert.equal(vars["--lcars-background-color"], "#000000");
-  assert.ok("--warning-color" in vars && "--error-color" in vars);
+// RED IF: the generated groups drift from core-tokens.json (re-mined, not regenerated).
+test("the token groups are core-tokens.json, token for token, with readable labels", () => {
+  assert.deepEqual(TOKEN_GROUPS.map((g) => [g.id, g.label, g.tokens.length]),
+    core.groups.map((g) => [g.id, g.label, g.tokens.length]));
+  core.groups.forEach((g, i) => g.tokens.forEach((t, j) => {
+    const mine = TOKEN_GROUPS[i].tokens[j];
+    for (const k of ["key", "type", "cssVar", "default", "unit", "min", "max", "step"]) assert.deepEqual(mine[k], t[k], `${t.key}.${k}`);
+  }));
+  assert.equal(THEME_TOKENS.find((t) => t.key === "ui-primary-text").label, "UI primary text");
+});
+
+// RED IF: following HA shows the mined default where HA's theme sets the value,
+// a length comes back as NaN, or HA's value beats a theme you picked.
+test("the base: a picked theme, else Home Assistant's theme, else the mined default", () => {
+  const ha = { "--lcars-ui-primary": " #abcdef", "--lcars-vertical-border": "40px",
+    "--lcars-horizontal-border": "wide", "--warning-color": "rgb(255, 0, 0)" };
+  const read = (v) => ha[v] ?? "";
+  const follow = baseValues(THEME_TOKENS, { read });
+  assert.equal(follow["ui-primary"], "#abcdef");
+  assert.equal(follow["vertical-border"], 40);
+  assert.equal(follow["horizontal-border"], 10, "unreadable: the mined default");
+  assert.equal(follow.warning, "#ff0000");
+  assert.equal(follow["ui-secondary"], THEME_TOKENS.find((t) => t.key === "ui-secondary").default);
+  const romulus = THEMES["LCARS Romulus"];
+  const picked = baseValues(THEME_TOKENS, { preset: romulus, read });
+  assert.equal(picked["ui-primary"], romulus["ui-primary"]);
+  assert.equal(picked["vertical-border"], 40, "a theme sets no shape, so HA's stands");
+});
+
+// RED IF: a token nobody chose is written onto the panel - that pins it to
+// today's value, and a later change to Home Assistant's theme never arrives.
+test("the panel writes only what was chosen, and the status floor holds for your choices too", () => {
+  const readable = { "--warning-color": "#ffcc66", "--error-color": "#ff4444" };
+  const base = baseValues(THEME_TOKENS, { read: (v) => readable[v] ?? "" });
+  assert.deepEqual(paintVars(THEME_TOKENS, { base }), {});
+  assert.deepEqual(paintVars(THEME_TOKENS, { base, overrides: { "vertical-border": 48, "ui-accent": "#00ff00" } }),
+    { "--lcars-vertical-border": "48px", "--lcars-ui-accent-color": "#00ff00" });
+  const tng = THEMES["LCARS TNG"];
+  const vars = paintVars(THEME_TOKENS, { base: baseValues(THEME_TOKENS, { preset: tng }), preset: tng });
+  assert.equal(Object.keys(vars).length, Object.keys(tng).length, "a picked theme writes every colour it sets");
+  const own = paintVars(THEME_TOKENS, { base, overrides: { warning: "#360000" } });
+  assert.ok(contrast(own["--warning-color"], "#000000") >= MIN_STATUS_CONTRAST, own["--warning-color"]);
+});
+
+test("the editor is told when a status colour will be shown differently, and to what", () => {
+  const v = statusVerdicts({ background: "#000000", warning: "#360000", success: "#33cc99" });
+  assert.equal(v.length, 1);
+  assert.equal(v[0].key, "warning");
+  assert.match(v[0].message, new RegExp(legibleOn("#360000", "#000000")));
+});
+
+// RED IF: the groups are registered with the MINED defaults - the editor then
+// shows colours that are not on screen, and a reset lands on LCARS Transporter
+// instead of the theme you picked.
+test("the kit builds the theme tab from the groups, and a reset lands on the picked theme", () => {
+  const romulus = THEMES["LCARS Romulus"];
+  const mined = THEME_TOKENS.find((t) => t.key === "ui-primary").default;
+  assert.notEqual(romulus["ui-primary"], mined, "precondition: the two are distinguishable");
+  const kit = createThemeKit();
+  for (const g of groupsWithDefaults(TOKEN_GROUPS, baseValues(THEME_TOKENS, { preset: romulus }))) kit.registerTokenGroup(g);
+  const model = kit.editorModel({});
+  assert.deepEqual(model.groups.map((g) => g.id), TOKEN_GROUPS.map((g) => g.id));
+  const controls = model.groups.flatMap((g) => g.controls);
+  assert.equal(controls.length, THEME_TOKENS.length);
+  const input = Object.fromEntries(controls.map((c) => [c.key, c.input]));
+  assert.deepEqual([input["ui-primary"], input["vertical-border"], input.font], ["color", "number", "text"]);
+  assert.equal(model.values["ui-primary"], romulus["ui-primary"]);
+  const changed = { "ui-primary": "#123456" };
+  assert.equal(kit.editorModel(changed).values["ui-primary"], "#123456");
+  assert.equal(kit.editorModel(resetValues(changed, ["ui-primary"]).values).values["ui-primary"], romulus["ui-primary"]);
+});
+
+// RED IF: the pairs come out empty - then text can be dragged into its own
+// background with no warning, the one gesture that hides the editor itself.
+test("text that matches its own background is flagged on the control", () => {
+  const pairs = textPairs(THEME_TOKENS);
+  assert.ok(pairs.some((p) => p.fg === "background-text" && p.bg === "background"));
+  const kit = createThemeKit();
+  for (const g of TOKEN_GROUPS) kit.registerTokenGroup(g);
+  kit.registerValidator(cvdValidator({ pairs }));
+  const verdictsOn = (values, key) => kit.editorModel(values).groups.flatMap((g) => g.controls).find((c) => c.key === key).verdicts;
+  assert.equal(verdictsOn({}, "background-text").length, 0);
+  assert.equal(verdictsOn({ "background-text": "#000000" }, "background-text").length, 1);
 });

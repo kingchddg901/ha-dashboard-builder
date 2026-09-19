@@ -293,6 +293,15 @@ whenever. Nothing else should start until B and C answer.
 
 Decided 2026-09-15. This is the right first build target and it is cheaper than it looks.
 
+**BUILT.** The panel's last tab is the kit's editor over the 30 mined tokens. See
+[panel/README.md](../panel/README.md#themes). It differs from the plan below in two ways:
+
+- `previewTarget` is not set. The panel paints instead, because it has to write only chosen
+  layers and hold the status floor.
+- The inbound Home Assistant theme layer (Gap A) is `baseValues` in `panel/theme-core.js`, not in
+  the kit. The kit has one consumer so far. §6 still places it in the kit, and moving it there is
+  a public push.
+
 **It mirrors VA exactly** — VA's theme editor is a tab inside the card it themes, and that has
 shipped for months. So the pattern is proven, not speculative.
 

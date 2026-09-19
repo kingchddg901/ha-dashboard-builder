@@ -11,6 +11,10 @@
  *   phone (narrower): the same tiles as status rows in reading order; a tap
  *         opens the full control in a sheet
  *
+ * The last tab is the theme: token-theme-kit's editor (vendored), which builds
+ * one control per token from ./token-groups.js - declare a token, a control
+ * appears. Where the values come from is ./theme-core.js.
+ *
  * Runs two ways with the same code:
  *   - as a sidebar panel through panel_custom (the `panel` / `narrow` props)
  *   - as a Lovelace card in a `panel` view (`setConfig`), which needs no restart
@@ -26,15 +30,23 @@ import {
   gridRows, readingOrder, cellsFromPixels, whyNot, findTile, COLS, copyToTab, availableFrom, addTile, modeFor,
 } from "./layout-core.js";
 import { RENDERERS, rendererFor } from "./renderers.js";
-import { tokenVar as T, TOKENS } from "./tokens.js";
+import { tokenVar as T } from "./tokens.js";
 import { THEMES } from "./themes.js";
-import { themeVars, legibleStatus } from "./theme-core.js";
+import { TOKEN_GROUPS } from "./token-groups.js";
+import { THEME_TOKENS, baseValues, groupsWithDefaults, paintVars, statusVerdicts, textPairs } from "./theme-core.js";
+import { createThemeKit } from "../vendor/token-theme-kit/src/kit.js";
+import { haUserDataAdapter } from "../vendor/token-theme-kit/src/adapters/ha.js";
+import { cvdValidator } from "../vendor/token-theme-kit/src/plugins/cvd.js";
+import { defineThemeKitEditor } from "../vendor/token-theme-kit/src/element.js";
 import { clockParts, hour12For, msToNextTick } from "../cards/clock-card/clock-core.js";
 import { discover, unplacedByArea, withStartingTiles } from "./discover-core.js";
 
 const STORE_KEY = "dashboard_builder.layout";
 const TAB_KEY = "dashboard_builder.tab";
 const THEME_KEY = "dashboard_builder.theme";
+const TOKENS_KEY = "dashboard_builder.theme_tokens";
+// Its own tag, so another copy of the kit on the page cannot hand us its class.
+const EDITOR_TAG = "db-theme-editor";
 const haThemeOf = (h) => `${h?.selectedTheme?.theme ?? h?.themes?.theme ?? ""}|${h?.selectedTheme?.dark ?? h?.themes?.darkMode ?? ""}`;
 const ROW_H = 64;
 const GAP = 8;
@@ -61,6 +73,9 @@ class DashboardBuilderPanel extends HTMLElement {
     this._narrow = false;
     this._asCard = false;
     this._resetArmed = null;
+    this._theme = null;          // a picked LCARS theme, or null for Home Assistant's
+    this._overrides = {};        // your own token changes: the ONE copy the editor reads
+    this._themeOpen = false;
     this._onKey = (e) => { if (e.key === "Escape" && this._sheetId) this._closeSheet(); };
   }
 
@@ -70,7 +85,7 @@ class DashboardBuilderPanel extends HTMLElement {
     const first = !this._hass;
     const themeWas = haThemeOf(this._hass);
     this._hass = hass;
-    if (!first && haThemeOf(hass) !== themeWas) requestAnimationFrame(() => this._applyTheme());
+    if (!first && haThemeOf(hass) !== themeWas) requestAnimationFrame(() => this._refreshTheme());
     if (first) this._load();
     else this._update();
   }
@@ -97,6 +112,7 @@ class DashboardBuilderPanel extends HTMLElement {
   disconnectedCallback() {
     clearTimeout(this._clockT); this._clockT = null;
     this._ro?.disconnect(); this._ro = null;
+    this._tokenStore?.flush();
     document.removeEventListener("keydown", this._onKey);
   }
 
@@ -120,36 +136,90 @@ class DashboardBuilderPanel extends HTMLElement {
   /* -------------------------------------------------------------- theme */
 
   /**
-   * Put a theme on the panel. A chosen LCARS theme sets every --lcars-* role on
-   * the host; "follow Home Assistant" sets none, so HA's own theme shows through.
-   * Either way the status colours are checked against the background and lifted
-   * where they would vanish (theme-core). The tiles follow because the panel
-   * maps HA's standard variables onto these roles - see STYLE.
+   * The kit, made once. Your changes live in `_overrides` and the editor reads
+   * them from there, not from HA: coming back to the tab inside the save
+   * debounce would otherwise show the older set.
    */
-  _applyTheme() {
-    for (const k of this._themeSet || []) this.style.removeProperty(k);
-    const set = {};
-    if (this._theme && THEMES[this._theme]) {
-      Object.assign(set, themeVars(THEMES[this._theme]));
-    } else {
-      const cs = getComputedStyle(this);
-      const read = (v) => cs.getPropertyValue(v).trim() || TOKENS[v];
-      const roles = { background: read("--lcars-background-color"), success: read("--success-color"),
-        warning: read("--warning-color"), error: read("--error-color") };
-      const fixed = legibleStatus(roles);
-      for (const [k, v] of Object.entries(fixed)) if (v !== roles[k]) set[`--${k}-color`] = v;
+  _themeKit() {
+    if (this._kit) return this._kit;
+    this._tokenStore = haUserDataAdapter(() => this._hass, TOKENS_KEY);
+    this._kit = createThemeKit({
+      adapter: {
+        load: async () => ({ ...this._overrides }),
+        save: (values) => { this._overrides = { ...values }; return this._tokenStore.save(values); },
+      },
+    });
+    this._kit.registerValidator(statusVerdicts);
+    this._kit.registerValidator(cvdValidator({ pairs: textPairs(THEME_TOKENS) }));
+    return this._kit;
+  }
+
+  /**
+   * Re-read the layers under your changes - Home Assistant's theme and the
+   * picked one (theme-core) - then paint. Run when either changes. HA's theme is
+   * read from ABOVE the panel, because the panel's own writes would answer back.
+   * A new base re-registers the groups, so the editor shows what is on screen
+   * and a reset lands on it.
+   */
+  _refreshTheme() {
+    const above = this.parentElement || this.getRootNode()?.host || document.documentElement;
+    const cs = getComputedStyle(above);
+    const base = baseValues(THEME_TOKENS, { preset: THEMES[this._theme] || null, read: (v) => cs.getPropertyValue(v) });
+    const sig = JSON.stringify(base);
+    if (sig !== this._baseSig) {
+      this._baseSig = sig;
+      this._base = base;
+      const kit = this._themeKit();
+      for (const g of groupsWithDefaults(TOKEN_GROUPS, base)) kit.registerTokenGroup(g);
     }
-    for (const [k, v] of Object.entries(set)) this.style.setProperty(k, v);
-    this._themeSet = Object.keys(set);
+    this._paintTheme();
+  }
+
+  /** Write the chosen layers onto the panel; everything inside inherits them. */
+  _paintTheme() {
+    for (const k of this._themeSet || []) this.style.removeProperty(k);
+    const vars = paintVars(THEME_TOKENS, { base: this._base, preset: THEMES[this._theme] || null, overrides: this._overrides });
+    for (const [k, v] of Object.entries(vars)) this.style.setProperty(k, v);
+    this._themeSet = Object.keys(vars);
   }
 
   async _setTheme(name) {
     this._theme = name && THEMES[name] ? name : null;
-    this._applyTheme();
+    this._refreshTheme();
     try {
       await this._hass.connection.sendMessagePromise({ type: "frontend/set_user_data", key: THEME_KEY, value: this._theme });
-      this._say(this._theme ? `theme: ${this._theme}` : "theme: Home Assistant's");
+      this._say(this._theme ? `starting from ${this._theme}` : "starting from Home Assistant's theme");
     } catch (e) { this._say(`theme NOT saved: ${e?.message || e}`, true); }
+  }
+
+  _themeHtml() {
+    return `<div class="theme-view">
+      <div class="editbar">
+        <label>Start from <select class="theme-pick">
+          <option value="">Home Assistant's theme</option>
+          ${Object.keys(THEMES).map((n) => `<option value="${esc(n)}" ${n === this._theme ? "selected" : ""}>${esc(n)}</option>`).join("")}
+        </select></label>
+        <span class="hint">Changes show at once and are saved for your Home Assistant user. ↺ puts one back;
+          <b>Reset all to defaults</b>, at the bottom, returns everything to the theme you started from.</span>
+      </div>
+      <div class="theme-slot"></div>
+    </div>`;
+  }
+
+  /** The editor element is made once and moved into each render. */
+  _mountThemeEditor() {
+    const slot = this.shadowRoot.querySelector(".theme-slot");
+    if (!slot) return;
+    if (!this._themeEditor) {
+      defineThemeKitEditor(EDITOR_TAG);
+      const ed = document.createElement(EDITOR_TAG);
+      // The editor saves through our adapter first, so `_overrides` is current here.
+      ed.addEventListener("change", () => this._paintTheme());
+      ed.addEventListener("reset", () => { this._paintTheme(); this._say("reset"); });
+      ed.kit = this._themeKit();
+      this._themeEditor = ed;
+    }
+    slot.appendChild(this._themeEditor);
   }
 
   /* -------------------------------------------------------------- clock */
@@ -197,6 +267,9 @@ class DashboardBuilderPanel extends HTMLElement {
       const t = await this._hass.connection.sendMessagePromise({ type: "frontend/get_user_data", key: THEME_KEY });
       this._theme = typeof t?.value === "string" && THEMES[t.value] ? t.value : null;
     } catch { this._theme = null; }
+    this._themeKit();
+    const own = await this._tokenStore.load();
+    this._overrides = own && typeof own === "object" && !Array.isArray(own) ? own : {};
     const { dash, repaired } = sanitize(raw, SEED);
     this._dash = dash;
     const saved = store.get(TAB_KEY);
@@ -260,16 +333,21 @@ class DashboardBuilderPanel extends HTMLElement {
           <div class="cap"></div>
         </header>
         <nav class="rail" aria-label="Tabs">
-          ${tabs.map((t) => `<button class="tab ${t.id === tab.id ? "active" : ""}" data-tab="${esc(t.id)}"
-              aria-current="${t.id === tab.id ? "page" : "false"}"><span>${esc(t.title)}</span></button>`).join("")}
+          ${tabs.map((t) => { const on = t.id === tab.id && !this._themeOpen;
+            return `<button class="tab ${on ? "active" : ""}" data-tab="${esc(t.id)}"
+              aria-current="${on ? "page" : "false"}"><span>${esc(t.title)}</span></button>`; }).join("")}
           <div class="rail-fill"></div>
-          <button class="tab tool edit-toggle" aria-pressed="${this._edit}"><span>${this._edit ? "Done" : phone ? "Edit" : "Edit layout"}</span></button>
+          <div class="tools">
+            <button class="tab tool edit-toggle" aria-pressed="${this._edit}"><span>${this._edit ? "Done" : phone ? "Edit" : "Edit layout"}</span></button>
+            <button class="tab tool theme-toggle" aria-pressed="${this._themeOpen}"><span>${this._themeOpen ? "Done" : "Theme"}</span></button>
+          </div>
         </nav>
         <main class="stage">
           <div class="status ${/NOT|could not/.test(this._status) ? "bad" : ""}">${esc(this._status)}</div>
-          ${this._edit ? this._editBar(tab) : ""}
-          ${phone ? this._rowsHtml(tab) : this._gridHtml(tab)}
-          ${this._edit ? this._shelfHtml() : ""}
+          ${this._themeOpen ? this._themeHtml() : `
+            ${this._edit ? this._editBar(tab) : ""}
+            ${phone ? this._rowsHtml(tab) : this._gridHtml(tab)}
+            ${this._edit ? this._shelfHtml() : ""}`}
         </main>
         <div class="sheet" ${this._sheetId ? "" : "hidden"} role="dialog" aria-modal="true">
           <div class="sheet-bar"><span class="sheet-title"></span>
@@ -278,8 +356,9 @@ class DashboardBuilderPanel extends HTMLElement {
         </div>
       </div>`;
 
-    if (!this._themeApplied) { this._themeApplied = true; this._applyTheme(); }
-    if (phone) this._fillRows(tab); else this._fillGrid(tab);
+    if (!this._themeApplied) { this._themeApplied = true; this._refreshTheme(); }
+    if (this._themeOpen) this._mountThemeEditor();
+    else if (phone) this._fillRows(tab); else this._fillGrid(tab);
     if (this._sheetId) this._openSheet(this._sheetId);
     this._wire(tab);
     this._measure();
@@ -288,10 +367,6 @@ class DashboardBuilderPanel extends HTMLElement {
   _editBar(tab) {
     return `<div class="editbar">
       <label>Tab name <input class="tab-name" value="${esc(tab.title)}" maxlength="24"></label>
-      <label>Theme <select class="theme-pick">
-        <option value="">Home Assistant's theme</option>
-        ${Object.keys(THEMES).map((n) => `<option value="${esc(n)}" ${n === this._theme ? "selected" : ""}>${esc(n)}</option>`).join("")}
-      </select></label>
       <button class="btn add-tab">Add a tab</button>
       ${tab.tiles.length ? "" : `<button class="btn remove-tab">Remove this tab</button>`}
       <button class="btn reset">${this._resetArmed ? "Tap again to reset everything" : "Reset layout"}</button>
@@ -471,6 +546,7 @@ class DashboardBuilderPanel extends HTMLElement {
   _update() {
     if (!this._dash) return;
     for (const rec of this._els.values()) if (rec.el) rec.el.hass = this._hass;
+    if (this._themeOpen) return;
     const tab = this._activeTab();
     if (this._mode === "phone") this._fillRows(tab);
     for (const t of tab.tiles) {
@@ -510,11 +586,15 @@ class DashboardBuilderPanel extends HTMLElement {
     r.querySelector(".menu")?.addEventListener("click", () =>
       this.dispatchEvent(new Event("hass-toggle-menu", { bubbles: true, composed: true })));
     r.querySelectorAll(".tab[data-tab]").forEach((b) => b.addEventListener("click", () => {
-      this._tab = b.dataset.tab; store.set(TAB_KEY, this._tab); this._closeSheet(); this._render();
+      this._tab = b.dataset.tab; store.set(TAB_KEY, this._tab); this._themeOpen = false; this._closeSheet(); this._render();
     }));
     r.querySelector(".edit-toggle")?.addEventListener("click", () => {
-      this._edit = !this._edit; this._resetArmed = null; this._render();
+      this._edit = !this._edit; this._resetArmed = null; if (this._edit) this._themeOpen = false; this._render();
     });
+    r.querySelector(".theme-toggle")?.addEventListener("click", () => {
+      this._themeOpen = !this._themeOpen; if (this._themeOpen) this._edit = false; this._closeSheet(); this._render();
+    });
+    r.querySelector(".theme-pick")?.addEventListener("change", (e) => this._setTheme(e.target.value));
     if (!this._edit) r.querySelectorAll("button.row").forEach((b) => b.addEventListener("click", () => this._openSheet(b.dataset.id)));
     r.querySelector(".sheet .close")?.addEventListener("click", () => this._closeSheet());
     r.querySelector(".sheet")?.addEventListener("click", (e) => { if (e.target.classList.contains("sheet")) this._closeSheet(); });
@@ -524,7 +604,6 @@ class DashboardBuilderPanel extends HTMLElement {
   _wireEdit(tab) {
     const r = this.shadowRoot;
     r.querySelector(".tab-name")?.addEventListener("change", (e) => this._commit(renameTab(this._dash, tab.id, e.target.value)));
-    r.querySelector(".theme-pick")?.addEventListener("change", (e) => this._setTheme(e.target.value));
     r.querySelector(".add-tab")?.addEventListener("click", () => {
       const res = addTab(this._dash);
       if (this._commit(res, { render: false })) { this._tab = res.tab.id; store.set(TAB_KEY, this._tab); this._render(); }
@@ -709,6 +788,9 @@ const STYLE = `
   .tab:focus-visible, .btn:focus-visible, .row:focus-visible, .close:focus-visible, .grab:focus-visible
     { outline: 2px solid var(--db-text); outline-offset: 2px; }
   .rail-fill { flex: 1; min-height: 20px; background: var(--db-frame); border-bottom-left-radius: var(--db-outer); }
+  .tools { display: flex; flex-direction: column; gap: 5px; }
+  .theme-view { max-width: 760px; }
+  .theme-slot { margin-top: 4px; }
 
   .stage { grid-area: stage; min-width: 0; min-height: 0; overflow: auto; padding: 4px 12px 16px 14px; }
   .status { font-size: 12px; min-height: 16px; color: var(--db-ok); letter-spacing: .04em; margin-bottom: 6px; }
@@ -774,9 +856,9 @@ const STYLE = `
   .phone .rail { flex-direction: row; overflow-x: auto; overflow-y: hidden; }
   .phone .rail-fill { display: none; }
   .phone .tab { min-height: 40px; flex: none; border-radius: 20px; padding: 6px 16px; align-items: center; }
-  /* With a dozen tabs the strip scrolls; Edit stays pinned at its right edge. */
-  .phone .edit-toggle { position: sticky; right: 0; z-index: 1; margin-left: auto;
-                        box-shadow: -8px 0 0 var(--db-bg); }
+  /* With a dozen tabs the strip scrolls; Edit and Theme stay pinned at its right edge. */
+  .phone .tools { flex-direction: row; position: sticky; right: 0; z-index: 1; margin-left: auto;
+                  background: var(--db-bg); box-shadow: -8px 0 0 var(--db-bg); }
   .rows { display: flex; flex-direction: column; gap: 6px; }
   .row { display: grid; grid-template-columns: 18px 1fr auto; grid-template-areas: "mark title chev" "mark sum chev";
          column-gap: 10px; align-items: center; text-align: left; width: 100%; min-height: 60px; padding: 8px 12px;

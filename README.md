@@ -65,7 +65,8 @@ docs/
   capability-test-2026-09-15.md   can we query an entity for what it can do? partly — measured
   samsung-tv-local-control.md     the whole TV control surface, local — measured against the set
   card-vocabularies/      measured CSS custom properties of the installed cards
-panel/                    dashboard 1.0 — the panel, the grid rules, the renderer registry
+panel/                    dashboard 1.0 — the panel, the grid rules, the renderer registry, the theme tab
+vendor/token-theme-kit/   a hashed copy of the kit (MIT) — the panel has no bundler; never edit it here
 cards/
   builder-debug-card/     level 1: entity -> record (capability-core), shown raw
   appliance-card/         fan + light as one appliance (control-core)
@@ -76,6 +77,8 @@ ha-config/packages/       the HA-side pieces: last level, presets, colour correc
 tokens/lcars/             the LCARS token vocabulary, mined from the installed themes
 tools/
   deploy.py               versioned deploy to HA — verifies, switches, repoints resources
+  vendor-kit.py           re-copies token-theme-kit into vendor/, recording its commit and hashes
+  gen-panel-tokens.py     writes panel/token-groups.js from tokens/lcars/core-tokens.json
   extract-card-vars.sh    regenerates card-vocabularies/ from installed bundles
 ```
 

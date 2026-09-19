@@ -37,17 +37,20 @@ WWW = pathlib.Path(os.environ.get("DB_WWW", r"\\192.168.4.104\config\www\dashboa
 HA = os.environ.get("DB_HA", "192.168.4.104:8123")
 TOKEN_FILE = os.environ.get("HA_TOKEN_FILE", r"C:\Users\CKing\Documents\claude use only.txt")
 URL_BASE = "/local/dashboard-builder"
-TREES = ("cards", "panel")
+TREES = ("cards", "panel", "vendor")
 CARDS = ("appliance-card", "tv-card", "builder-debug-card", "samsung-tvplus-card")
 CARD_URL = re.compile(r"^/local/dashboard-builder/(?:v\d+/cards/)?(?P<card>[a-z-]+)/(?P=card)\.js(?:\?.*)?$")
 LOADER_URL = f"{URL_BASE}/loader.js"
 
 
 def shipped_files():
-    """Every .js under the shipped trees, minus tests."""
+    """Every .js under the shipped trees, minus tests - plus each vendored
+    package's LICENSE, which the MIT licence requires to travel with every copy."""
     for tree in TREES:
-        for p in sorted((REPO / tree).rglob("*.js")):
+        for p in sorted((REPO / tree).rglob("*")):
             rel = p.relative_to(REPO)
+            if not p.is_file() or not (p.suffix == ".js" or (tree == "vendor" and p.name == "LICENSE")):
+                continue
             if "test" in rel.parts or rel.as_posix() == "panel/loader.js":
                 continue
             yield rel
