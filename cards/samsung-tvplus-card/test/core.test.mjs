@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
-import { indexLineup, airing, tuneCommand, whatsOn, upcoming, loadLineup } from "../tvplus-core.js";
+import { indexLineup, airing, tuneCommand, tuneDuration, KEY_GAP_MS, whatsOn, upcoming, loadLineup } from "../tvplus-core.js";
 
 /**
  * The core has no DOM and no Home Assistant in it, so it tests here — which is
@@ -46,6 +46,34 @@ test("tuneCommand handles a long id and always terminates with ENTER", () => {
   const c = tuneCommand("111299001912");
   assert.equal(c.length, 13);
   assert.equal(c.at(-1), "KEY_ENTER");      // RED IF: ENTER is dropped and nothing tunes
+});
+
+// RED IF: samsungtv_smart gets no pause (its own 0.5 s spacing dropped digits),
+// a pause lands before the first key, or anything follows ENTER.
+test("on samsungtv_smart a pause goes between every key, and only between", () => {
+  assert.deepEqual(tuneCommand(1833, { platform: "samsungtv_smart" }),
+    ["KEY_1", "1000", "KEY_8", "1000", "KEY_3", "1000", "KEY_3", "1000", "KEY_ENTER"]);
+  assert.equal(KEY_GAP_MS, 1000);            // the spacing measured working on core samsungtv
+});
+
+// RED IF: a pause outside the integration's clamp is sent - it would be clamped
+// silently there, and the card would be claiming a spacing it is not getting.
+test("the pause is held to the range samsungtv_smart accepts", () => {
+  assert.equal(tuneCommand(12, { platform: "samsungtv_smart", gapMs: 50 })[1], "200");
+  assert.equal(tuneCommand(12, { platform: "samsungtv_smart", gapMs: 9000 })[1], "2000");
+  assert.equal(tuneCommand(12, { platform: "samsungtv_smart", gapMs: "junk" })[1], "1000");
+});
+
+// RED IF: core samsungtv is sent a number - it would reach the TV as a key.
+test("core samsungtv and unknown remotes get plain keys", () => {
+  for (const platform of ["samsungtv", null, "something_else"]) {
+    assert.ok(tuneCommand(1833, { platform }).every((k) => k.startsWith("KEY_")), String(platform));
+  }
+});
+
+test("a tune's sending time covers every pause", () => {
+  assert.equal(tuneDuration(1833, { platform: "samsungtv_smart" }), 4000);
+  assert.equal(tuneDuration(1833, { platform: "samsungtv_smart", gapMs: 500 }), 2000);
 });
 
 /* ---------- now / next ---------- */

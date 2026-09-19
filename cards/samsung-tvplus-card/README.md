@@ -43,6 +43,7 @@ channels:
 | `channels` | **required** | channel **names**, not numbers (see below) |
 | `title` | optional | card heading |
 | `region` | optional | `us` (default), `ca`, `gb`, `de`, `fr`, `es`, `it`, `at`, `ch`, `in`, `kr` |
+| `key_gap_ms` | optional | pause between keys when tuning, `samsungtv_smart` only (200–2000, default 1000) |
 
 ## Three things it does deliberately
 
@@ -63,9 +64,12 @@ correct.
 
 ## Which remote
 
-Tuning was measured through core `samsungtv`. `samsungtv_smart` also works, going by its source:
-its remote joins the keys with `+` and spaces them out itself, so the card's `delay_secs` is
-ignored there. That path has been read, but no channel has been tuned through it yet.
+Tuning was measured working through core `samsungtv`, which waits **1 s** after every key (its
+websocket library's default). `samsungtv_smart` joins the keys with `+` and waits only **0.5 s**
+between them, and at that spacing the set did not get full channel numbers. It does read a bare
+number in the chain as a pause (200–2000 ms), so on `samsungtv_smart` the card puts one between
+every key, 1000 ms unless `key_gap_ms` says otherwise. Core `samsungtv` gets plain keys: it would
+send a number as a key, and it spaces keys itself.
 
 ## Data source
 

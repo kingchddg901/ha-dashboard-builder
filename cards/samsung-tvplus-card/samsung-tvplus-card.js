@@ -20,7 +20,7 @@
  *   - Movie Hub
  */
 
-import { loadLineup, airing, tuneCommand } from "./tvplus-core.js";
+import { loadLineup, airing, tuneCommand, tuneDuration } from "./tvplus-core.js";
 
 class SamsungTvPlusCard extends HTMLElement {
   constructor() {
@@ -72,15 +72,20 @@ class SamsungTvPlusCard extends HTMLElement {
   _tune(name) {
     const ch = this._channels?.[name];
     if (!ch || !this._hass) return;
+    // The remote's integration decides how the keys get spaced out - see tvplus-core.
+    const opts = {
+      platform: this._hass.entities?.[this._config.remote]?.platform ?? null,
+      gapMs: this._config.key_gap_ms,
+    };
     this._hass.callService("remote", "send_command", {
       entity_id: this._config.remote,
-      command: tuneCommand(ch.n),
-      delay_secs: 0.4,
+      command: tuneCommand(ch.n, opts),
     });
     this._sending = name;
     this._render();
     clearTimeout(this._ackT);
-    this._ackT = setTimeout(() => { this._sending = null; this._render(); }, 1500);
+    this._ackT = setTimeout(() => { this._sending = null; this._render(); },
+      Math.max(1500, tuneDuration(ch.n, opts) + 500));
   }
 
 

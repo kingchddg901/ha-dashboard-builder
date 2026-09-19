@@ -44,15 +44,47 @@ export function airing(programs, now = Date.now() / 1000) {
 }
 
 /**
+ * The pause between keys when tuning, in milliseconds.
+ *
+ * The SPACING decides whether the set gets the whole number. Tuning was measured
+ * working through core `samsungtv`, whose websocket library waits 1 s after
+ * every key (samsungtvws `key_press_delay=1`, which HA leaves at its default).
+ * `samsungtv_smart` waits only 0.5 s between chained keys, and through it the set
+ * stopped getting full channel numbers. So the default is the spacing that was
+ * measured working.
+ */
+export const KEY_GAP_MS = 1000;
+
+/**
+ * Integrations that read a bare number inside a key chain as a PAUSE, and the
+ * range they clamp it to. `samsungtv_smart` does (media_player.py,
+ * `_async_send_keys`: 200-2000 ms). Core `samsungtv` does not - it would send
+ * the number to the TV as a key - and spaces keys itself, so it gets plain keys.
+ */
+export const CHAIN_PAUSES = Object.freeze({ samsungtv_smart: Object.freeze({ min: 200, max: 2000 }) });
+
+/**
  * The key sequence that tunes a channel: digits, then Enter.
  *
  * Exactly what the remote sends, and exactly what the vendor integration's own
- * `channel()` helper does. The TV reports NOTHING back afterwards — its local
+ * `channel()` helper does. On an integration that takes pauses in the chain,
+ * one goes between every key. The TV reports NOTHING back afterwards — its local
  * API is byte-identical before and after — so a caller may say "sent" and must
  * never say "on".
  */
-export function tuneCommand(chno) {
-  return String(chno).split("").map((d) => "KEY_" + d).concat("KEY_ENTER");
+export function tuneCommand(chno, { platform = null, gapMs = KEY_GAP_MS } = {}) {
+  const keys = String(chno).split("").map((d) => "KEY_" + d).concat("KEY_ENTER");
+  const range = CHAIN_PAUSES[platform];
+  if (!range) return keys;
+  const gap = String(Math.round(Math.min(range.max, Math.max(range.min, Number(gapMs) || KEY_GAP_MS))));
+  return keys.flatMap((k, i) => (i ? [gap, k] : [k]));
+}
+
+/** Roughly how long a tune takes to finish sending, so "sending" lasts that long. */
+export function tuneDuration(chno, { platform = null, gapMs = KEY_GAP_MS } = {}) {
+  const gaps = String(chno).length;               // one after each digit, before Enter
+  const per = CHAIN_PAUSES[platform] ? Number(gapMs) || KEY_GAP_MS : 1000;
+  return gaps * per;
 }
 
 /** Find what is airing right now across every channel, optionally filtered. */
