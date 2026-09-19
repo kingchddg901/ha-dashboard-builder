@@ -28,6 +28,7 @@ import {
 import { RENDERERS, rendererFor } from "./renderers.js";
 import { tokenVar as T } from "./tokens.js";
 import { clockParts, hour12For, msToNextTick } from "../cards/clock-card/clock-core.js";
+import { discover, unplacedByArea, withStartingTiles } from "./discover-core.js";
 
 const STORE_KEY = "dashboard_builder.layout";
 const TAB_KEY = "dashboard_builder.tab";
@@ -279,9 +280,24 @@ class DashboardBuilderPanel extends HTMLElement {
     </div>`;
   }
 
+  /**
+   * What can be added: HA's candidates by area, and the starting layout's
+   * tiles. Where the starting layout has a hand-made tile for the same thing
+   * (the fan with its corrected light and preset helper), that tile stands in
+   * for the discovered one - listed under the candidate's area, so an area's
+   * tab gets it. The starting layout's own section keeps only what discovery
+   * cannot find (the clock, the glance, the room tiles, the guide).
+   */
+  _offers() {
+    const fresh = availableFrom(this._dash, SEED);
+    const h = this._hass || {};
+    return withStartingTiles(unplacedByArea(discover({ states: h.states, entities: h.entities, devices: h.devices,
+      areas: h.areas, panels: h.panels }), this._dash), fresh);
+  }
+
   _shelfHtml() {
     const shelf = this._dash.shelf || [];
-    const fresh = availableFrom(this._dash, SEED);
+    const { found, fresh } = this._offers();
     const item = (t, cls) => `<div class="shelf-item"><span>${esc(t.title || t.id)}
         <small>${esc(rendererFor(t.kind)?.label || t.kind)}</small></span>
       <button class="btn ${cls}" data-id="${esc(t.id)}">Put on this tab</button></div>`;
@@ -290,6 +306,15 @@ class DashboardBuilderPanel extends HTMLElement {
         : `<div class="shelf-empty">Removed tiles wait here, so nothing is lost.</div>`}
       ${fresh.length ? `<div class="shelf-head sub-head">From the starting layout</div>
         ${fresh.map((t) => item(t, "add-fresh")).join("")}` : ""}
+      <div class="shelf-head sub-head">From Home Assistant - not on the dashboard yet</div>
+      ${found.length ? found.map((g) => `<div class="area-group">
+          <div class="area-head"><span>${esc(g.area || "No area")}</span>
+            ${g.area ? `<button class="btn area-tab" data-area="${esc(g.area)}">Make a tab of these</button>` : ""}</div>
+          ${g.candidates.map((c) => `<div class="shelf-item"><span>${esc(c.title)}
+              <small>${esc(rendererFor(c.kind)?.label || c.kind)}</small></span>
+            <button class="btn add-found" data-id="${esc(c.id)}">Put on this tab</button></div>`).join("")}
+        </div>`).join("")
+        : `<div class="shelf-empty">Everything Home Assistant has that a tile can show is on the dashboard.</div>`}
     </div>`;
   }
 
@@ -459,6 +484,31 @@ class DashboardBuilderPanel extends HTMLElement {
       const dest = this._dash.tabs.find((t) => t.id === sel.value);
       if (dest && this._commit(copyToTab(this._dash, id, dest.id))) this._say(`copied to ${dest.title}`);
     }));
+    // Discovered candidates: a tile written from what HA reports.
+    const asTile = (c) => {
+      const r0 = rendererFor(c.kind);
+      return { id: c.id, kind: c.kind, title: c.title, w: c.w || r0?.size?.w || 4, h: c.h || r0?.size?.h || 4, config: c.config };
+    };
+    r.querySelectorAll(".add-found").forEach((b) => b.addEventListener("click", () => {
+      const c = this._offers().found.flatMap((g) => g.candidates).find((x) => x.id === b.dataset.id);
+      if (c && this._commit(addTile(this._dash, asTile(c), tab.id))) this._say(`added ${c.title}`);
+    }));
+    // "Then group them": a tab named after the area, holding its candidates.
+    r.querySelectorAll(".area-tab").forEach((b) => b.addEventListener("click", () => {
+      const group = this._offers().found.find((g) => g.area === b.dataset.area);
+      if (!group) return;
+      let res = addTab(this._dash, group.area);
+      if (!res.ok) { this._say(`not added: ${res.reason}`, true); return; }
+      let dash = res.dash;
+      for (const c of group.candidates) {
+        const next = addTile(dash, asTile(c), res.tab.id);
+        if (next.ok) dash = next.dash;
+      }
+      this._tab = res.tab.id;
+      store.set(TAB_KEY, this._tab);
+      this._commit({ ok: true, dash });
+      this._say(`made a ${group.area} tab with ${group.candidates.length} tile${group.candidates.length === 1 ? "" : "s"}`);
+    }));
     r.querySelectorAll(".add-fresh").forEach((b) => b.addEventListener("click", () => {
       const tile = availableFrom(this._dash, SEED).find((t) => t.id === b.dataset.id);
       if (tile) this._commit(addTile(this._dash, tile, tab.id));
@@ -614,6 +664,9 @@ const STYLE = `
   .shelf { margin-top: 16px; border-top: 5px solid var(--db-frame); padding-top: 8px; font-size: 13px; }
   .shelf-head { text-transform: uppercase; letter-spacing: .08em; color: var(--db-active); margin-bottom: 6px; }
   .shelf-head.sub-head { margin-top: 12px; }
+  .area-group { margin: 6px 0 10px; padding-left: 10px; border-left: 3px solid var(--db-frame); }
+  .area-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 2px;
+               text-transform: uppercase; letter-spacing: .06em; font-size: 12px; color: var(--db-text); }
   .shelf-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 0; }
   .shelf-item small { opacity: .7; margin-left: 6px; }
   .shelf-empty, .missing, .loading { opacity: .75; font-size: 13px; padding: 10px; }
