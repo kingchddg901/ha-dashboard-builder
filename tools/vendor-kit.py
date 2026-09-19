@@ -36,25 +36,29 @@ def main() -> int:
     if dirty:
         raise SystemExit(f"the kit has uncommitted changes - commit them there first:\n{dirty}")
 
-    files = sorted(p for p in (kit / "src").rglob("*.js"))
+    # Copy what the kit COMMITTED, not its working folder: a checkout's line
+    # endings depend on that machine's git settings (the kit's editor-style.js
+    # sat in the folder as CRLF while git holds it as LF), and the copy must be
+    # the same bytes wherever it is made.
+    commit = git(kit, "rev-parse", "HEAD")
+    names = [n for n in git(kit, "ls-tree", "-r", "--name-only", commit, "--", "src").splitlines() if n.endswith(".js")]
     if DEST.exists():
         shutil.rmtree(DEST)
     hashes = {}
-    for src in files + [kit / "LICENSE"]:
-        rel = src.relative_to(kit).as_posix()
+    for rel in sorted(names) + ["LICENSE"]:
+        data = subprocess.run(["git", "-C", str(kit), "show", f"{commit}:{rel}"], check=True, capture_output=True).stdout
         out = DEST / rel
         out.parent.mkdir(parents=True, exist_ok=True)
-        data = src.read_bytes()
         out.write_bytes(data)
         hashes[rel] = hashlib.sha256(data).hexdigest()
 
     record = {
         "source": git(kit, "remote", "get-url", "origin"),
-        "commit": git(kit, "rev-parse", "HEAD"),
+        "commit": commit,
         "license": "MIT",
         "files": hashes,
     }
-    (DEST / "VENDORED.json").write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
+    (DEST / "VENDORED.json").write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8", newline="\n")
     print(f"vendored {len(hashes)} files from {record['commit'][:7]} -> {DEST.relative_to(REPO)}")
     return 0
 
