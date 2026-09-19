@@ -23,7 +23,7 @@ const pct = (b) => (Number.isFinite(b) ? Math.max(1, Math.round((b / 255) * 100)
 /** One light and, if it is a group, its members - recursively. */
 export function lightNode(id, states = {}, seen = new Set(), depth = 0) {
   const st = states[id];
-  if (!st) return { id, name: id, state: "missing", missing: true, group: false, dimmable: false, level: null, rgb: null, members: [] };
+  if (!st) return { id, name: id, state: "missing", missing: true, group: false, dimmable: false, tunable: false, level: null, rgb: null, members: [] };
   const a = st.attributes || {};
   const named = Array.isArray(a.entity_id) ? a.entity_id.filter((m) => String(m).startsWith("light.")) : [];
   const stop = seen.has(id) || depth >= MAX_DEPTH;
@@ -37,6 +37,9 @@ export function lightNode(id, states = {}, seen = new Set(), depth = 0) {
     missing: false,
     group: named.length > 0,
     dimmable: modes.some((m) => m !== "onoff"),
+    // A white temperature or a colour to set - more than a row's drag can do,
+    // so the row offers the full control behind "..." (design rule 9).
+    tunable: modes.some((m) => m !== "onoff" && m !== "brightness"),
     level: on ? pct(a.brightness) : null,
     rgb: on && Array.isArray(a.rgb_color) ? a.rgb_color.slice(0, 3) : null,
     members: stop ? [] : named.map((m) => lightNode(m, states, next, depth + 1)),

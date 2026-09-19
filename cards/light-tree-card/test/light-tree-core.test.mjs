@@ -42,6 +42,16 @@ test("a parent promises from its members, and names the ones that cannot dim", (
   assert.equal(kitchen.dimmable, false);
 });
 
+// RED IF: an on/off light is offered a colour control it cannot use, or a
+// colour light is not offered one.
+test("only lights with a white or a colour to set offer the fuller control", () => {
+  const house = lightNode("light.main_house", states);
+  assert.equal(house.tunable, true);
+  assert.equal(house.members.find((m) => m.id === "light.kitchen").tunable, false);
+  assert.equal(lightNode("light.x", { "light.x": { state: "on", attributes: { supported_color_modes: ["brightness"] } } }).tunable, false);
+  assert.equal(lightNode("light.gone", {}).tunable, false);
+});
+
 test("the lit count comes from the bulbs, not from the group's single on/off", () => {
   const house = lightNode("light.main_house", states);
   const want = leaves(house).filter((l) => l.state === "on").length;

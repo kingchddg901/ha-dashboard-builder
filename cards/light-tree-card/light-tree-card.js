@@ -2,7 +2,10 @@
  * Light tree card - a group and its parts, as one nested control.
  *
  * Every row is a light: tap it to switch it, drag across it to set its
- * brightness (design rule 9 - a row with a useful shallow action does it).
+ * brightness (design rule 9 - a row with a useful shallow action does it), and
+ * "..." for the rest: a light with a white temperature or a colour opens the
+ * full light control - white or colour, temperature, the mixer, its own saved
+ * colours - in a pop-up.
  * A group's row acts on everything beneath it; › opens it to show the parts.
  * A part that can only switch shows a bare on/off, beside dimmable siblings,
  * so the parent's over-claim explains itself where it applies.
@@ -43,7 +46,18 @@ class LightTreeCard extends HTMLElement {
     if (this._hass) this._render();
   }
 
-  set hass(hass) { this._hass = hass; this._render(); }
+  set hass(hass) {
+    this._hass = hass;
+    if (this._more) this._more.hass = hass;
+    this._render();
+  }
+
+  connectedCallback() {
+    this._onKey = this._onKey || ((e) => { if (e.key === "Escape") this._closeMore(); });
+    document.addEventListener("keydown", this._onKey);
+  }
+
+  disconnectedCallback() { if (this._onKey) document.removeEventListener("keydown", this._onKey); }
   getCardSize() { return 4; }
   static getStubConfig() { return { entity: "" }; }
 
@@ -62,7 +76,18 @@ class LightTreeCard extends HTMLElement {
 
     const { lit, total } = litCount(root);
     const title = this._config.title || root.name;
-    this.shadowRoot.innerHTML = `<style>${STYLE}</style>
+    // Built once, so the pop-up survives every repaint of the tree.
+    if (!this.shadowRoot.querySelector(".content")) {
+      this.shadowRoot.innerHTML = `<style>${STYLE}</style><div class="content"></div>
+        <div class="modal" hidden role="dialog" aria-modal="true">
+          <div class="sheet"><div class="mbar"><span class="mt"></span>
+            <button type="button" class="close">Close</button></div><div class="mbody"></div></div>
+        </div>`;
+      const m = this.shadowRoot.querySelector(".modal");
+      m.querySelector(".close").addEventListener("click", () => this._closeMore());
+      m.addEventListener("click", (e) => { if (e.target === m) this._closeMore(); });
+    }
+    this.shadowRoot.querySelector(".content").innerHTML = `
       <ha-card>
         <div class="hd"><span class="t">${esc(title)}</span>
           ${root.members.length ? `<span class="sum">${lit} of ${total} lit</span>` : ""}</div>
@@ -98,6 +123,9 @@ class LightTreeCard extends HTMLElement {
         <span class="nm">${esc(node.name)}${sub ? `<span class="sub">${esc(sub)}</span>` : ""}</span>
         <span class="val">${esc(value)}</span>
       </div>
+      ${node.tunable && !inert ? `<button type="button" class="more" data-more="${esc(node.id)}"
+          aria-label="More for ${esc(node.name)}: white, colour and saved colours">⋯</button>`
+        : `<span class="more-space"></span>`}
     </div>`;
   }
 
@@ -108,6 +136,7 @@ class LightTreeCard extends HTMLElement {
       if (this._open.has(id)) this._open.delete(id); else this._open.add(id);
       this._sig = null; this._render();
     }));
+    r.querySelectorAll(".more").forEach((b) => b.addEventListener("click", () => this._openMore(b.dataset.more)));
     r.querySelectorAll(".bar:not([aria-disabled])").forEach((bar) => {
       bar.addEventListener("pointerdown", (e) => this._down(e, bar));
       bar.addEventListener("keydown", (e) => this._key(e, bar));
@@ -115,6 +144,34 @@ class LightTreeCard extends HTMLElement {
   }
 
   _node(id) { return lightNode(id, this._hass.states); }
+
+  /* The rest of a light: the full light control, over the tree. It is the same
+     card a light tile uses, so its saved colours are the light's own set. */
+  async _openMore(id) {
+    const node = this._node(id);
+    const modal = this.shadowRoot.querySelector(".modal");
+    modal.querySelector(".mt").textContent = node.name;
+    try {
+      await import("../appliance-card/appliance-card.js");
+      const el = document.createElement("appliance-card");
+      el.setConfig({ type: "custom:appliance-card", title: node.name, light: id });
+      el.hass = this._hass;
+      this._more = el;
+      modal.querySelector(".mbody").replaceChildren(el);
+    } catch (e) {
+      modal.querySelector(".mbody").innerHTML = `<div class="err">The light control could not load: ${esc(e.message)}</div>`;
+    }
+    modal.hidden = false;
+    modal.querySelector(".close").focus({ preventScroll: true });
+  }
+
+  _closeMore() {
+    const modal = this.shadowRoot.querySelector(".modal");
+    if (!modal || modal.hidden) return;
+    modal.hidden = true;
+    modal.querySelector(".mbody").replaceChildren();
+    this._more = null;
+  }
 
   /* A tap switches; a sideways drag sets the level, painted live under the finger
      and sent once on release, so a drag is one command and not fifty. */
@@ -197,6 +254,22 @@ const STYLE = `
   .st-unavailable .mark { border-style: dashed; }
   .st-unavailable .nm { text-decoration: line-through; }
   .st-unknown .mark { border-style: dotted; opacity: 1; }
+  .more, .more-space { flex: none; width: 34px; height: 40px; }
+  .more { border: 0; border-radius: 8px; background: none; color: var(--primary-text-color); font-size: 20px;
+          cursor: pointer; line-height: 1; }
+  .more:hover { background: var(--secondary-background-color, #1c2126); }
+  .more:focus-visible, .close:focus-visible { outline: 2px solid var(--accent-color, #ff9900); outline-offset: 1px; }
+  .modal { position: fixed; inset: 0; z-index: 20; background: color-mix(in srgb, #000 60%, transparent);
+           display: flex; align-items: flex-end; justify-content: center; }
+  .modal[hidden] { display: none; }
+  .sheet { width: min(640px, 100%); max-height: 90dvh; display: flex; flex-direction: column;
+           background: var(--card-background-color, #111); border-radius: 16px 16px 0 0; overflow: hidden; }
+  .mbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px 8px 16px;
+          border-bottom: 1px solid var(--divider-color, #444); font-size: 13px; }
+  .close { font: inherit; cursor: pointer; border-radius: 12px; padding: 6px 14px; border: 1px solid var(--divider-color, #555);
+           background: none; color: var(--primary-text-color); }
+  .mbody { flex: 1; min-height: 0; overflow: auto; padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .err { padding: 14px; font-size: 13px; color: var(--error-color, #ff5252); }
 `;
 
 // Guarded: the panel and a Lovelace resource can both load this module.
