@@ -14,6 +14,7 @@ The base everything else sits in. The panel owns the whole area and the render; 
     theme-core.js        where each token's value comes from, what the panel writes, readable status — no DOM, tested
     dashboard-panel.js   the element — the disposable half
     loader.js            the one stable file (see Deploy)
+    upgrade-props.js     replays what HA set on the panel before it was defined (see Deploy) — tested
     test/                node --test panel/test/*.mjs
 
 ## What it does
@@ -164,3 +165,11 @@ goes into its own directory, `www/dashboard-builder/vN/`, which mirrors the repo
 imports resolve. Every URL in it is new. The tool verifies each file over HTTP, switches
 `current.json` last, and repoints the cards' Lovelace resources. `loader.js` is the only fixed URL:
 it reads `current.json` past the cache and imports the current tree.
+
+That wait has a cost. HA loads a custom panel with a `<script type="module">` tag and creates the
+element when the tag's `load` event fires. For a module with top-level await, like `loader.js`,
+that event comes before the awaits finish. On an uncached load (a hard refresh), HA therefore
+creates `<dashboard-builder-panel>` before it is defined. It then sets `hass`, `panel` and `narrow`
+on it as plain values, which hide the class's setters once the element upgrades. Nothing renders,
+and HA's black background shows. On connect, the panel takes those values off the instance and
+assigns them again, through its setters (`upgrade-props.js`, `hass` last).

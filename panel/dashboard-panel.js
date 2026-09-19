@@ -42,6 +42,7 @@ import { cvdValidator } from "../vendor/token-theme-kit/src/plugins/cvd.js";
 import { defineThemeKitEditor } from "../vendor/token-theme-kit/src/element.js";
 import { clockParts, hour12For, msToNextTick } from "../cards/clock-card/clock-core.js";
 import { discover, unplacedByArea, withStartingTiles } from "./discover-core.js";
+import { upgradeProperties } from "./upgrade-props.js";
 
 const STORE_KEY = "dashboard_builder.layout";
 const TAB_KEY = "dashboard_builder.tab";
@@ -104,6 +105,9 @@ class DashboardBuilderPanel extends HTMLElement {
   getCardSize() { return 12; }
 
   connectedCallback() {
+    // On an uncached load HA sets hass/panel/narrow before this class exists;
+    // replay them through the setters, or the panel never renders (upgrade-props.js).
+    upgradeProperties(this);
     if (!this._ro && typeof ResizeObserver !== "undefined") {
       this._ro = new ResizeObserver(() => this._measure());
       this._ro.observe(this);
