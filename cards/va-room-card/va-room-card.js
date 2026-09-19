@@ -1,40 +1,45 @@
 /**
- * VA room tile - one robot's rooms: pick a room, start it with its saved
- * settings. Editing those settings opens Vacuum Agent's OWN room card, because
- * the rules behind them are VA's (see ./va-room-core.js for the stop line).
+ * VA room tile - start a Vacuum Agent room with its saved settings. Editing
+ * those settings opens VA's OWN room card, because the rules behind them are
+ * VA's (see ./va-room-core.js for the stop line).
  *
- * Tap a room to select it: its saved settings show in VA's own words, with when
- * it was last cleaned, a Start button and Edit settings. Start runs the same
- * sequence as VA's room card. The robot's name is the title of its VA panel.
+ * Two shapes over the same controls:
  *
- * type: custom:va-room-card
- * vacuum: vacuum.alfred
- * room_id: 2          # optional - just this room, already open
- * title: ...          # optional - default: the robot's VA panel title
+ *   one ROBOT, its rooms              one ROOM, the robots that clean it
+ *   type: custom:va-room-card         type: custom:va-room-card
+ *   vacuum: vacuum.alfred             room: Office
+ *                                     names:                 # only where a map differs
+ *                                       vacuum.alfred: Home Office
+ *
+ * Tap a row to select it: the room's saved settings on that robot show in VA's
+ * own words, with when it was last cleaned, Start and Edit settings. Start runs
+ * the same sequence as VA's room card. Robots are named by their VA panel.
  */
 
-import { roomsFor, savedSettings, startCalls, robotName } from "./va-room-core.js";
+import {
+  roomsFor, savedSettings, startCalls, robotName, roomAcrossRobots, lastCleanedAcross,
+} from "./va-room-core.js";
 import { robotGlance, relativeTime } from "../readings-card/readings-core.js";
 
 const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const keyOf = (e) => `${e.vacuum}|${e.room?.entity_id ?? ""}`;
 
 class VaRoomCard extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
-    this._selected = null;
-    this._busy = null;          // room being started
-    this._sent = null;          // room whose start was sent, until the robot reports back
+    this._selected = null;      // entry key
+    this._busy = null;          // entry being started
+    this._sent = null;          // entry whose start was sent, until its robot reports back
     this._note = "";
     this._sig = null;
     this._onKey = (e) => { if (e.key === "Escape") this._closeEditor(); };
   }
 
   setConfig(config) {
-    if (!config?.vacuum || !String(config.vacuum).startsWith("vacuum.")) {
-      throw new Error("va-room-card: `vacuum` must be a vacuum entity");
-    }
+    const byRobot = String(config?.vacuum || "").startsWith("vacuum.");
+    if (!byRobot && !config?.room) throw new Error("va-room-card: give a `vacuum` (its rooms) or a `room` (its robots)");
     this._config = { ...config };
     this._sig = null;
     if (this._hass) this._render();
@@ -52,6 +57,17 @@ class VaRoomCard extends HTMLElement {
   connectedCallback() { document.addEventListener("keydown", this._onKey); }
   disconnectedCallback() { document.removeEventListener("keydown", this._onKey); }
 
+  _byRoom() { return !this._config.vacuum && Boolean(this._config.room); }
+
+  /** The rows: {vacuum, room} pairs - one robot's rooms, or one room across robots. */
+  _entries() {
+    const states = this._hass.states;
+    if (this._byRoom()) return roomAcrossRobots(states, this._config.room, this._config.names);
+    const rooms = roomsFor(states, this._config.vacuum).map((room) => ({ vacuum: this._config.vacuum, room }));
+    if (this._config.room_id == null) return rooms;
+    return rooms.filter((e) => String(e.room.room_id) === String(this._config.room_id));
+  }
+
   _build() {
     this.shadowRoot.innerHTML = `<style>${STYLE}</style>
       <ha-card><div class="content"></div></ha-card>
@@ -68,85 +84,109 @@ class VaRoomCard extends HTMLElement {
     this._built = true;
   }
 
+  _glance(vacuum) { return robotGlance(this._hass.states, vacuum.split(".")[1]); }
+  _status(g) { return !g.available ? "unavailable" : g.error ? `error: ${g.error}` : String(g.state).replace(/_/g, " "); }
+
   _render() {
     if (!this._hass || !this._config) return;
     if (!this._built) this._build();
-    const vacuum = this._config.vacuum;
-    const states = this._hass.states;
-    const glance = robotGlance(states, vacuum.split(".")[1]);
-    if (this._sent && glance.running) this._sent = null;     // the robot has reported back
-    let rooms = roomsFor(states, vacuum);
-    const only = this._config.room_id != null ? rooms.find((r) => String(r.room_id) === String(this._config.room_id)) : null;
-    if (only) { rooms = [only]; this._selected = only.entity_id; }
-    const name = this._config.title || robotName(this._hass.panels, vacuum, states);
-    const status = !glance.available ? "unavailable" : glance.error ? `error: ${glance.error}` : String(glance.state).replace(/_/g, " ");
-    const sig = JSON.stringify([name, status, rooms.map((r) => [r.entity_id, r.selected, r.lastCleaned, savedSettings(r.attrs)]),
+    const entries = this._entries();
+    const byRoom = this._byRoom();
+    const single = !byRoom && entries.length === 1 && this._config.room_id != null;
+    if (single) this._selected = keyOf(entries[0]);
+    for (const e of entries) {                            // a sent start clears once its robot reports back
+      if (this._sent === keyOf(e) && this._glance(e.vacuum).running) this._sent = null;
+    }
+    const panels = this._hass.panels;
+    let title; let right;
+    if (byRoom) {
+      title = this._config.title || this._config.room;
+      const last = lastCleanedAcross(entries);
+      right = last ? `cleaned ${relativeTime(new Date(last.at))} by ${robotName(panels, last.vacuum, this._hass.states)}` : "not cleaned yet";
+    } else {
+      const name = this._config.title || robotName(panels, this._config.vacuum, this._hass.states);
+      title = single ? `${name} · ${entries[0].room.name}` : name;
+      right = this._status(this._glance(this._config.vacuum));
+    }
+    const sig = JSON.stringify([title, right, entries.map((e) => [keyOf(e), e.room?.selected, e.room?.lastCleaned,
+      e.room ? savedSettings(e.room.attrs) : null, this._status(this._glance(e.vacuum))]),
       this._selected, this._busy, this._sent, this._note]);
     if (sig === this._sig) return;
     this._sig = sig;
 
-    const stCls = !glance.available ? "unavailable" : glance.error ? "error" : glance.running ? "on" : "off";
+    const g = !byRoom ? this._glance(this._config.vacuum) : null;
+    const stCls = !g ? "" : !g.available ? "unavailable" : g.error ? "error" : g.running ? "on" : "off";
     this.shadowRoot.querySelector(".content").innerHTML = `
-      <div class="hd"><span class="t">${esc(only ? `${name} · ${only.name}` : name)}</span>
-        <span class="st st-${stCls}">${esc(status)}</span></div>
+      <div class="hd"><span class="t">${esc(title)}</span><span class="st st-${stCls}">${esc(right)}</span></div>
       ${this._note ? `<div class="note">${esc(this._note)}</div>` : ""}
-      ${rooms.length ? `<div class="rows">${rooms.map((r) => this._roomHtml(r, glance, !!only)).join("")}</div>`
-        : `<div class="msg">No rooms from Vacuum Agent for this robot.</div>`}`;
+      ${entries.length ? `<div class="rows">${entries.map((e) => this._entryHtml(e, byRoom, single)).join("")}</div>`
+        : `<div class="msg">${byRoom ? "No robot has rooms from Vacuum Agent." : "No rooms from Vacuum Agent for this robot."}</div>`}`;
   }
 
-  _roomHtml(room, glance, only) {
-    const open = this._selected === room.entity_id;
-    const when = room.lastCleaned ? `cleaned ${relativeTime(new Date(room.lastCleaned))}` : "not cleaned yet";
-    const head = only ? "" : `<button type="button" class="row ${open ? "sel" : ""}" data-act="select"
-        data-id="${esc(room.entity_id)}" aria-expanded="${open}">
-        <span class="nm">${esc(room.name)}${room.selected ? ` <span class="badge">selected</span>` : ""}</span>
-        <span class="lc">${esc(when)}</span></button>`;
+  _entryHtml(e, byRoom, single) {
+    const g = this._glance(e.vacuum);
+    const robot = robotName(this._hass.panels, e.vacuum, this._hass.states);
+    if (!e.room) {
+      // This robot's map has no room by that name: say so, and how to fix it.
+      return `<div class="row off"><span class="nm">${esc(robot)}</span>
+        <span class="lc">no "${esc(e.asked)}" on its map</span></div>`;
+    }
+    const key = keyOf(e);
+    const open = this._selected === key;
+    const when = e.room.lastCleaned ? `cleaned ${relativeTime(new Date(e.room.lastCleaned))}` : "not cleaned yet";
+    const label = byRoom ? robot : e.room.name;
+    const aside = byRoom ? this._status(g) : when;
+    const renamed = byRoom && e.room.name !== this._config.room ? ` <span class="alias">"${esc(e.room.name)}"</span>` : "";
+    const head = single ? "" : `<button type="button" class="row ${open ? "sel" : ""}" data-act="select"
+        data-key="${esc(key)}" aria-expanded="${open}">
+        <span class="nm">${esc(label)}${renamed}${e.room.selected ? ` <span class="badge">selected</span>` : ""}</span>
+        <span class="lc">${esc(aside)}</span></button>`;
     if (!open) return head;
-    const settings = savedSettings(room.attrs);
-    const busy = this._busy === room.entity_id;
-    const sent = this._sent === room.entity_id;
-    const canStart = glance.available && room.map_id && !busy;
+    const settings = savedSettings(e.room.attrs);
+    const busy = this._busy === key;
+    const canStart = g.available && e.room.map_id && !busy;
+    const verb = byRoom ? `Send ${robot}` : `Start ${e.room.name}`;
     return `${head}<div class="detail">
-      ${only ? `<div class="lc">${esc(when)}</div>` : ""}
+      ${byRoom || single ? `<div class="lc">${esc(when)}</div>` : ""}
       <div class="chips" aria-label="Saved settings">${settings.length
         ? settings.map((s) => `<span class="chip">${esc(s)}</span>`).join("")
         : `<span class="hint">No saved settings for this room.</span>`}</div>
       <div class="acts">
-        <button type="button" class="tb start" data-act="start" data-id="${esc(room.entity_id)}" ${canStart ? "" : "disabled"}>
-          ${busy ? "Starting…" : `Start ${esc(room.name)}`}</button>
-        <button type="button" class="tb" data-act="edit" data-id="${esc(room.entity_id)}">Edit settings</button>
+        <button type="button" class="tb start" data-act="start" data-key="${esc(key)}" ${canStart ? "" : "disabled"}>
+          ${busy ? "Starting…" : esc(verb)}</button>
+        <button type="button" class="tb" data-act="edit" data-key="${esc(key)}">Edit settings</button>
       </div>
-      ${sent ? `<div class="hint">Sent. The robot's state above changes when it picks it up.</div>`
-        : glance.running ? `<div class="hint">The robot is busy - starting this room redirects it.</div>` : ""}
+      ${this._sent === key ? `<div class="hint">Sent. ${esc(robot)}'s state changes when it picks it up.</div>`
+        : g.running ? `<div class="hint">${esc(robot)} is busy - this redirects it.</div>` : ""}
     </div>`;
   }
 
-  _room(id) { return roomsFor(this._hass.states, this._config.vacuum).find((r) => r.entity_id === id) || null; }
+  _entry(key) { return this._entries().find((e) => keyOf(e) === key) || null; }
 
-  async _onClick(e) {
-    const b = e.target.closest("[data-act]");
+  async _onClick(ev) {
+    const b = ev.target.closest("[data-act]");
     if (!b || b.disabled) return;
-    const id = b.dataset.id;
+    const key = b.dataset.key;
     if (b.dataset.act === "select") {
-      this._selected = this._selected === id ? null : id;
+      this._selected = this._selected === key ? null : key;
       this._note = "";
       this._render();
     } else if (b.dataset.act === "start") {
-      await this._start(id);
+      await this._start(key);
     } else if (b.dataset.act === "edit") {
-      this._openEditor(id);
+      this._openEditor(key);
     }
   }
 
-  async _start(id) {
-    const rooms = roomsFor(this._hass.states, this._config.vacuum);
-    const room = rooms.find((r) => r.entity_id === id);
-    const calls = startCalls(rooms, room, this._config.vacuum);
+  async _start(key) {
+    const e = this._entry(key);
+    if (!e?.room) return;
+    const calls = startCalls(roomsFor(this._hass.states, e.vacuum), e.room, e.vacuum);
     if (!calls.length) return;
-    this._busy = id; this._note = ""; this._render();
+    this._busy = key; this._note = ""; this._render();
     try {
       for (const c of calls) await this._hass.callService(c.domain, c.service, c.data);
-      this._sent = id;
+      this._sent = key;
     } catch (err) {
       this._note = `Not started: ${err?.message || err}`;
     } finally {
@@ -156,20 +196,21 @@ class VaRoomCard extends HTMLElement {
   }
 
   /* Editing belongs to Vacuum Agent: open its own room card over the tile. */
-  _openEditor(id) {
-    const room = this._room(id);
-    if (!room) return;
+  _openEditor(key) {
+    const e = this._entry(key);
+    if (!e?.room) return;
     if (!customElements.get("eufy-room-card")) {
       this._note = "Vacuum Agent's room card is not loaded on this page.";
       this._sig = null; this._render();
       return;
     }
     const el = document.createElement("eufy-room-card");
-    el.setConfig({ type: "custom:eufy-room-card", vacuum_entity_id: this._config.vacuum, room_id: room.room_id });
+    el.setConfig({ type: "custom:eufy-room-card", vacuum_entity_id: e.vacuum, room_id: e.room.room_id });
     el.hass = this._hass;
     this._editor = el;
     const modal = this.shadowRoot.querySelector(".modal");
-    modal.querySelector(".mt").textContent = `${room.name} - Vacuum Agent`;
+    modal.querySelector(".mt").textContent =
+      `${e.room.name} on ${robotName(this._hass.panels, e.vacuum, this._hass.states)} - Vacuum Agent`;
     modal.querySelector(".body").replaceChildren(el);
     modal.hidden = false;
     modal.querySelector(".close").focus({ preventScroll: true });
@@ -190,7 +231,7 @@ const STYLE = `
   ha-card { padding: 10px 0 8px; display: block; }
   .hd { display: flex; align-items: baseline; gap: 8px; padding: 0 14px 8px; }
   .t { font-size: 14px; font-weight: 600; }
-  .st { margin-left: auto; font-size: 11px; letter-spacing: .05em; text-transform: uppercase; color: var(--secondary-text-color); }
+  .st { margin-left: auto; font-size: 11px; letter-spacing: .04em; color: var(--secondary-text-color); text-align: right; }
   .st-on { color: var(--success-color, #66bb6a); }
   .st-error { color: var(--error-color, #ff5252); }
   .st-unavailable { text-decoration: line-through; }
@@ -199,11 +240,14 @@ const STYLE = `
   .msg { padding: 8px 14px; }
   .rows { display: flex; flex-direction: column; }
   .row { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; background: none; font: inherit;
-         color: var(--primary-text-color); text-align: left; padding: 9px 14px; cursor: pointer; }
-  .row:hover { background: var(--secondary-background-color, #1c2126); }
+         color: var(--primary-text-color); text-align: left; padding: 9px 14px; }
+  button.row { cursor: pointer; }
+  button.row:hover { background: var(--secondary-background-color, #1c2126); }
+  .row.off { opacity: .55; }
   .row.sel { background: var(--secondary-background-color, #1c2126); box-shadow: inset 3px 0 0 var(--accent-color, #ff9900); }
   .row:focus-visible, .tb:focus-visible, .close:focus-visible { outline: 2px solid var(--accent-color, #ff9900); outline-offset: 1px; }
   .nm { flex: 1; min-width: 0; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .alias { font-size: 11.5px; color: var(--secondary-text-color); }
   .lc { font-size: 11.5px; color: var(--secondary-text-color); }
   .badge { font-size: 10.5px; color: var(--accent-color, #ff9900); border: 1px solid currentColor; border-radius: 6px;
            padding: 0 4px; margin-left: 4px; }
@@ -235,5 +279,5 @@ window.customCards = window.customCards || [];
 window.customCards.push({
   type: "va-room-card",
   name: "VA rooms",
-  description: "Pick a Vacuum Agent room and start it with its saved settings; edit them in VA's own card.",
+  description: "A robot's rooms, or a room's robots: start with the saved settings; edit them in VA's own card.",
 });

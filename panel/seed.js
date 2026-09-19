@@ -52,6 +52,19 @@ export const SEED = Object.freeze({
       ],
     },
     {
+      // One tile per room of the house: call whichever robot to clean it. A robot
+      // whose map names the room differently is declared, never guessed.
+      id: "rooms", title: "Rooms",
+      tiles: [
+        ["kitchen", "Kitchen"], ["living-room", "Living Room"], ["heidi-chris", "Heidi & Chris", { "vacuum.alfred": "Master bedroom" }],
+        ["bryans-room", "Bryan's Room"], ["office", "Office", { "vacuum.alfred": "Home Office" }], ["bathroom", "Bathroom"],
+        ["dining-room", "Dining Room"], ["entryway", "Entryway"], ["hallway", "Hallway"], ["cat-room", "Cat Room"],
+      ].map(([id, room, names], i) => ({
+        id: `room-${id}`, kind: "va-room", title: room, x: (i % 3) * 4, y: Math.floor(i / 3) * 6, w: 4, h: 6,
+        config: names ? { room, names } : { room },
+      })),
+    },
+    {
       id: "media", title: "Media",
       tiles: [
         { id: "big-tv", kind: "tv", title: "Big TV", x: 0, y: 0, w: 6, h: 6,

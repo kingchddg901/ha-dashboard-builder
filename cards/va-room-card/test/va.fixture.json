@@ -1,5 +1,5 @@
 {
- "captured": "2026-09-19 from the live house: VA room switches for alfred and robin, and VA's panels",
+ "captured": "2026-09-19 from the live house: VA room switches for alfred, ivy and robin, and VA's panels",
  "panels": {
   "eufy-vacuum-alfred": {
    "title": "Eufy Alfred",
@@ -1045,6 +1045,619 @@
     "friendly_name": "Alfred Cat Room Selected for Cleaning"
    }
   },
+  "switch.ivy_kitchen_selected_for_cleaning": {
+   "entity_id": "switch.ivy_kitchen_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.ivy",
+    "map_id": "Main floor",
+    "room_id": 27,
+    "room_name": "KITCHEN",
+    "slug": "kitchen",
+    "last_cleaned_at": "2026-08-09T18:12:44Z",
+    "last_vacuumed_at": "2026-08-09T18:12:44Z",
+    "last_mopped_at": null,
+    "last_job_mode": "vacuum",
+    "profile_name": "custom",
+    "floor_type": "marble",
+    "clean_mode": "Vacuum",
+    "fan_speed": "max",
+    "water_level": "off",
+    "clean_intensity": "",
+    "clean_passes": 3,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 1,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": false,
+    "grants_access_to": [],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "roborock",
+    "clean_mode_options": [],
+    "fan_speed_options": [
+     {
+      "value": "gentle",
+      "label": "Gentle"
+     },
+     {
+      "value": "quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "balanced",
+      "label": "Balanced"
+     },
+     {
+      "value": "turbo",
+      "label": "Turbo"
+     },
+     {
+      "value": "max",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [],
+    "clean_intensity_options": [],
+    "water_level_range": null,
+    "supports_edge_mopping": false,
+    "friendly_name": "Ivy KITCHEN Selected for Cleaning"
+   }
+  },
+  "switch.ivy_livingroom_selected_for_cleaning": {
+   "entity_id": "switch.ivy_livingroom_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.ivy",
+    "map_id": "Main floor",
+    "room_id": 20,
+    "room_name": "LIVINGROOM",
+    "slug": "livingroom",
+    "last_cleaned_at": null,
+    "last_vacuumed_at": null,
+    "last_mopped_at": null,
+    "last_job_mode": null,
+    "profile_name": "custom",
+    "floor_type": "marble",
+    "clean_mode": "Vacuum",
+    "fan_speed": "turbo",
+    "water_level": "off",
+    "clean_intensity": "",
+    "clean_passes": 1,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 1,
+    "enabled": false,
+    "color": "#365dd3",
+    "is_dock_room": false,
+    "grants_access_to": [
+     "25",
+     "21"
+    ],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "roborock",
+    "clean_mode_options": [],
+    "fan_speed_options": [
+     {
+      "value": "gentle",
+      "label": "Gentle"
+     },
+     {
+      "value": "quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "balanced",
+      "label": "Balanced"
+     },
+     {
+      "value": "turbo",
+      "label": "Turbo"
+     },
+     {
+      "value": "max",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [],
+    "clean_intensity_options": [],
+    "water_level_range": null,
+    "supports_edge_mopping": false,
+    "friendly_name": "Ivy LIVINGROOM Selected for Cleaning"
+   }
+  },
+  "switch.ivy_bathroom_selected_for_cleaning": {
+   "entity_id": "switch.ivy_bathroom_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.ivy",
+    "map_id": "Main floor",
+    "room_id": 17,
+    "room_name": "Bathroom",
+    "slug": "bathroom",
+    "last_cleaned_at": null,
+    "last_vacuumed_at": null,
+    "last_mopped_at": null,
+    "last_job_mode": null,
+    "profile_name": "custom",
+    "floor_type": "marble",
+    "clean_mode": "Vacuum",
+    "fan_speed": "quiet",
+    "water_level": "off",
+    "clean_intensity": "",
+    "clean_passes": 1,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 2,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": false,
+    "grants_access_to": [],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "roborock",
+    "clean_mode_options": [],
+    "fan_speed_options": [
+     {
+      "value": "gentle",
+      "label": "Gentle"
+     },
+     {
+      "value": "quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "balanced",
+      "label": "Balanced"
+     },
+     {
+      "value": "turbo",
+      "label": "Turbo"
+     },
+     {
+      "value": "max",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [],
+    "clean_intensity_options": [],
+    "water_level_range": null,
+    "supports_edge_mopping": false,
+    "friendly_name": "Ivy Bathroom Selected for Cleaning"
+   }
+  },
+  "switch.ivy_bryan_selected_for_cleaning": {
+   "entity_id": "switch.ivy_bryan_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.ivy",
+    "map_id": "Main floor",
+    "room_id": 24,
+    "room_name": "Bryan",
+    "slug": "bryan",
+    "last_cleaned_at": null,
+    "last_vacuumed_at": null,
+    "last_mopped_at": null,
+    "last_job_mode": null,
+    "profile_name": "custom",
+    "floor_type": "marble",
+    "clean_mode": "vacuum",
+    "fan_speed": "Max",
+    "water_level": "off",
+    "clean_intensity": "",
+    "clean_passes": 1,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 2,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": false,
+    "grants_access_to": [],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "roborock",
+    "clean_mode_options": [],
+    "fan_speed_options": [
+     {
+      "value": "gentle",
+      "label": "Gentle"
+     },
+     {
+      "value": "quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "balanced",
+      "label": "Balanced"
+     },
+     {
+      "value": "turbo",
+      "label": "Turbo"
+     },
+     {
+      "value": "max",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [],
+    "clean_intensity_options": [],
+    "water_level_range": null,
+    "supports_edge_mopping": false,
+    "friendly_name": "Ivy Bryan Selected for Cleaning"
+   }
+  },
+  "switch.ivy_dining_room_selected_for_cleaning": {
+   "entity_id": "switch.ivy_dining_room_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.ivy",
+    "map_id": "Main floor",
+    "room_id": 18,
+    "room_name": "Dining Room",
+    "slug": "dining_room",
+    "last_cleaned_at": "2026-06-16T05:45:24Z",
+    "last_vacuumed_at": "2026-06-16T05:45:24Z",
+    "last_mopped_at": null,
+    "last_job_mode": "vacuum",
+    "profile_name": "custom",
+    "floor_type": "marble",
+    "clean_mode": "Vacuum",
+    "fan_speed": "balanced",
+    "water_level": "off",
+    "clean_intensity": "",
+    "clean_passes": 1,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 3,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": true,
+    "grants_access_to": [
+     "27",
+     "20"
+    ],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "roborock",
+    "clean_mode_options": [],
+    "fan_speed_options": [
+     {
+      "value": "gentle",
+      "label": "Gentle"
+     },
+     {
+      "value": "quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "balanced",
+      "label": "Balanced"
+     },
+     {
+      "value": "turbo",
+      "label": "Turbo"
+     },
+     {
+      "value": "max",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [],
+    "clean_intensity_options": [],
+    "water_level_range": null,
+    "supports_edge_mopping": false,
+    "friendly_name": "Ivy Dining Room Selected for Cleaning"
+   }
+  },
+  "switch.ivy_entryway_selected_for_cleaning": {
+   "entity_id": "switch.ivy_entryway_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.ivy",
+    "map_id": "Main floor",
+    "room_id": 21,
+    "room_name": "Entryway",
+    "slug": "entryway",
+    "last_cleaned_at": "2026-09-13T07:57:33Z",
+    "last_vacuumed_at": "2026-09-13T07:57:33Z",
+    "last_mopped_at": null,
+    "last_job_mode": "vacuum",
+    "profile_name": "custom",
+    "floor_type": "marble",
+    "clean_mode": "Vacuum",
+    "fan_speed": "max",
+    "water_level": "off",
+    "clean_intensity": "",
+    "clean_passes": 3,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 5,
+    "enabled": false,
+    "color": "#0a2d57",
+    "is_dock_room": false,
+    "grants_access_to": [
+     "23"
+    ],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "roborock",
+    "clean_mode_options": [],
+    "fan_speed_options": [
+     {
+      "value": "gentle",
+      "label": "Gentle"
+     },
+     {
+      "value": "quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "balanced",
+      "label": "Balanced"
+     },
+     {
+      "value": "turbo",
+      "label": "Turbo"
+     },
+     {
+      "value": "max",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [],
+    "clean_intensity_options": [],
+    "water_level_range": null,
+    "supports_edge_mopping": false,
+    "friendly_name": "Ivy Entryway Selected for Cleaning"
+   }
+  },
+  "switch.ivy_heidi_chris_selected_for_cleaning": {
+   "entity_id": "switch.ivy_heidi_chris_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.ivy",
+    "map_id": "Main floor",
+    "room_id": 22,
+    "room_name": "Heidi & Chris",
+    "slug": "heidi_and_chris",
+    "last_cleaned_at": null,
+    "last_vacuumed_at": null,
+    "last_mopped_at": null,
+    "last_job_mode": null,
+    "profile_name": "custom",
+    "floor_type": "marble",
+    "clean_mode": "Vacuum",
+    "fan_speed": "max",
+    "water_level": "off",
+    "clean_intensity": "",
+    "clean_passes": 1,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 6,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": false,
+    "grants_access_to": [],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "roborock",
+    "clean_mode_options": [],
+    "fan_speed_options": [
+     {
+      "value": "gentle",
+      "label": "Gentle"
+     },
+     {
+      "value": "quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "balanced",
+      "label": "Balanced"
+     },
+     {
+      "value": "turbo",
+      "label": "Turbo"
+     },
+     {
+      "value": "max",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [],
+    "clean_intensity_options": [],
+    "water_level_range": null,
+    "supports_edge_mopping": false,
+    "friendly_name": "Ivy Heidi & Chris Selected for Cleaning"
+   }
+  },
+  "switch.ivy_office_selected_for_cleaning": {
+   "entity_id": "switch.ivy_office_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.ivy",
+    "map_id": "Main floor",
+    "room_id": 23,
+    "room_name": "Office",
+    "slug": "office",
+    "last_cleaned_at": null,
+    "last_vacuumed_at": null,
+    "last_mopped_at": null,
+    "last_job_mode": null,
+    "profile_name": "custom",
+    "floor_type": "marble",
+    "clean_mode": "Vacuum",
+    "fan_speed": "quiet",
+    "water_level": "off",
+    "clean_intensity": "",
+    "clean_passes": 1,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 7,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": false,
+    "grants_access_to": [],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "roborock",
+    "clean_mode_options": [],
+    "fan_speed_options": [
+     {
+      "value": "gentle",
+      "label": "Gentle"
+     },
+     {
+      "value": "quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "balanced",
+      "label": "Balanced"
+     },
+     {
+      "value": "turbo",
+      "label": "Turbo"
+     },
+     {
+      "value": "max",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [],
+    "clean_intensity_options": [],
+    "water_level_range": null,
+    "supports_edge_mopping": false,
+    "friendly_name": "Ivy Office Selected for Cleaning"
+   }
+  },
+  "switch.ivy_hallway_selected_for_cleaning": {
+   "entity_id": "switch.ivy_hallway_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.ivy",
+    "map_id": "Main floor",
+    "room_id": 25,
+    "room_name": "Hallway",
+    "slug": "hallway",
+    "last_cleaned_at": "2026-08-02T06:36:21Z",
+    "last_vacuumed_at": "2026-08-02T06:36:21Z",
+    "last_mopped_at": null,
+    "last_job_mode": "vacuum",
+    "profile_name": "custom",
+    "floor_type": "marble",
+    "clean_mode": "Vacuum",
+    "fan_speed": "max",
+    "water_level": "off",
+    "clean_intensity": "",
+    "clean_passes": 3,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 9,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": false,
+    "grants_access_to": [
+     "17",
+     "22",
+     "24",
+     "26"
+    ],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "roborock",
+    "clean_mode_options": [],
+    "fan_speed_options": [
+     {
+      "value": "gentle",
+      "label": "Gentle"
+     },
+     {
+      "value": "quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "balanced",
+      "label": "Balanced"
+     },
+     {
+      "value": "turbo",
+      "label": "Turbo"
+     },
+     {
+      "value": "max",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [],
+    "clean_intensity_options": [],
+    "water_level_range": null,
+    "supports_edge_mopping": false,
+    "friendly_name": "Ivy Hallway Selected for Cleaning"
+   }
+  },
+  "switch.ivy_cat_room_selected_for_cleaning": {
+   "entity_id": "switch.ivy_cat_room_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.ivy",
+    "map_id": "Main floor",
+    "room_id": 26,
+    "room_name": "Cat room",
+    "slug": "cat_room",
+    "last_cleaned_at": null,
+    "last_vacuumed_at": null,
+    "last_mopped_at": null,
+    "last_job_mode": null,
+    "profile_name": "custom",
+    "floor_type": "marble",
+    "clean_mode": "Vacuum",
+    "fan_speed": "balanced",
+    "water_level": "off",
+    "clean_intensity": "",
+    "clean_passes": 1,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 10,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": false,
+    "grants_access_to": [],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "roborock",
+    "clean_mode_options": [],
+    "fan_speed_options": [
+     {
+      "value": "gentle",
+      "label": "Gentle"
+     },
+     {
+      "value": "quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "balanced",
+      "label": "Balanced"
+     },
+     {
+      "value": "turbo",
+      "label": "Turbo"
+     },
+     {
+      "value": "max",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [],
+    "clean_intensity_options": [],
+    "water_level_range": null,
+    "supports_edge_mopping": false,
+    "friendly_name": "Ivy Cat room Selected for Cleaning"
+   }
+  },
   "switch.robin_entryway_selected_for_cleaning": {
    "entity_id": "switch.robin_entryway_selected_for_cleaning",
    "state": "off",
@@ -1953,6 +2566,13 @@
     },
     "supports_edge_mopping": false,
     "friendly_name": "Robin Hallway Selected for Cleaning"
+   }
+  },
+  "vacuum.ivy": {
+   "entity_id": "vacuum.ivy",
+   "state": "docked",
+   "attributes": {
+    "friendly_name": "Ivy"
    }
   },
   "vacuum.alfred": {

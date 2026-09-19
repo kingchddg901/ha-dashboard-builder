@@ -19,7 +19,7 @@ import { applianceSummary } from "../cards/appliance-card/control-core.js";
 import { tvControls, tvSummary } from "../cards/tv-card/tv-core.js";
 import { readingOf, summary as readingSummary, robotGlance } from "../cards/readings-card/readings-core.js";
 import { lightNode, treeSummary, rowState } from "../cards/light-tree-card/light-tree-core.js";
-import { roomsFor, robotName } from "../cards/va-room-card/va-room-core.js";
+import { roomsFor, robotName, roomAcrossRobots, lastCleanedAcross } from "../cards/va-room-card/va-room-core.js";
 
 const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -115,6 +115,20 @@ export const RENDERERS = Object.freeze({
       const status = !g.available ? "unavailable" : g.error ? `error: ${g.error}` : String(g.state).replace(/_/g, " ");
       return { text: `${robotName(hass?.panels, cfg.vacuum, hass?.states)}: ${status}${picked.length ? ` · ${picked.join(", ")} selected` : ""}`,
         state: !g.available ? "unavailable" : g.running ? "on" : "off" };
+    },
+  },
+  "va-room": {
+    label: "Room robots", size: { w: 4, h: 6 },
+    load: () => import("../cards/va-room-card/va-room-card.js"), tag: "va-room-card",
+    summary: (hass, cfg) => {
+      const states = hass?.states || {};
+      const entries = roomAcrossRobots(states, cfg.room, cfg.names);
+      const busy = entries.filter((e) => e.room && robotGlance(states, e.vacuum.split(".")[1]).running);
+      const last = lastCleanedAcross(entries);
+      const who = (v) => robotName(hass?.panels, v, states);
+      const text = busy.length ? `${busy.map((e) => who(e.vacuum)).join(", ")} running`
+        : last ? `cleaned ${new Date(last.at).toLocaleDateString()} by ${who(last.vacuum)}` : "not cleaned yet";
+      return { text, state: busy.length ? "on" : "off" };
     },
   },
   tv: {
