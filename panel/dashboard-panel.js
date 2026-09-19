@@ -26,12 +26,16 @@ import {
   gridRows, readingOrder, cellsFromPixels, whyNot, findTile, COLS, copyToTab, availableFrom, addTile, modeFor,
 } from "./layout-core.js";
 import { RENDERERS, rendererFor } from "./renderers.js";
-import { tokenVar as T } from "./tokens.js";
+import { tokenVar as T, TOKENS } from "./tokens.js";
+import { THEMES } from "./themes.js";
+import { themeVars, legibleStatus } from "./theme-core.js";
 import { clockParts, hour12For, msToNextTick } from "../cards/clock-card/clock-core.js";
 import { discover, unplacedByArea, withStartingTiles } from "./discover-core.js";
 
 const STORE_KEY = "dashboard_builder.layout";
 const TAB_KEY = "dashboard_builder.tab";
+const THEME_KEY = "dashboard_builder.theme";
+const haThemeOf = (h) => `${h?.selectedTheme?.theme ?? h?.themes?.theme ?? ""}|${h?.selectedTheme?.dark ?? h?.themes?.darkMode ?? ""}`;
 const ROW_H = 64;
 const GAP = 8;
 
@@ -64,7 +68,9 @@ class DashboardBuilderPanel extends HTMLElement {
 
   set hass(hass) {
     const first = !this._hass;
+    const themeWas = haThemeOf(this._hass);
     this._hass = hass;
+    if (!first && haThemeOf(hass) !== themeWas) requestAnimationFrame(() => this._applyTheme());
     if (first) this._load();
     else this._update();
   }
@@ -111,6 +117,41 @@ class DashboardBuilderPanel extends HTMLElement {
     }
   }
 
+  /* -------------------------------------------------------------- theme */
+
+  /**
+   * Put a theme on the panel. A chosen LCARS theme sets every --lcars-* role on
+   * the host; "follow Home Assistant" sets none, so HA's own theme shows through.
+   * Either way the status colours are checked against the background and lifted
+   * where they would vanish (theme-core). The tiles follow because the panel
+   * maps HA's standard variables onto these roles - see STYLE.
+   */
+  _applyTheme() {
+    for (const k of this._themeSet || []) this.style.removeProperty(k);
+    const set = {};
+    if (this._theme && THEMES[this._theme]) {
+      Object.assign(set, themeVars(THEMES[this._theme]));
+    } else {
+      const cs = getComputedStyle(this);
+      const read = (v) => cs.getPropertyValue(v).trim() || TOKENS[v];
+      const roles = { background: read("--lcars-background-color"), success: read("--success-color"),
+        warning: read("--warning-color"), error: read("--error-color") };
+      const fixed = legibleStatus(roles);
+      for (const [k, v] of Object.entries(fixed)) if (v !== roles[k]) set[`--${k}-color`] = v;
+    }
+    for (const [k, v] of Object.entries(set)) this.style.setProperty(k, v);
+    this._themeSet = Object.keys(set);
+  }
+
+  async _setTheme(name) {
+    this._theme = name && THEMES[name] ? name : null;
+    this._applyTheme();
+    try {
+      await this._hass.connection.sendMessagePromise({ type: "frontend/set_user_data", key: THEME_KEY, value: this._theme });
+      this._say(this._theme ? `theme: ${this._theme}` : "theme: Home Assistant's");
+    } catch (e) { this._say(`theme NOT saved: ${e?.message || e}`, true); }
+  }
+
   /* -------------------------------------------------------------- clock */
 
   /* The house's time in the header band: Home Assistant's zone and 12/24-hour
@@ -152,6 +193,10 @@ class DashboardBuilderPanel extends HTMLElement {
       const res = await this._hass.connection.sendMessagePromise({ type: "frontend/get_user_data", key: STORE_KEY });
       raw = res?.value ?? null;
     } catch (e) { failed = e?.message || e?.code || String(e); }
+    try {
+      const t = await this._hass.connection.sendMessagePromise({ type: "frontend/get_user_data", key: THEME_KEY });
+      this._theme = typeof t?.value === "string" && THEMES[t.value] ? t.value : null;
+    } catch { this._theme = null; }
     const { dash, repaired } = sanitize(raw, SEED);
     this._dash = dash;
     const saved = store.get(TAB_KEY);
@@ -233,6 +278,7 @@ class DashboardBuilderPanel extends HTMLElement {
         </div>
       </div>`;
 
+    if (!this._themeApplied) { this._themeApplied = true; this._applyTheme(); }
     if (phone) this._fillRows(tab); else this._fillGrid(tab);
     if (this._sheetId) this._openSheet(this._sheetId);
     this._wire(tab);
@@ -242,6 +288,10 @@ class DashboardBuilderPanel extends HTMLElement {
   _editBar(tab) {
     return `<div class="editbar">
       <label>Tab name <input class="tab-name" value="${esc(tab.title)}" maxlength="24"></label>
+      <label>Theme <select class="theme-pick">
+        <option value="">Home Assistant's theme</option>
+        ${Object.keys(THEMES).map((n) => `<option value="${esc(n)}" ${n === this._theme ? "selected" : ""}>${esc(n)}</option>`).join("")}
+      </select></label>
       <button class="btn add-tab">Add a tab</button>
       ${tab.tiles.length ? "" : `<button class="btn remove-tab">Remove this tab</button>`}
       <button class="btn reset">${this._resetArmed ? "Tap again to reset everything" : "Reset layout"}</button>
@@ -474,6 +524,7 @@ class DashboardBuilderPanel extends HTMLElement {
   _wireEdit(tab) {
     const r = this.shadowRoot;
     r.querySelector(".tab-name")?.addEventListener("change", (e) => this._commit(renameTab(this._dash, tab.id, e.target.value)));
+    r.querySelector(".theme-pick")?.addEventListener("change", (e) => this._setTheme(e.target.value));
     r.querySelector(".add-tab")?.addEventListener("click", () => {
       const res = addTab(this._dash);
       if (this._commit(res, { render: false })) { this._tab = res.tab.id; store.set(TAB_KEY, this._tab); this._render(); }
@@ -605,6 +656,19 @@ const STYLE = `
     --db-outer: ${T("--lcars-outer-radius")};
     --db-inner: ${T("--lcars-inner-radius")};
     --db-font: ${T("--lcars-font")}, ${T("--lcars-fallback-font")}, Antonio, "Arial Narrow", sans-serif;
+    /* The tiles' cards read Home Assistant's standard variables. Pointing those
+       at the LCARS roles here themes every tile - and every pop-up a tile opens -
+       with no change to the cards; outside the panel they keep HA's theme. */
+    --primary-text-color: var(--db-text);
+    --secondary-text-color: color-mix(in srgb, var(--db-text) 62%, var(--db-bg));
+    --accent-color: var(--db-active);
+    --card-background-color: var(--db-bg);
+    --ha-card-background: var(--db-bg);
+    --secondary-background-color: color-mix(in srgb, var(--db-tab) 30%, var(--db-bg));
+    --divider-color: color-mix(in srgb, var(--db-frame) 55%, var(--db-bg));
+    --ha-card-border-radius: 0;
+    --ha-card-border-width: 0;
+    --ha-card-box-shadow: none;
     display: block;
     height: calc(100dvh - var(--db-offset, 0px));
     background: var(--db-bg);
@@ -653,7 +717,8 @@ const STYLE = `
   .grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-auto-rows: ${ROW_H}px;
           gap: ${GAP}px; min-height: calc(var(--rows) * ${ROW_H + GAP}px); position: relative; }
   .tile { position: relative; min-width: 0; min-height: 0; display: flex; flex-direction: column;
-          border: 1px solid var(--db-line); border-radius: 0 14px 14px 0; overflow: hidden; background: var(--db-bg); }
+          border: 1px solid var(--db-line);
+          border-radius: 0 14px 14px 0; overflow: hidden; background: var(--db-bg); }
   .tile-bar { display: flex; align-items: center; gap: 6px; padding: 4px 6px 4px 10px; flex: none;
               background: var(--db-tile-bar); color: var(--db-tile-bar-text); text-transform: uppercase;
               letter-spacing: .05em; font-size: 13px; }

@@ -1,0 +1,107 @@
+/**
+ * Themes for the panel - which variables a theme sets, and keeping its status
+ * colours readable. No DOM.
+ *
+ * A theme is a set of LCARS colour roles (./themes.js). Applied to the panel,
+ * the roles set the --lcars-* variables the frame reads, and the panel maps
+ * Home Assistant's standard variables onto them, so every tile - and every
+ * pop-up a tile opens - wears the same theme with no change to the cards.
+ *
+ * The one thing a theme is not trusted with: its status colours.
+ * Measured on the mined set, 21 of the 24 themes carry one below 3:1
+ * on their own black (LCARS Transporter's warning is #360000, 1.2:1). A status
+ * that cannot be read is worse than one in the wrong shade, so those are lifted
+ * toward the background's opposite until they reach 3:1, keeping their hue.
+ */
+
+import { ROLE_VARS } from "./themes.js";
+
+export const STATUS_ROLES = Object.freeze(["success", "warning", "error"]);
+export const MIN_STATUS_CONTRAST = 3;
+
+/**
+ * "#rgb", "#rrggbb", "rgb(r, g, b)" -> [r, g, b], else null. The alpha forms
+ * ("#rgba", "#rrggbbaa", "rgba(...)") parse too, alpha dropped: themes write
+ * opaque colours that way (LCARS Picard I uses "#E7432AFF").
+ */
+export function parseColor(c) {
+  const s = String(c || "").trim();
+  let m = /^#([0-9a-f]{3})[0-9a-f]?$/i.exec(s);
+  if (m) return m[1].split("").map((h) => parseInt(h + h, 16));
+  m = /^#([0-9a-f]{6})(?:[0-9a-f]{2})?$/i.exec(s);
+  if (m) return [0, 2, 4].map((i) => parseInt(m[1].slice(i, i + 2), 16));
+  m = /^rgba?\(\s*(\d+)[ ,]+(\d+)[ ,]+(\d+)/i.exec(s);
+  if (m) return [m[1], m[2], m[3]].map(Number);
+  return null;
+}
+
+const hex = (rgb) => `#${rgb.map((v) => Math.round(v).toString(16).padStart(2, "0")).join("")}`;
+
+/** WCAG relative luminance. */
+export function luminance([r, g, b]) {
+  const f = (v) => { const c = v / 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
+  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+}
+
+/** WCAG contrast ratio between two colours (1 to 21), or null if either is unreadable. */
+export function contrast(a, b) {
+  const x = parseColor(a); const y = parseColor(b);
+  if (!x || !y) return null;
+  const [hi, lo] = [luminance(x), luminance(y)].sort((p, q) => q - p);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+const toHsl = ([r, g, b]) => {
+  const [R, G, B] = [r / 255, g / 255, b / 255];
+  const max = Math.max(R, G, B); const min = Math.min(R, G, B); const l = (max + min) / 2;
+  if (max === min) return [0, 0, l];
+  const d = max - min;
+  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+  const h = max === R ? ((G - B) / d + (G < B ? 6 : 0)) : max === G ? (B - R) / d + 2 : (R - G) / d + 4;
+  return [h / 6, s, l];
+};
+const fromHsl = ([h, s, l]) => {
+  if (s === 0) return [l, l, l].map((v) => v * 255);
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s; const p = 2 * l - q;
+  const f = (t) => { t = (t + 1) % 1; return t < 1 / 6 ? p + (q - p) * 6 * t : t < 1 / 2 ? q : t < 2 / 3 ? p + (q - p) * (2 / 3 - t) * 6 : p; };
+  return [f(h + 1 / 3), f(h), f(h - 1 / 3)].map((v) => v * 255);
+};
+
+/**
+ * `color`, or the nearest colour of the same hue and saturation - only its
+ * LIGHTNESS moved, up on a dark background, down on a light one - that reaches
+ * `min` contrast. So a dark red stays a red rather than greying out. Unparseable
+ * input is returned untouched - nothing is guessed.
+ */
+export function legibleOn(color, bg, min = MIN_STATUS_CONTRAST) {
+  const c = parseColor(color); const b = parseColor(bg);
+  if (!c || !b) return color;
+  if (contrast(color, bg) >= min) return color;
+  const [h, s, l] = toHsl(c);
+  const up = luminance(b) < 0.5;
+  for (let step = 1; step <= 50; step++) {
+    const L = Math.min(1, Math.max(0, l + (up ? 0.02 : -0.02) * step));
+    const candidate = hex(fromHsl([h, s, L]));
+    if (contrast(candidate, bg) >= min) return candidate;
+    if (L === 0 || L === 1) break;
+  }
+  return up ? "#ffffff" : "#000000";
+}
+
+/** The status colours of a theme, made readable on its background. */
+export function legibleStatus(roles = {}) {
+  const bg = roles.background || "#000000";
+  const out = {};
+  for (const r of STATUS_ROLES) if (roles[r]) out[r] = legibleOn(roles[r], bg);
+  return out;
+}
+
+/** A theme's roles -> the CSS variables to set on the panel. */
+export function themeVars(roles = {}) {
+  const fixed = { ...roles, ...legibleStatus(roles) };
+  const out = {};
+  for (const [role, value] of Object.entries(fixed)) {
+    if (ROLE_VARS[role] && value != null) out[ROLE_VARS[role]] = value;
+  }
+  return out;
+}
