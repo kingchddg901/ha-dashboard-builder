@@ -12,7 +12,7 @@ import { readFileSync } from "node:fs";
 import {
   overlaps, inBounds, whyNot, canPlace, firstFit, gridRows, readingOrder, findTile,
   placeTile, moveToTab, shelveTile, unshelveTile, addTab, renameTab, removeTab, sanitize,
-  copyToTab, availableFrom, addTile,
+  copyToTab, availableFrom, addTile, modeFor,
   cellsFromPixels, COLS,
 } from "../layout-core.js";
 import { SEED } from "../seed.js";
@@ -69,6 +69,17 @@ test("the phone reads the desk layout like a page", () => {
 test("a drag in pixels snaps to whole cells", () => {
   assert.deepEqual(cellsFromPixels(150, -70, { cellW: 100, rowH: 64, gap: 8 }), { dx: 1, dy: -1 });
   assert.deepEqual(cellsFromPixels(40, 20, { cellW: 100, rowH: 64, gap: 8 }), { dx: 0, dy: 0 });
+});
+
+// RED IF: a phone turned sideways gets the tile grid - Chris's landscape
+// screenshots: ~772x360, tiles cut off by the fold; the rows read better.
+test("a phone gets rows in either orientation; tablets and desktops get tiles", () => {
+  assert.equal(modeFor({ hostWidth: 390, viewportWidth: 390, viewportHeight: 844 }), "phone", "portrait phone");
+  assert.equal(modeFor({ hostWidth: 772, viewportWidth: 772, viewportHeight: 360 }), "phone", "the same phone, sideways");
+  assert.equal(modeFor({ hostWidth: 1024, viewportWidth: 1024, viewportHeight: 768 }), "desk", "tablet");
+  assert.equal(modeFor({ hostWidth: 1600, viewportWidth: 1920, viewportHeight: 1080 }), "desk", "desktop");
+  assert.equal(modeFor({ hostWidth: 600, viewportWidth: 1920, viewportHeight: 1080 }), "phone", "a narrow panel on a big screen");
+  assert.equal(modeFor({}), "desk", "nothing measured yet");
 });
 
 /* -------------------------------------------------------------------- edits */

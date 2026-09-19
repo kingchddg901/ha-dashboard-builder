@@ -6,7 +6,7 @@
  * closed registry in ./renderers.js. The rules for the grid live in
  * ./layout-core.js with their tests - this file is the disposable half.
  *
- *   desk  (panel wider than PHONE_MAX): tabs down the rail, tiles on the grid,
+ *   desk  (a tablet or desktop - see modeFor): tabs down the rail, tiles on the grid,
  *         and an edit mode to move, resize, send to another tab, or shelve
  *   phone (narrower): the same tiles as status rows in reading order; a tap
  *         opens the full control in a sheet
@@ -23,7 +23,7 @@
 import { SEED } from "./seed.js";
 import {
   sanitize, placeTile, moveToTab, shelveTile, unshelveTile, addTab, renameTab, removeTab,
-  gridRows, readingOrder, cellsFromPixels, whyNot, findTile, COLS, copyToTab, availableFrom, addTile,
+  gridRows, readingOrder, cellsFromPixels, whyNot, findTile, COLS, copyToTab, availableFrom, addTile, modeFor,
 } from "./layout-core.js";
 import { RENDERERS, rendererFor } from "./renderers.js";
 import { tokenVar as T } from "./tokens.js";
@@ -32,7 +32,6 @@ import { discover, unplacedByArea, withStartingTiles } from "./discover-core.js"
 
 const STORE_KEY = "dashboard_builder.layout";
 const TAB_KEY = "dashboard_builder.tab";
-const PHONE_MAX = 700;
 const ROW_H = 64;
 const GAP = 8;
 
@@ -105,10 +104,9 @@ class DashboardBuilderPanel extends HTMLElement {
     const r = this.getBoundingClientRect();
     const top = `${Math.max(0, Math.round(r.top + (window.scrollY || 0)))}px`;
     if (top !== this._offset) { this._offset = top; this.style.setProperty("--db-offset", top); }
-    const mode = r.width && r.width < PHONE_MAX ? "phone" : "desk";
+    const mode = modeFor({ hostWidth: r.width, viewportWidth: window.innerWidth, viewportHeight: window.innerHeight });
     if (mode !== this._mode) {
       this._mode = mode;
-      if (mode === "phone") this._edit = false;
       this._render();
     }
   }
@@ -220,7 +218,7 @@ class DashboardBuilderPanel extends HTMLElement {
           ${tabs.map((t) => `<button class="tab ${t.id === tab.id ? "active" : ""}" data-tab="${esc(t.id)}"
               aria-current="${t.id === tab.id ? "page" : "false"}"><span>${esc(t.title)}</span></button>`).join("")}
           <div class="rail-fill"></div>
-          ${phone ? "" : `<button class="tab tool edit-toggle" aria-pressed="${this._edit}"><span>${this._edit ? "Done" : "Edit layout"}</span></button>`}
+          <button class="tab tool edit-toggle" aria-pressed="${this._edit}"><span>${this._edit ? "Done" : phone ? "Edit" : "Edit layout"}</span></button>
         </nav>
         <main class="stage">
           <div class="status ${/NOT|could not/.test(this._status) ? "bad" : ""}">${esc(this._status)}</div>
@@ -247,7 +245,9 @@ class DashboardBuilderPanel extends HTMLElement {
       <button class="btn add-tab">Add a tab</button>
       ${tab.tiles.length ? "" : `<button class="btn remove-tab">Remove this tab</button>`}
       <button class="btn reset">${this._resetArmed ? "Tap again to reset everything" : "Reset layout"}</button>
-      <span class="hint">Drag <b>Move</b> to place a tile, drag the corner to resize. Controls are paused while editing.</span>
+      <span class="hint">${this._mode === "phone"
+        ? "Add from the shelf below, send, copy or remove rows. Order and size are set on a wider screen - the phone reads that layout top to bottom."
+        : "Drag <b>Move</b> to place a tile, drag the corner to resize. Controls are paused while editing."}</span>
     </div>`;
   }
 
@@ -329,6 +329,21 @@ class DashboardBuilderPanel extends HTMLElement {
       const noun = r?.noun ? r.noun(t.config || {}) : r?.label;
       return noun ? ` <span class="row-kind">${esc(noun)}</span>` : "";
     };
+    if (this._edit) {
+      const others = this._dash.tabs.filter((o) => o.id !== tab.id);
+      return `<div class="rows">
+        ${readingOrder(tab.tiles).map((t) => `<div class="row edit-row" data-id="${esc(t.id)}">
+          <span class="row-title">${esc(t.title || t.id)}${kind(t)}</span>
+          <span class="row-tools">
+            <select class="to-tab" aria-label="Send ${esc(t.title)} to another tab"><option value="">Send to…</option>
+              ${others.map((o) => `<option value="${esc(o.id)}">${esc(o.title)}</option>`).join("")}</select>
+            <select class="copy-tab" aria-label="Also show ${esc(t.title)} on another tab"><option value="">Copy to…</option>
+              ${this._dash.tabs.map((o) => `<option value="${esc(o.id)}">${esc(o.title)}</option>`).join("")}</select>
+            <button class="shelve" aria-label="Remove ${esc(t.title)} to the shelf">Remove</button>
+          </span>
+        </div>`).join("") || `<div class="shelf-empty">Nothing on this tab yet - add from the shelf below.</div>`}
+      </div>`;
+    }
     return `<div class="rows">
       ${readingOrder(tab.tiles).map((t) => `<button class="row" data-id="${esc(t.id)}">
         <span class="mark" aria-hidden="true"></span>
@@ -347,6 +362,9 @@ class DashboardBuilderPanel extends HTMLElement {
   }
 
   _fillRows(tab) {
+    // Edit rows carry tools, not a status line - there is nothing to fill, and
+    // writing to the missing line threw and stopped the edit tools being wired.
+    if (this._edit) return;
     for (const t of tab.tiles) this._updateRow(t);
   }
 
@@ -447,7 +465,7 @@ class DashboardBuilderPanel extends HTMLElement {
     r.querySelector(".edit-toggle")?.addEventListener("click", () => {
       this._edit = !this._edit; this._resetArmed = null; this._render();
     });
-    r.querySelectorAll(".row").forEach((b) => b.addEventListener("click", () => this._openSheet(b.dataset.id)));
+    if (!this._edit) r.querySelectorAll("button.row").forEach((b) => b.addEventListener("click", () => this._openSheet(b.dataset.id)));
     r.querySelector(".sheet .close")?.addEventListener("click", () => this._closeSheet());
     r.querySelector(".sheet")?.addEventListener("click", (e) => { if (e.target.classList.contains("sheet")) this._closeSheet(); });
     if (this._edit) this._wireEdit(tab);
@@ -475,12 +493,12 @@ class DashboardBuilderPanel extends HTMLElement {
       this._say("layout reset to the starting one");
     });
     r.querySelectorAll(".to-tab").forEach((sel) => sel.addEventListener("change", () => {
-      const id = sel.closest(".tile").dataset.id;
+      const id = sel.closest("[data-id]").dataset.id;
       const dest = this._dash.tabs.find((t) => t.id === sel.value);
       if (dest && this._commit(moveToTab(this._dash, id, dest.id))) this._say(`sent to ${dest.title}`);
     }));
     r.querySelectorAll(".copy-tab").forEach((sel) => sel.addEventListener("change", () => {
-      const id = sel.closest(".tile").dataset.id;
+      const id = sel.closest("[data-id]").dataset.id;
       const dest = this._dash.tabs.find((t) => t.id === sel.value);
       if (dest && this._commit(copyToTab(this._dash, id, dest.id))) this._say(`copied to ${dest.title}`);
     }));
@@ -514,7 +532,7 @@ class DashboardBuilderPanel extends HTMLElement {
       if (tile) this._commit(addTile(this._dash, tile, tab.id));
     }));
     r.querySelectorAll(".shelve").forEach((b) => b.addEventListener("click", () =>
-      this._commit(shelveTile(this._dash, b.closest(".tile").dataset.id))));
+      this._commit(shelveTile(this._dash, b.closest("[data-id]").dataset.id))));
     r.querySelectorAll(".unshelve").forEach((b) => b.addEventListener("click", () =>
       this._commit(unshelveTile(this._dash, b.dataset.id, tab.id))));
     r.querySelectorAll(".grab, .resize").forEach((h) => h.addEventListener("pointerdown", (e) => this._drag(e, h, tab)));
@@ -691,11 +709,20 @@ const STYLE = `
   .phone .rail { flex-direction: row; overflow-x: auto; overflow-y: hidden; }
   .phone .rail-fill { display: none; }
   .phone .tab { min-height: 40px; flex: none; border-radius: 20px; padding: 6px 16px; align-items: center; }
+  /* With a dozen tabs the strip scrolls; Edit stays pinned at its right edge. */
+  .phone .edit-toggle { position: sticky; right: 0; z-index: 1; margin-left: auto;
+                        box-shadow: -8px 0 0 var(--db-bg); }
   .rows { display: flex; flex-direction: column; gap: 6px; }
   .row { display: grid; grid-template-columns: 18px 1fr auto; grid-template-areas: "mark title chev" "mark sum chev";
          column-gap: 10px; align-items: center; text-align: left; width: 100%; min-height: 60px; padding: 8px 12px;
          border: 0; border-radius: 0 20px 20px 0; cursor: pointer; background: var(--db-line); color: var(--db-text); }
   .row-title { grid-area: title; text-transform: uppercase; letter-spacing: .05em; font-size: 15px; }
+  .row.edit-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; cursor: default;
+                  box-shadow: inset 3px 0 0 var(--db-edit); }
+  .row.edit-row .row-title { flex: 1 1 140px; }
+  .row-tools { display: flex; flex-wrap: wrap; gap: 6px; }
+  .phone .editbar label { flex: 1 1 100%; }
+  .phone .editbar input { width: 100%; }
   .row-kind { font-size: 11px; letter-spacing: .08em; padding: 1px 7px; margin-left: 6px; border-radius: 8px;
               vertical-align: 2px; background: var(--db-frame); color: var(--db-frame-text); }
   .row-sum { grid-area: sum; font-size: 13px; opacity: .85; font-variant-numeric: tabular-nums; }
@@ -717,6 +744,8 @@ const STYLE = `
                text-transform: uppercase; letter-spacing: .06em; }
   .close { border: 0; border-radius: 16px; padding: 8px 18px; cursor: pointer; background: var(--db-bg); color: var(--db-text); }
   .sheet-body { background: var(--db-bg); max-height: 85dvh; overflow: auto; padding-bottom: env(safe-area-inset-bottom, 0px); }
+  /* A phone on its side has little height to give; the sheet takes nearly all of it. */
+  @media (max-height: 500px) { .sheet-body { max-height: calc(100dvh - 64px); } }
 `;
 
 if (!customElements.get("dashboard-builder-panel")) {

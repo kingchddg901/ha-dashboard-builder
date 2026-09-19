@@ -240,6 +240,24 @@ export function sanitize(raw, seed) {
   return { dash: { v: SCHEMA, cols, tabs, shelf }, repaired };
 }
 
+/**
+ * Rows or tiles.
+ *
+ * Rows (the phone layout) when the panel itself is narrow, OR when the screen
+ * is a phone in either orientation - its SHORT side under PHONE_SHORT_SIDE.
+ * A phone turned sideways is wide enough for the grid but only ~360px tall, and
+ * Chris found the portrait rows, wider, better there than a grid of tiles cut
+ * off by the fold. Tablets and desktop windows keep the grid.
+ */
+export const PHONE_MAX_WIDTH = 700;
+export const PHONE_SHORT_SIDE = 500;
+
+export function modeFor({ hostWidth, viewportWidth, viewportHeight } = {}) {
+  if (Number.isFinite(hostWidth) && hostWidth > 0 && hostWidth < PHONE_MAX_WIDTH) return "phone";
+  const short = Math.min(viewportWidth ?? Infinity, viewportHeight ?? Infinity);
+  return Number.isFinite(short) && short < PHONE_SHORT_SIDE ? "phone" : "desk";
+}
+
 /** Pointer offset in pixels -> whole cells, for a drag or a resize. */
 export function cellsFromPixels(dx, dy, { cellW, rowH, gap }) {
   return { dx: Math.round(dx / (cellW + gap)), dy: Math.round(dy / (rowH + gap)) };
