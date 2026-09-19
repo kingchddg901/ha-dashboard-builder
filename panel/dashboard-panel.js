@@ -49,6 +49,9 @@ import { FRAMES } from "./panel-tokens.js";
 import {
   readLibrary, listThemes, saveAs, updateTheme, removeTheme, exportTheme, ingestTheme, fileNameFor, emptyLibrary, USER_PREFIX,
 } from "./theme-library.js";
+import {
+  DEVICE_KEY, DEVICE_TOKENS_KEY, accountPick, readPick, writePick, resolveTheme, isLocked, readDraft, writeDraft,
+} from "./device-theme.js";
 
 const STORE_KEY = "dashboard_builder.layout";
 const TAB_KEY = "dashboard_builder.tab";
@@ -85,8 +88,11 @@ class DashboardBuilderPanel extends HTMLElement {
     this._narrow = false;
     this._asCard = false;
     this._resetArmed = null;
-    this._theme = null;          // a picked LCARS theme, or null for Home Assistant's
-    this._overrides = {};        // your own token changes: the ONE copy the editor reads
+    this._theme = null;          // what THIS browser shows: the account's theme, or its own lock
+    this._accountTheme = null;   // what the shared setting says, which everyone on the account sees
+    this._pick = accountPick();  // this browser's lock, if it has one (device-theme.js)
+    this._libLoaded = false;     // saved themes read; before that, no pin can be called deleted
+    this._overrides = {};        // the draft in play: this browser's while locked, else the shared one
     this._themeOpen = false;
     this._library = emptyLibrary();   // your saved themes (theme-library.js)
     this._lib = { mode: null, msg: "", target: null, deleteArmed: false };   // the theme tab's library panel
@@ -163,13 +169,68 @@ class DashboardBuilderPanel extends HTMLElement {
     this._kit = createThemeKit({
       adapter: {
         load: async () => ({ ...this._overrides }),
-        save: (values) => { this._overrides = { ...values }; return this._tokenStore.save(values); },
+        save: (values) => { this._overrides = { ...values }; return this._saveDraft(values); },
       },
     });
     this._kit.registerValidator(statusVerdicts);
     this._kit.registerValidator(drawnVerdicts);
     this._kit.registerValidator(cvdValidator({ pairs: textPairs(THEME_TOKENS) }));
     return this._kit;
+  }
+
+  /**
+   * Where a draft goes: this browser's own store while it is locked, the
+   * account's otherwise. A locked browser must not write the shared draft -
+   * it would be editing what it cannot see, over the other person's work.
+   */
+  _saveDraft(values) {
+    if (!isLocked(this._pick)) return this._tokenStore.save(values);
+    store.set(DEVICE_TOKENS_KEY, writeDraft(values));
+    return Promise.resolve();
+  }
+
+  /**
+   * What this browser shows, from its lock and the shared setting. A pin on a
+   * theme deleted elsewhere is dropped here - but only once the library has
+   * loaded, or the first render would throw away a good pin.
+   */
+  _resolveShown() {
+    const r = resolveTheme({ pick: this._pick, accountTheme: this._accountTheme,
+      known: (n) => Boolean(this._presetFor(n)), libraryLoaded: this._libLoaded });
+    if (r.stale) {
+      this._pick = accountPick();
+      store.set(DEVICE_KEY, writePick(this._pick));
+      this._say("that theme was deleted - following the shared one again");
+    }
+    this._theme = r.theme;
+    return r;
+  }
+
+  /**
+   * Lock this browser to what it is showing, or let it follow the account
+   * again. Locking keeps the theme AND the draft as they are, so the moment
+   * of locking changes nothing on screen; unlocking brings the shared pair
+   * back. Either way the other person's devices are untouched.
+   */
+  async _setLock(on) {
+    if (on) {
+      this._pick = { mode: "device", theme: this._theme ?? null };
+      store.set(DEVICE_KEY, writePick(this._pick));
+      store.set(DEVICE_TOKENS_KEY, writeDraft(this._overrides));
+      this._refreshTheme();
+      this._say(`this device only: ${this._themeLabel(this._theme)}`);
+    } else {
+      this._pick = accountPick();
+      store.set(DEVICE_KEY, writePick(this._pick));
+      this._resolveShown();
+      let own = null;
+      try { own = await this._tokenStore.load(); } catch { own = null; }
+      this._overrides = own && typeof own === "object" && !Array.isArray(own) ? own : {};
+      if (this._themeEditor) this._themeEditor.values = this._overrides;
+      this._refreshTheme();
+      this._say(`following the shared theme: ${this._themeLabel(this._theme)}`);
+    }
+    this._render();
   }
 
   /**
@@ -222,9 +283,17 @@ class DashboardBuilderPanel extends HTMLElement {
     return name.startsWith(USER_PREFIX) ? this._library.themes[name.slice(USER_PREFIX.length)]?.name || "a deleted theme" : name;
   }
 
+  /** Pick a theme: this browser's own while locked, everyone's otherwise. */
   async _setTheme(name) {
     this._theme = name && this._presetFor(name) ? name : null;
     this._refreshTheme();
+    if (isLocked(this._pick)) {
+      this._pick = { mode: "device", theme: this._theme };
+      store.set(DEVICE_KEY, writePick(this._pick));
+      this._say(`this device only: ${this._themeLabel(this._theme)}`);
+      return;
+    }
+    this._accountTheme = this._theme;
     try {
       await this._hass.connection.sendMessagePromise({ type: "frontend/set_user_data", key: THEME_KEY, value: this._theme });
       this._say(`theme: ${this._themeLabel(this._theme)}`);
@@ -241,10 +310,14 @@ class DashboardBuilderPanel extends HTMLElement {
       const vars = `--m-bg:${v.background};--m-text:${v["background-text"]};--m-frame:${v["ui-secondary"]};`
         + `--m-tab:${v["card-button"]};--m-on:${v["tab-active"]};--m-surf:${v["tile-surface"]};--m-line:${v["tile-border"]};--m-r:${r}px`;
       const on = (name || "") === (this._theme || "");
+      // While locked, say which one the rest of the account is on - otherwise
+      // the shared theme is invisible from here and looks like it went away.
+      const shared = isLocked(this._pick) && (name || "") === (this._accountTheme || "");
       return `<button class="theme-card ${on ? "on" : ""}" data-theme="${esc(name || "")}" aria-pressed="${on}">
         <span class="mini" style="${esc(vars)}"><i class="m-band"></i><i class="m-rail"><b class="on"></b><b></b><b></b></i>
           <i class="m-tile"><u></u><u></u></i></span>
-        <span class="theme-name">${esc(label)}</span><span class="theme-frame">${esc(frameLabel(v.frame))} frame</span></button>`;
+        <span class="theme-name">${esc(label)}${shared ? `<span class="theme-badge">shared</span>` : ""}</span>
+        <span class="theme-frame">${esc(frameLabel(v.frame))} frame</span></button>`;
     };
     const mine = listThemes(this._library);
     const groups = [
@@ -275,7 +348,9 @@ class DashboardBuilderPanel extends HTMLElement {
       ${L.msg ? `<div class="lib-msg">${esc(L.msg)}</div>` : ""}
       <span class="hint">Pick a theme to use it whole - frame, colours and all. What you change below is a draft on top of
         it: <b>Save</b> keeps it in your own theme, <b>Save as new</b> makes a theme of it, <b>Discard</b> drops it.
-        Export and Download give the theme as a file to share; Import and Upload add one to your themes.</span>
+        Export and Download give the theme as a file to share; Import and Upload add one to your themes.
+        <b>Only on this device</b> keeps the theme and your draft to this browser, for when one Home Assistant
+        account is shared - everyone else keeps the shared theme, marked <i>shared</i> above.</span>
       <div class="theme-slot"></div>
     </div>`;
   }
@@ -285,7 +360,13 @@ class DashboardBuilderPanel extends HTMLElement {
     const draft = Object.keys(this._overrides || {}).length > 0;
     const isUser = (this._theme || "").startsWith(USER_PREFIX);
     const active = this._themeLabel(this._theme);
-    return `${draft ? `<span class="lib-draft">Unsaved changes to ${esc(active)}</span>` : `<span class="lib-draft">Using ${esc(active)}</span>`}
+    const locked = isLocked(this._pick);
+    const lead = locked
+      ? `<span class="lib-draft">On this device only: ${esc(active)}${draft ? ", edited" : ""}</span>`
+      : draft ? `<span class="lib-draft">Unsaved changes to ${esc(active)}</span>`
+        : `<span class="lib-draft">Using ${esc(active)}</span>`;
+    return `${lead}
+      <button class="btn lib-lock">${locked ? "Share with the account" : "Only on this device"}</button>
       ${isUser && draft ? `<button class="btn lib-save">Save</button>` : ""}
       <button class="btn lib-saveas">Save as new</button>
       ${draft ? `<button class="btn lib-discard">Discard</button>` : ""}
@@ -310,11 +391,16 @@ class DashboardBuilderPanel extends HTMLElement {
     this._wireLibActions();
   }
 
-  /** Your draft (token changes) replaced wholesale - saved, and the editor told. */
+  /**
+   * Your draft (token changes) replaced wholesale - saved, and the editor told.
+   * Saved through `_saveDraft`, never straight to the account: Discard and
+   * Save as new come through here too, and on a locked browser those must not
+   * reach the shared draft.
+   */
   _setOverrides(values) {
     this._overrides = { ...values };
     this._themeKit();
-    this._tokenStore.save(this._overrides);
+    this._saveDraft(this._overrides);
     if (this._themeEditor) this._themeEditor.values = this._overrides;
   }
 
@@ -384,6 +470,7 @@ class DashboardBuilderPanel extends HTMLElement {
   _wireLibActions() {
     const r = this.shadowRoot;
     const on = (sel, fn) => r.querySelector(`.lib-actions ${sel}`)?.addEventListener("click", fn);
+    on(".lib-lock", () => this._setLock(!isLocked(this._pick)));
     on(".lib-discard", () => { this._setOverrides({}); this._refreshTheme(); this._libDone("Changes discarded."); });
     on(".lib-save", async () => {
       const id = (this._theme || "").slice(USER_PREFIX.length);
@@ -496,13 +583,20 @@ class DashboardBuilderPanel extends HTMLElement {
       const l = await this._hass.connection.sendMessagePromise({ type: "frontend/get_user_data", key: LIB_KEY });
       this._library = readLibrary(l?.value);
     } catch { this._library = emptyLibrary(); }
+    this._libLoaded = true;
     try {
       const t = await this._hass.connection.sendMessagePromise({ type: "frontend/get_user_data", key: THEME_KEY });
-      this._theme = typeof t?.value === "string" && this._presetFor(t.value) ? t.value : null;
-    } catch { this._theme = null; }
+      this._accountTheme = typeof t?.value === "string" && this._presetFor(t.value) ? t.value : null;
+    } catch { this._accountTheme = null; }
+    this._pick = readPick(store.get(DEVICE_KEY));
+    this._resolveShown();
     this._themeKit();
-    const own = await this._tokenStore.load();
-    this._overrides = own && typeof own === "object" && !Array.isArray(own) ? own : {};
+    if (isLocked(this._pick)) {
+      this._overrides = readDraft(store.get(DEVICE_TOKENS_KEY));
+    } else {
+      const own = await this._tokenStore.load();
+      this._overrides = own && typeof own === "object" && !Array.isArray(own) ? own : {};
+    }
     const { dash, repaired } = sanitize(raw, SEED);
     this._dash = dash;
     const saved = store.get(TAB_KEY);
@@ -1091,6 +1185,8 @@ const STYLE = `
   .theme-card.on { outline: 2px solid var(--db-active); outline-offset: 1px; }
   .theme-card:focus-visible { outline: 2px solid var(--db-text); outline-offset: 2px; }
   .theme-name { font-size: 13px; } .theme-frame { font-size: 11px; opacity: .7; }
+  .theme-badge { margin-left: 6px; padding: 0 5px; border-radius: 999px; font-size: 10px; letter-spacing: .04em;
+    text-transform: uppercase; background: var(--db-tile-border); color: var(--db-text); opacity: .85; }
   .mini { position: relative; display: block; height: 72px; overflow: hidden; border-radius: 3px; background: var(--m-bg); }
   .mini i, .mini b, .mini u { position: absolute; display: block; font-style: normal; text-decoration: none; }
   .m-band { left: 0; right: 0; top: 0; height: 10px; background: var(--m-frame); }

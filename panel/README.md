@@ -220,6 +220,27 @@ Assistant's theme is read from above the panel, since the panel's own writes wou
 Both are per HA user: the starting theme under `dashboard_builder.theme`, your changes under
 `dashboard_builder.theme_tokens` (only the tokens you changed). Saves are debounced.
 
+### Two people, one account
+
+Per HA user is not per person when a household shares one login: a theme picked on the phone
+lands on the wall tablet too. **Only on this device** (in the theme tab's button row) keeps this
+browser's look to itself. The other devices keep showing the shared theme, which the gallery marks
+`shared` so it is still visible from a locked browser.
+
+While a browser is locked, picking a theme changes that browser and nothing else, and your token
+changes go to its own draft — the shared draft is left exactly as it is for whoever is still
+following the account. Locking keeps the theme and draft that are on screen, so the moment of
+locking changes nothing; **Share with the account** puts the browser back on the shared pair.
+
+Its two keys are browser-local, not HA user data: `dashboard_builder.device_theme` (`{mode, theme}`)
+and `dashboard_builder.device_theme_tokens`. Clearing the browser's site data drops the lock, and
+the browser follows the account again. A pin on a theme deleted from another device falls back to
+the shared one, but only once the library has loaded — before that every saved theme looks deleted,
+and the first render would throw away a good pin. `device-theme.js` holds the rules, with
+`test/device-theme.test.mjs`. The shape is borrowed from Vacuum Agent's per-device theme
+selection; VA keeps only the selection local, and this keeps the draft too, because the panel puts
+the token editor on the same screen as the lock.
+
 The editor warns on the control itself in two cases. One is text that falls below 4.5:1 on its
 own colour; the kit's contrast check runs over every `<name>-text` / `<name>` pair. On the 24
 mined themes only 1 of 240 pairs is under. The other is a status colour the panel will show
