@@ -296,6 +296,35 @@ export function slotCommand(slot) {
  * re-sending the reported one would run an already-corrected colour through the
  * correction a second time. With no desk in play, the light's live colour is used.
  */
+/**
+ * Where a light's preset slots live.
+ *
+ *   presets: input_text.x   -> that helper (the ceiling fan's, from before)
+ *   presets: living_room    -> a named set, shared by every card that names it
+ *   presets: false          -> no slots
+ *   (nothing)               -> the light's OWN set, if it has a white or a colour
+ *                              to save
+ *
+ * Own set by default because a colour is tuned per fixture: the goldenrod that
+ * took the fan's green underdrive into account is the wrong recipe for another
+ * bulb. Named and default sets live in Home Assistant's frontend storage under
+ * `dashboard_builder.presets.<name>`, as the same encoded text a helper holds.
+ * A light that can only switch or dim has nothing to put in a slot.
+ */
+export function presetStorage(config = {}, record = null) {
+  const p = config.presets;
+  if (p === false) return null;
+  if (typeof p === "string" && p.startsWith("input_text.")) return { kind: "entity", entity_id: p };
+  if (!config.light) return null;
+  const modes = record?.capabilities?.supported_color_modes || [];
+  const tunable = modes.some((m) => m !== "onoff" && m !== "brightness");
+  const named = typeof p === "string" && p.trim() ? p : null;
+  if (!tunable && !named) return null;
+  const id = String(named || String(config.light).split(".")[1] || "")
+    .toLowerCase().replace(/[^a-z0-9_]+/g, "_").replace(/^_+|_+$/g, "") || "light";
+  return { kind: "store", key: `dashboard_builder.presets.${id}` };
+}
+
 export function slotFromLight(record, { mix = null } = {}) {
   if (!record || record.state !== "on") return null;
   const raw = record.raw || {};

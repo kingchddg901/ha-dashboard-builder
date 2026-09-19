@@ -16,7 +16,7 @@ import { describeEntity, groupIndex } from "../../builder-debug-card/capability-
 import {
   speedControl, levelControl, kelvinControl, appearanceControl, composeCapabilities,
   layoutFor, axisFor, mixToCommand, setSaturation, colorToMix, RGB_WHITE_TRAP_SATURATION,
-  PRESET_SLOTS, encodeSlots, decodeSlots, slotCommand, slotFromLight,
+  PRESET_SLOTS, encodeSlots, decodeSlots, slotCommand, slotFromLight, presetStorage,
   lightSummary, fanSummary, groupSummary, applianceSummary,
 } from "../control-core.js";
 
@@ -449,4 +449,33 @@ test("no height measurement keeps the width-only behaviour", () => {
 
 test("an unknown width falls back rather than throwing", () => {
   assert.equal(layoutFor(undefined), "regular");
+});
+
+/* ------------------------------------------------------ where slots live */
+
+const colourLight = { capabilities: { supported_color_modes: ["color_temp", "hs"] } };
+
+// RED IF: lights share one set by default - a colour tuned for one fixture
+// would be applied, wrong, to another.
+test("each light keeps its own slots unless the card names a shared set", () => {
+  const office = presetStorage({ light: "light.office" }, colourLight);
+  const dining = presetStorage({ light: "light.dinning_room" }, colourLight);
+  assert.deepEqual(office, { kind: "store", key: "dashboard_builder.presets.office" });
+  assert.notEqual(office.key, dining.key);
+  assert.equal(presetStorage({ light: "light.office", presets: "Living Room" }, colourLight).key,
+    "dashboard_builder.presets.living_room");
+});
+
+// RED IF: the fan's helper stops being used, or presets: false still shows slots.
+test("a helper stays a helper; false means none", () => {
+  assert.deepEqual(presetStorage({ light: "light.ceiling_fan_calibrated", presets: "input_text.ceiling_fan_presets" }, colourLight),
+    { kind: "entity", entity_id: "input_text.ceiling_fan_presets" });
+  assert.equal(presetStorage({ light: "light.office", presets: false }, colourLight), null);
+});
+
+// RED IF: an on/off light (the kitchen) gets slots it can never fill.
+test("a light with no white or colour to save gets no slots", () => {
+  assert.equal(presetStorage({ light: "light.kitchen" }, { capabilities: { supported_color_modes: ["onoff"] } }), null);
+  assert.equal(presetStorage({ light: "light.lamp" }, { capabilities: { supported_color_modes: ["brightness"] } }), null);
+  assert.equal(presetStorage({ fan: "fan.x" }, null), null);
 });

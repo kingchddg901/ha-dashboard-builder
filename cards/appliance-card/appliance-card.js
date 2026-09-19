@@ -20,14 +20,19 @@
  * last_level: sensor.light_last_level      # optional, for off-state restore
  * speed: auto                              # auto | linear | steps
  * steps: 6                                 # with speed: steps (notches: 6 still works)
- * presets: input_text.ceiling_fan_presets  # optional, eight shared slots
+ * presets: input_text.ceiling_fan_presets  # eight slots in a helper (the fan's)
+ *
+ * Every light with a white or a colour gets eight preset slots. Without
+ * `presets` they are the light's own, kept in Home Assistant's frontend storage;
+ * `presets: living_room` shares a named set between cards, `presets: false`
+ * turns them off. See presetStorage in ./control-core.js.
  */
 
 import { describeEntity } from "../builder-debug-card/capability-core.js";
 import {
   speedControl, levelControl, kelvinControl, appearanceControl, layoutFor, axisFor,
   mixToCommand, setSaturation, colorToMix, RGB_WHITE_TRAP_SATURATION,
-  PRESET_SLOTS, encodeSlots, decodeSlots, slotCommand, slotFromLight,
+  PRESET_SLOTS, encodeSlots, decodeSlots, slotCommand, slotFromLight, presetStorage,
 } from "./control-core.js";
 
 /** Rough kelvin -> sRGB, for a swatch only. Not the calibration; that lives in HA. */
@@ -100,6 +105,7 @@ class ApplianceCard extends HTMLElement {
   }
 
   disconnectedCallback() {
+    this._dropPresetSub();
     if (this._ro) { this._ro.disconnect(); this._ro = null; }
     if (typeof window !== "undefined") {
       window.removeEventListener("resize", this._onResize);
@@ -144,6 +150,39 @@ class ApplianceCard extends HTMLElement {
       computeHelper: (s) => (s.name === "steps"
         ? "Only used with Steps. Leave empty to use the count the integration implies." : undefined),
     };
+  }
+
+  /* ---------------- where the preset slots live ---------------- */
+
+  /** Follow a stored slot set, once per key; a helper needs no subscription. */
+  _ensurePresetSub(store) {
+    const key = store?.kind === "store" ? store.key : null;
+    if (key === this._presetKey) return;
+    this._dropPresetSub();
+    this._presetKey = key;
+    this._presetsText = null;
+    if (!key || !this._hass?.connection || !this.isConnected) { this._presetKey = null; return; }
+    this._presetUnsub = this._hass.connection.subscribeMessage((ev) => {
+      this._presetsText = typeof ev?.value === "string" ? ev.value : null;
+      this._sig = null; this._render();
+    }, { type: "frontend/subscribe_user_data", key });
+    this._presetUnsub.catch(() => { this._presetUnsub = null; this._saveNote = "saved colours could not be read"; });
+  }
+
+  _dropPresetSub() {
+    const unsub = this._presetUnsub;
+    this._presetUnsub = null;
+    this._presetKey = null;
+    unsub?.then((f) => f?.()).catch(() => {});
+  }
+
+  _writePresets(store, text) {
+    if (store.kind === "entity") {
+      this._call("input_text", "set_value", { entity_id: store.entity_id, value: text });
+      return;
+    }
+    this._hass.connection.sendMessagePromise({ type: "frontend/set_user_data", key: store.key, value: text })
+      .catch((e) => { this._saveNote = `not saved: ${e?.message || e}`; this._sig = null; this._render(); });
   }
 
   _record(id) {
@@ -211,7 +250,10 @@ class ApplianceCard extends HTMLElement {
       }
     }
 
-    const presetsText = this._config.presets ? this._hass.states?.[this._config.presets]?.state : null;
+    const store = light ? presetStorage(this._config, light) : null;
+    this._ensurePresetSub(store);
+    const presetsText = store?.kind === "entity" ? this._hass.states?.[store.entity_id]?.state
+      : store?.kind === "store" ? this._presetsText : null;
     const sig = JSON.stringify([layout, axis, fan?.state, light?.state, speed, level, kelvin, appear,
       mode, mixKey, presetsText, this._saving]);
     if (sig === this._sig) return;
@@ -225,11 +267,11 @@ class ApplianceCard extends HTMLElement {
         ${fan ? this._fanBlock(fan, speed) : ""}
         ${light ? this._lightBlock(light, level, kelvin, appear, mode, colourCapable) : ""}
         ${light && mode === "colour" ? this._deskBlock(light) : ""}
-        ${light && this._config.presets ? this._presetsBlock(decodeSlots(presetsText)) : ""}
+        ${store ? this._presetsBlock(decodeSlots(presetsText)) : ""}
       </ha-card>`;
     this._wire(fan, speed, light, level, kelvin);
     if (light) this._wireDesk(mode);
-    if (light && this._config.presets) this._wirePresets(light, mode, decodeSlots(presetsText));
+    if (store) this._wirePresets(light, mode, decodeSlots(presetsText), store);
   }
 
   _fanBlock(fan, speed) {
@@ -370,10 +412,9 @@ class ApplianceCard extends HTMLElement {
       </div>`;
   }
 
-  _wirePresets(light, mode, slots) {
+  _wirePresets(light, mode, slots, store) {
     const r = this.shadowRoot;
     const lightId = this._config.light;
-    const presetsId = this._config.presets;
 
     r.querySelector(".psave")?.addEventListener("click", () => {
       this._saving = !this._saving;
@@ -391,7 +432,7 @@ class ApplianceCard extends HTMLElement {
         } else {
           const next = slots.slice();
           next[i] = slot;
-          this._call("input_text", "set_value", { entity_id: presetsId, value: encodeSlots(next) });
+          this._writePresets(store, encodeSlots(next));
           this._saveNote = null;
         }
         this._sig = null; this._render();
