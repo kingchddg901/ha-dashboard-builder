@@ -143,6 +143,20 @@ test("reminders go to the signed-in person's phones, and only real services", ()
   assert.deepEqual(notifyTargetsFor({ states: people, userId: null, notifyServices: services }), []);
 });
 
+// RED IF: the first player on the device is taken - on Bryan's TV that is the
+// Cast player, whose "off" would stop a tune-at-start the set could have taken.
+test("the TV's media player is the remote's own integration's, not a Cast player beside it", () => {
+  const bryan = {
+    "media_player.u8000f3341": { entity_id: "media_player.u8000f3341", device_id: "b", platform: "cast" },
+    "media_player.bryan_s_tv": { entity_id: "media_player.bryan_s_tv", device_id: "b", platform: "samsungtv_smart" },
+    "remote.bryan_s_tv": { entity_id: "remote.bryan_s_tv", device_id: "b", platform: "samsungtv_smart" },
+  };
+  assert.equal(mediaPlayerFor("remote.bryan_s_tv", bryan), "media_player.bryan_s_tv");
+  const onlyCast = { "media_player.x": { entity_id: "media_player.x", device_id: "c", platform: "cast" },
+    "remote.y": { entity_id: "remote.y", device_id: "c", platform: "samsungtv_smart" } };
+  assert.equal(mediaPlayerFor("remote.y", onlyCast), "media_player.x", "falls back rather than giving up");
+});
+
 test("the TV's media player is the one on the remote's device", () => {
   const entities = {
     "remote.big_tv": { entity_id: "remote.big_tv", device_id: "d1" },

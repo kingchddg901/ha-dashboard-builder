@@ -76,6 +76,8 @@ export const SEED = Object.freeze({
           config: { title: "Monitor", media_player: "media_player.android_tv_2", remote: "remote.android_tv" } },
         { id: "living-room-tv", kind: "tv", title: "Living Room TV", x: 6, y: 6, w: 6, h: 6,
           config: { title: "Living Room TV", media_player: "media_player.living_room_tv", remote: "remote.living_room_tv" } },
+        { id: "bryans-tv", kind: "tv", title: "Bryan's TV", x: 0, y: 12, w: 6, h: 6,
+          config: { title: "Bryan's TV", media_player: "media_player.bryan_s_tv", remote: "remote.bryan_s_tv" } },
       ],
     },
   ],

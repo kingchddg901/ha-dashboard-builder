@@ -109,11 +109,18 @@ export function notifyTargetsFor({ states = {}, userId = null, notifyServices = 
     .filter((svc) => svc in notifyServices).map((svc) => `notify.${svc}`);
 }
 
-/** The TV's media player: the one on the same device as the remote. */
+/**
+ * The TV's media player: the one on the remote's device, from the remote's own
+ * integration. A TV device can carry more than one - Bryan's TV and the Android
+ * TV each have a Cast player beside their own - and the Cast one says nothing
+ * about whether the set is on for the remote. Another platform's player is used
+ * only when the device has no player of the remote's own.
+ */
 export function mediaPlayerFor(remote, entities = {}) {
-  const dev = entities?.[remote]?.device_id;
-  if (!dev) return null;
-  const hit = Object.values(entities).find((e) =>
-    e?.device_id === dev && String(e.entity_id || "").startsWith("media_player."));
-  return hit?.entity_id || null;
+  const r = entities?.[remote];
+  if (!r?.device_id) return null;
+  const players = Object.values(entities).filter((e) =>
+    e?.device_id === r.device_id && String(e.entity_id || "").startsWith("media_player."));
+  const own = players.find((e) => e.platform && e.platform === r.platform);
+  return (own || players[0])?.entity_id || null;
 }
