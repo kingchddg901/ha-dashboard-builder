@@ -30,7 +30,7 @@
 
 import { describeEntity } from "../builder-debug-card/capability-core.js";
 import {
-  speedControl, levelControl, kelvinControl, appearanceControl, layoutFor, axisFor,
+  speedControl, switchControl, levelControl, kelvinControl, appearanceControl, layoutFor, axisFor,
   mixToCommand, setSaturation, colorToMix, RGB_WHITE_TRAP_SATURATION,
   PRESET_SLOTS, encodeSlots, decodeSlots, slotCommand, slotFromLight, presetStorage,
 } from "./control-core.js";
@@ -75,8 +75,8 @@ class ApplianceCard extends HTMLElement {
   }
 
   setConfig(config) {
-    if (!config.fan && !config.light) {
-      throw new Error("appliance-card: needs a `fan`, a `light`, or both");
+    if (!config.fan && !config.light && !config.switch) {
+      throw new Error("appliance-card: needs a `fan`, a `light`, a `switch`, or several");
     }
     this._config = { title: "Appliance", last_level: "sensor.light_last_level", ...config };
     this._sig = null;
@@ -209,9 +209,11 @@ class ApplianceCard extends HTMLElement {
     if (!this._hass || !this._config) return;
     const fan = this._record(this._config.fan);
     const light = this._record(this._config.light);
+    const sw = this._record(this._config.switch);
     const layout = layoutFor(this._width);
     const axis = axisFor(layout, this._height);
     const speed = fan ? speedControl(fan, this._speedOpts()) : null;
+    const power = switchControl(sw);
     const level = light ? levelControl(light, { remembered: this._remembered(this._config.light) }) : null;
     const kelvin = light ? kelvinControl(light) : null;
     const appear = light ? appearanceControl(light, { remembered: this._remembered(this._config.light) }) : null;
@@ -254,7 +256,7 @@ class ApplianceCard extends HTMLElement {
     this._ensurePresetSub(store);
     const presetsText = store?.kind === "entity" ? this._hass.states?.[store.entity_id]?.state
       : store?.kind === "store" ? this._presetsText : null;
-    const sig = JSON.stringify([layout, axis, fan?.state, light?.state, speed, level, kelvin, appear,
+    const sig = JSON.stringify([layout, axis, fan?.state, light?.state, sw?.state, speed, power, level, kelvin, appear,
       mode, mixKey, presetsText, this._saving]);
     if (sig === this._sig) return;
     this._sig = sig;
@@ -264,14 +266,33 @@ class ApplianceCard extends HTMLElement {
       <ha-card class="${esc(layout)} ${esc(axis)}">
         <div class="hd">${esc(this._config.title)}${this._config.debug
           ? `<span class="lay">${esc(layout)} · ${esc(axis)}</span>` : ""}</div>
+        ${power ? this._switchBlock(power) : ""}
         ${fan ? this._fanBlock(fan, speed) : ""}
         ${light ? this._lightBlock(light, level, kelvin, appear, mode, colourCapable) : ""}
         ${light && mode === "colour" ? this._deskBlock(light) : ""}
         ${store ? this._presetsBlock(decodeSlots(presetsText)) : ""}
       </ha-card>`;
-    this._wire(fan, speed, light, level, kelvin);
+    this._wire(fan, speed, light, level, kelvin, power);
     if (light) this._wireDesk(mode);
     if (store) this._wirePresets(light, mode, decodeSlots(presetsText), store);
+  }
+
+  /**
+   * On, off, and nothing else. The sub-line names the entity rather than
+   * repeating the state: on a tile the title is the appliance ("Dishwasher
+   * plug"), and what a reader wants next is which socket that is.
+   */
+  _switchBlock(power) {
+    return `
+      <div class="block switch ${power.on ? "on" : "off"}${power.available ? "" : " gone"}">
+        <div class="side">
+          <button class="power switch-power" aria-label="${esc(power.noun)} power"${power.available ? "" : " disabled"}>&#9211;</button>
+          <div class="txt">
+            <div class="name">${esc(power.noun)} ${esc(power.reads)}</div>
+            <div class="sub">${esc(this._config.switch)}</div>
+          </div>
+        </div>
+      </div>`;
   }
 
   _fanBlock(fan, speed) {
@@ -526,8 +547,12 @@ class ApplianceCard extends HTMLElement {
     paint();
   }
 
-  _wire(fan, speed, light, level, kelvin) {
+  _wire(fan, speed, light, level, kelvin, power) {
     const r = this.shadowRoot;
+    if (power?.available) {
+      r.querySelector(".switch-power")?.addEventListener("click", () =>
+        this._call("switch", power.service, { entity_id: this._config.switch }));
+    }
     const fanId = this._config.fan;
     const lightId = this._config.light;
 
@@ -700,6 +725,12 @@ const STYLE = `
            border-bottom: 1px solid var(--divider-color, #333); }
   .block:last-child { border-bottom: 0; }
   .block.off { opacity: .62; }
+  /* A switch has one line of control and no track under it, so it does not need
+     the breathing room a fan's or a light's block does. Measured: at the block
+     padding those need, a plug tile overflowed its two rows by 8px and grew a
+     scrollbar. */
+  .block.switch { padding: 6px 0; }
+  .block.switch.gone .power { cursor: not-allowed; }
   .side { flex: 1; min-width: 0; display: flex; gap: 10px; align-items: flex-start; }
   .txt { min-width: 0; }
   .name { font-size: 13.5px; font-weight: 600; }

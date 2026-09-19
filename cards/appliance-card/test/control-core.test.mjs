@@ -14,7 +14,7 @@ import { readFileSync } from "node:fs";
 
 import { describeEntity, groupIndex } from "../../builder-debug-card/capability-core.js";
 import {
-  speedControl, levelControl, kelvinControl, appearanceControl, composeCapabilities,
+  speedControl, switchControl, levelControl, kelvinControl, appearanceControl, composeCapabilities,
   layoutFor, axisFor, mixToCommand, setSaturation, colorToMix, RGB_WHITE_TRAP_SATURATION,
   PRESET_SLOTS, encodeSlots, decodeSlots, slotCommand, slotFromLight, presetStorage,
   lightSummary, fanSummary, groupSummary, applianceSummary,
@@ -382,6 +382,18 @@ test("an appliance's glance joins its parts", () => {
   assert.ok(s.startsWith("fan off · resumes at 4 · light "), s);
 });
 
+// RED IF: a plug tile's row reads "—" on the phone, where the row IS the tile
+// until it is opened. A switch was not part of an appliance when this summary
+// was written, so it went out with nothing to say.
+test("a plug says what it is doing in the glance", () => {
+  const plug = (state) => ({ state, raw: { device_class: "outlet" } });
+  assert.equal(applianceSummary({ switch: plug("on") }), "outlet on");
+  assert.equal(applianceSummary({ switch: plug("off") }), "outlet off");
+  assert.equal(applianceSummary({ switch: plug("unavailable") }), "outlet not reachable");
+  assert.equal(applianceSummary({ fan: rec("fan.ceiling_fan"), switch: plug("on") }).endsWith("· outlet on"), true);
+  assert.equal(applianceSummary({}), "—");
+});
+
 /* ----------------------------------------------------------------- kelvin */
 
 // RED IF: the kelvin range is hard-coded or taken from the wrong entity. The
@@ -478,4 +490,29 @@ test("a light with no white or colour to save gets no slots", () => {
   assert.equal(presetStorage({ light: "light.kitchen" }, { capabilities: { supported_color_modes: ["onoff"] } }), null);
   assert.equal(presetStorage({ light: "light.lamp" }, { capabilities: { supported_color_modes: ["brightness"] } }), null);
   assert.equal(presetStorage({ fan: "fan.x" }, null), null);
+});
+
+// RED IF: an unreachable plug is drawn as "off" - the dishwasher plug dropping
+// off the network would then read as "the dishwasher is not running", which
+// nobody actually knows. Off and unavailable are different answers.
+test("a switch reads on, off, or not reachable - never off when it is unreachable", () => {
+  const rec = (state, device_class) => ({ state, raw: { device_class } });
+  assert.equal(switchControl(null), null);
+
+  const on = switchControl(rec("on", "outlet"));
+  assert.deepEqual([on.kind, on.noun, on.on, on.available, on.reads, on.service],
+    ["outlet", "Outlet", true, true, "on", "turn_off"]);
+
+  const off = switchControl(rec("off", "switch"));
+  assert.deepEqual([off.kind, off.noun, off.on, off.available, off.reads, off.service],
+    ["switch", "Switch", false, true, "off", "turn_on"]);
+
+  for (const bad of ["unavailable", "unknown", ""]) {
+    const gone = switchControl(rec(bad, "outlet"));
+    assert.equal(gone.available, false, bad);
+    assert.equal(gone.on, false, bad);
+    assert.equal(gone.reads, "not reachable", bad);
+  }
+
+  assert.equal(switchControl(rec("on", undefined)).noun, "Switch", "no class means a switch, not a socket");
 });

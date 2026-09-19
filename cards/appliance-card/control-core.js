@@ -386,11 +386,15 @@ export function groupSummary(memberRecords) {
 }
 
 /** Fan and light together, as one appliance. */
-export function applianceSummary({ fan = null, light = null, remembered = null, declaredNotches = null,
-  mode = "auto", steps = null } = {}) {
+export function applianceSummary({ fan = null, light = null, switch: sw = null, remembered = null,
+  declaredNotches = null, mode = "auto", steps = null } = {}) {
   const parts = [];
   if (fan) parts.push(`fan ${fanSummary(fan, { declaredNotches, mode, steps })}`);
   if (light) parts.push(`light ${lightSummary(light, { remembered })}`);
+  if (sw) {
+    const p = switchControl(sw);
+    parts.push(`${p.noun.toLowerCase()} ${p.reads}`);
+  }
   return parts.join(" · ") || "—";
 }
 
@@ -433,6 +437,32 @@ export function composeCapabilities(records) {
  * desktop window. A desktop window dragged shorter than that gets the horizontal
  * axis too, which is intended: it has no vertical room either.
  */
+/**
+ * A plain switch - a smart plug, a relay - as a control.
+ *
+ * There is nothing to offer beyond on and off, so the only questions are what
+ * to call it and whether the thing can be reached at all. `device_class` is
+ * what HA knows about the difference: `outlet` is a socket something is
+ * plugged into, anything else is a switch on a wall or in a box.
+ *
+ * `unavailable` is kept apart from `off`. A plug that has dropped off the
+ * network reads `unavailable`, and drawing that as "off" would say the
+ * dishwasher is not running when nobody actually knows.
+ */
+export function switchControl(record) {
+  if (!record) return null;
+  const state = record.state;
+  const outlet = record.raw?.device_class === "outlet";
+  return {
+    kind: outlet ? "outlet" : "switch",
+    noun: outlet ? "Outlet" : "Switch",
+    on: state === "on",
+    available: state === "on" || state === "off",
+    reads: state === "on" ? "on" : state === "off" ? "off" : "not reachable",
+    service: state === "on" ? "turn_off" : "turn_on",
+  };
+}
+
 export const LAYOUT_BREAKPOINTS = { compact: 0, regular: 380, wide: 620 };
 export const SHORT_MAX_HEIGHT = 500;
 

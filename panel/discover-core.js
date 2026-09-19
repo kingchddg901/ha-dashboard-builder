@@ -19,12 +19,21 @@
  *            another area (the kitchen, inside Main house) stays a candidate in
  *            its own area.
  *   robot    a vacuum Vacuum Agent manages (it has VA room switches).
+ *   plug     a switch that IS the device - a smart plug, a relay. A switch
+ *            beside a vacuum, a grill or a fan is one of that device's
+ *            FEATURES (Robin's "max suction power", the grill's "smoke mode"),
+ *            and belongs to that device's tile rather than a tile of its own.
+ *            Measured here: without that test the house offers 31, of which 30
+ *            are the robots' per-room switches; with it, one - the plug.
  *
  * Candidates are grouped by HA area - an area's things are the natural tab.
  * Anything a tile already names, on any tab or the shelf, is not offered.
  */
 
 const domainOf = (id) => String(id).split(".")[0];
+/** A domain that makes the device something in its own right, with its own tile. */
+const PRIMARY = new Set(["fan", "light", "vacuum", "climate", "media_player", "water_heater",
+  "lock", "cover", "humidifier", "camera", "remote"]);
 const slug = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "x";
 
 /** Every entity id a layout's tiles name - the "already on the dashboard" set. */
@@ -98,6 +107,26 @@ export function discover({ states = {}, entities = {}, devices = {}, areas = {},
     out.push({ id: `ha-${slug(id)}`, kind: isGroup ? "lights" : "appliance", title: name,
       area: areaOf(id, entities, devices), config: isGroup ? { entity: id, title: name } : { title: name, light: id },
       primary: [id] });
+  }
+
+  // Plugs: a switch that is the whole device, not one of its features.
+  for (const [dev, list] of byDevice) {
+    if (list.some((e) => PRIMARY.has(domainOf(e.entity_id)))) continue;
+    for (const sw of list.filter((e) => domainOf(e.entity_id) === "switch")) {
+      // `entity_category` marks a control that belongs in the settings, not on
+      // a dashboard. It arrives as a STRING from the websocket registry and as
+      // a NUMBER in the frontend's copy, so it is read for presence, not value.
+      if (sw.entity_category) continue;
+      const dc = states[sw.entity_id]?.attributes?.device_class;
+      if (dc !== "outlet" && dc !== "switch") continue;
+      const title = deviceName(dev) || states[sw.entity_id]?.attributes?.friendly_name || sw.entity_id;
+      // On and off is one line of control, so a plug asks for a fraction of the
+      // height a fan and its light need. The candidate carries its own size;
+      // the renderer's is the fan's.
+      out.push({ id: `ha-${slug(sw.entity_id)}`, kind: "appliance", title, w: 4, h: 2,
+        area: areaOf(sw.entity_id, entities, devices), config: { title, switch: sw.entity_id },
+        primary: [sw.entity_id] });
+    }
   }
 
   // Robots Vacuum Agent manages.

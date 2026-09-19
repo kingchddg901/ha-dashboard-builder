@@ -101,3 +101,68 @@ test("starting-layout tiles stand in for their candidates, under the candidate's
   assert.ok(fresh.some((t) => t.id === "clock") && !fresh.some((t) => t.id === "bryans-tv"),
     "the starting section keeps only what discovery cannot find");
 });
+
+// RED IF: a plug is missed (the dishwasher plug arrived and nothing offered it),
+// or every switch is offered - this house has 30 VA room switches and the
+// grill's and robots' own toggles, which belong to those devices' tiles. The
+// test that separates them: the plug IS its device, the others sit beside a
+// vacuum, a climate or a fan.
+test("a plug is a candidate; a switch beside a real device is not", () => {
+  const plugs = find((c) => c.config.switch);
+  assert.deepEqual(plugs.map((c) => [c.title, c.config.switch, c.area]),
+    [["Dishwasher plug", "switch.kitchen_dishwasher_plug", "kitchen"]]);
+  assert.equal(plugs[0].kind, "appliance");
+  // RED IF: a plug is offered at the fan-and-light size. On and off is one line
+  // of control, and the tile arrived four fifths empty when it took that size.
+  assert.deepEqual([plugs[0].w, plugs[0].h], [4, 2]);
+  assert.ok(RENDERERS.appliance.size.h > plugs[0].h, "and it is the candidate's own size, not the renderer's");
+  // RED IF: a plug is called a light. The appliance kind covers three things
+  // now, and the noun is what the tile's own row says it is.
+  assert.equal(RENDERERS.appliance.noun(plugs[0].config), "plug");
+  assert.ok(!all.some((c) => c.primary.includes("switch.grill_smoke_mode")), "the grill's toggle is the grill's");
+  assert.ok(!all.some((c) => c.primary.some((e) => /selected_for_cleaning/.test(e))), "no VA room switch is a tile");
+});
+
+// RED IF: a switch is offered beside the device it belongs to, so the thing
+// lands on the dashboard twice - once as itself, once as one of its own
+// controls. Built by hand, not captured: every switch-beside-a-device in this
+// house (the robots', the grill's) carries no device class, so the class test
+// alone already excludes them and the fixture cannot tell the two rules apart.
+// The case this guards is a device that has BOTH - a relay reporting itself as
+// a switch, on something that already has its own tile.
+test("a switch on a device that already has its own tile is that device's, not a tile", () => {
+  const house = (withFan) => ({
+    states: {
+      "switch.shed_relay": { entity_id: "switch.shed_relay", state: "on", attributes: { device_class: "switch" } },
+      ...(withFan ? { "fan.shed": { entity_id: "fan.shed", state: "off", attributes: {} } } : {}),
+    },
+    entities: {
+      "switch.shed_relay": { entity_id: "switch.shed_relay", platform: "x", device_id: "d1" },
+      ...(withFan ? { "fan.shed": { entity_id: "fan.shed", platform: "x", device_id: "d1" } } : {}),
+    },
+    devices: { d1: { id: "d1", name: "Shed fan", area_id: "shed" } },
+    areas: { shed: { area_id: "shed", name: "Shed" } },
+  });
+  assert.deepEqual(discover(house(false)).map((c) => c.config.switch), ["switch.shed_relay"],
+    "on its own the relay is a plug - or the other half proves nothing");
+  const beside = discover(house(true));
+  assert.ok(!beside.some((c) => c.config.switch), "beside its fan it is one of the fan's controls");
+  assert.equal(beside.filter((c) => c.config.fan === "fan.shed").length, 1, "and the fan is still offered once");
+});
+
+// RED IF: a switch HA marks as a setting reaches the dashboard. Built by hand,
+// not captured: this house has no config-category switch that also carries a
+// device class, so the fixture cannot exercise it. `entity_category` is a
+// NUMBER in the frontend's registry and a STRING over the websocket, and both
+// must be refused.
+test("a switch marked as a setting is never offered, numbered or spelled", () => {
+  const make = (cat) => ({
+    states: { "switch.relay": { entity_id: "switch.relay", state: "on", attributes: { device_class: "switch" } } },
+    entities: { "switch.relay": { entity_id: "switch.relay", platform: "x", device_id: "d1", ...(cat ? { entity_category: cat } : {}) } },
+    devices: { d1: { id: "d1", name: "Relay", area_id: "shed" } },
+    areas: { shed: { area_id: "shed", name: "Shed" } },
+  });
+  assert.equal(discover(make(null)).length, 1, "a plain relay is offered - or the rest proves nothing");
+  assert.equal(discover(make(1)).length, 0, "numbered, as the frontend hands it over");
+  assert.equal(discover(make("config")).length, 0, "spelled, as the websocket registry has it");
+});

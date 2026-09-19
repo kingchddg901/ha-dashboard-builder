@@ -37,12 +37,13 @@ const ABSENT = new Set(["unavailable", "unknown"]);
 function applianceRow(hass, cfg) {
   const fan = recordOf(hass, cfg.fan);
   const light = recordOf(hass, cfg.light);
+  const sw = recordOf(hass, cfg.switch);
   const levels = hass?.states?.[cfg.last_level || "sensor.light_last_level"]?.attributes?.levels;
   const remembered = cfg.light ? levels?.[cfg.light] || null : null;
   const mode = cfg.speed || (cfg.notches ? "steps" : "auto");
-  const text = applianceSummary({ fan, light, remembered, mode, steps: cfg.steps || cfg.notches || null });
-  const parts = [fan, light].filter(Boolean);
-  const declared = [cfg.fan, cfg.light].filter(Boolean).length;
+  const text = applianceSummary({ fan, light, switch: sw, remembered, mode, steps: cfg.steps || cfg.notches || null });
+  const parts = [fan, light, sw].filter(Boolean);
+  const declared = [cfg.fan, cfg.light, cfg.switch].filter(Boolean).length;
   let state;
   if (parts.length < declared || (parts.length && parts.every((r) => r.state === "unavailable"))) state = "unavailable";
   else if (parts.some((r) => r.state === "on")) state = "on";
@@ -95,8 +96,9 @@ function glanceHtml(hass, cfg) {
 
 export const RENDERERS = Object.freeze({
   appliance: {
-    label: "Fan & light", size: { w: 4, h: 5 },
-    noun: (cfg) => (cfg.fan && cfg.light ? "fan & light" : cfg.fan ? "fan" : "light"),
+    label: "Fan, light or plug", size: { w: 4, h: 5 },
+    noun: (cfg) => (cfg.fan && cfg.light ? "fan & light" : cfg.fan ? "fan" : cfg.light ? "light"
+      : cfg.switch ? "plug" : "appliance"),
     load: () => import("../cards/appliance-card/appliance-card.js"), tag: "appliance-card",
     summary: applianceRow,
   },

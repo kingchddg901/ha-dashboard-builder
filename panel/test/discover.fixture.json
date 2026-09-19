@@ -1,5 +1,5 @@
 {
- "captured": "2026-09-19 from the live house: lights, fans, TVs, robots and VA room switches, with devices, areas and VA panels",
+ "captured": "2026-09-19 from the live house: lights, fans, TVs, robots and VA room switches, with devices, areas and VA panels - also 2026-09-19: the Matter plug (a switch that IS the device) and one grill toggle (a switch that is a FEATURE of a device that has its own tile)",
  "states": {
   "media_player.android_tv": {
    "entity_id": "media_player.android_tv",
@@ -830,6 +830,30 @@
     "friendly_name": "Bryan's TV",
     "supported_features": 0
    }
+  },
+  "switch.kitchen_dishwasher_plug": {
+   "entity_id": "switch.kitchen_dishwasher_plug",
+   "state": "on",
+   "attributes": {
+    "device_class": "outlet",
+    "friendly_name": "Dishwasher plug"
+   }
+  },
+  "update.kitchen_dishwasher_plug_firmware": {
+   "entity_id": "update.kitchen_dishwasher_plug_firmware",
+   "state": "off",
+   "attributes": {
+    "device_class": "firmware",
+    "friendly_name": "Dishwasher plug Firmware",
+    "supported_features": 23
+   }
+  },
+  "switch.grill_smoke_mode": {
+   "entity_id": "switch.grill_smoke_mode",
+   "state": "off",
+   "attributes": {
+    "friendly_name": "Grill Smoke Mode"
+   }
   }
  },
  "entities": {
@@ -1202,6 +1226,22 @@
    "entity_id": "remote.bryan_s_tv",
    "platform": "samsungtv_smart",
    "device_id": "a7acb1d65715543f2ffef2ad7acacd76"
+  },
+  "switch.kitchen_dishwasher_plug": {
+   "entity_id": "switch.kitchen_dishwasher_plug",
+   "platform": "matter",
+   "device_id": "bea134f40f60c985b72463e305b430de"
+  },
+  "update.kitchen_dishwasher_plug_firmware": {
+   "entity_id": "update.kitchen_dishwasher_plug_firmware",
+   "platform": "matter",
+   "device_id": "bea134f40f60c985b72463e305b430de",
+   "entity_category": 1
+  },
+  "switch.grill_smoke_mode": {
+   "entity_id": "switch.grill_smoke_mode",
+   "platform": "prime_polaris",
+   "device_id": "a1b4b1f8dc0880af7717a56e86d4018b"
   }
  },
  "devices": {
@@ -1396,6 +1436,12 @@
    "name": "Bryan's TV",
    "name_by_user": null,
    "area_id": "guest_room"
+  },
+  "bea134f40f60c985b72463e305b430de": {
+   "id": "bea134f40f60c985b72463e305b430de",
+   "name": "Mini Smart Wi-Fi Plug",
+   "name_by_user": "Dishwasher plug",
+   "area_id": "kitchen"
   }
  },
  "areas": {

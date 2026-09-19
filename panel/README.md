@@ -46,6 +46,25 @@ The grid rules, and why:
   unavailable row is inert, and an entity the layout names but HA does not have reads as
   unavailable, never as "off".
 
+### What it offers to add
+
+In **Edit layout**, the shelf lists what Home Assistant has that is not on the dashboard yet,
+grouped by area (`discover-core.js`). The rules come from what this house's registry actually looks
+like: a **TV** is a remote and a media player from the same integration on one device; a **fan**
+comes with its device's light; a **light group** carries the bulbs in its own area; a **robot** is a
+vacuum Vacuum Agent manages; and a **plug** is a switch that IS the device.
+
+That last test earns its keep. Offer every switch and this house offers 31, of which 30 are the
+robots' per-room switches and the rest are the grill's and vacuums' own toggles — controls that
+belong to those devices' tiles. A switch is a tile of its own only when nothing else on its device
+is (no fan, light, vacuum, climate, media player, lock, cover…), and when HA gives it a device
+class of `outlet` or `switch`. With those two tests the house offers exactly one: the dishwasher
+plug. Switches HA marks as settings (`entity_category`) never appear; that field is a number in the
+frontend's registry and a string over the websocket, so it is read for presence, not value.
+
+A plug's tile is 4×2 rather than the fan's 4×5 — on and off is one line of control, and at the
+fan's height the tile arrived four fifths empty.
+
 ## Themes
 
 The last tab, **Theme**, is [token-theme-kit](https://github.com/kingchddg901/token-theme-kit)'s
