@@ -193,6 +193,24 @@ export function removeTab(dash, tabId) {
 }
 
 /**
+ * Move a tab `by` places along the row: -1 is one earlier, +1 one later. The
+ * ends refuse rather than wrap - a tab that jumps from first to last is a tab
+ * you lose track of. Its tiles travel with it.
+ */
+export function moveTab(dash, tabId, by) {
+  const from = dash.tabs.findIndex((t) => t.id === tabId);
+  if (from < 0) return { ok: false, dash, reason: "no such tab" };
+  const to = from + Math.trunc(Number(by) || 0);
+  if (to === from) return { ok: false, dash, reason: "not moved" };
+  if (to < 0) return { ok: false, dash, reason: "already first" };
+  if (to >= dash.tabs.length) return { ok: false, dash, reason: "already last" };
+  const tabs = [...dash.tabs];
+  const [tab] = tabs.splice(from, 1);
+  tabs.splice(to, 0, tab);
+  return { ok: true, reason: null, dash: { ...dash, tabs } };
+}
+
+/**
  * Stored data -> a dashboard that keeps every invariant.
  *
  * Not the right shape at all, or another schema version -> the seed, because

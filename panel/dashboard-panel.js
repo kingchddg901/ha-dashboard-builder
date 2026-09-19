@@ -26,7 +26,7 @@
 
 import { SEED } from "./seed.js";
 import {
-  sanitize, placeTile, moveToTab, shelveTile, unshelveTile, addTab, renameTab, removeTab,
+  sanitize, placeTile, moveToTab, shelveTile, unshelveTile, addTab, renameTab, removeTab, moveTab,
   gridRows, readingOrder, cellsFromPixels, whyNot, findTile, COLS, copyToTab, availableFrom, addTile, modeFor,
 } from "./layout-core.js";
 import { RENDERERS, rendererFor } from "./renderers.js";
@@ -336,6 +336,9 @@ class DashboardBuilderPanel extends HTMLElement {
     const menu = this._narrow && !this._asCard;
     const menuBtn = `<button class="menu" aria-label="Open the sidebar">☰</button>`;
     const tabs = this._dash.tabs;
+    // A render replaces the rail, and a new rail starts scrolled to the top.
+    const oldRail = root.querySelector(".rail");
+    const railAt = oldRail ? [oldRail.scrollTop, oldRail.scrollLeft] : null;
 
     root.innerHTML = `
       <style>${STYLE}</style>
@@ -372,6 +375,9 @@ class DashboardBuilderPanel extends HTMLElement {
         </div>
       </div>`;
 
+    const rail = root.querySelector(".rail");
+    if (rail && railAt) [rail.scrollTop, rail.scrollLeft] = railAt;
+    this._revealActiveTab();
     if (!this._themeApplied) { this._themeApplied = true; this._refreshTheme(); }
     if (this._themeOpen) this._mountThemeEditor();
     else if (phone) this._fillRows(tab); else this._fillGrid(tab);
@@ -380,9 +386,38 @@ class DashboardBuilderPanel extends HTMLElement {
     this._measure();
   }
 
+  /**
+   * Keep the selected tab in view: with more tabs than fit, the pinned tools
+   * cover the rail's far end. Scrolls the rail only - never the page.
+   */
+  _revealActiveTab() {
+    const rail = this.shadowRoot.querySelector(".rail");
+    const tab = rail?.querySelector(".tab.active");
+    if (!tab) return;
+    const r = rail.getBoundingClientRect();
+    const t = tab.getBoundingClientRect();
+    const tools = rail.querySelector(".tools")?.getBoundingClientRect();
+    if (this._mode === "phone") {
+      const end = r.right - (tools?.width || 0) - 5;
+      if (t.left < r.left) rail.scrollLeft -= r.left - t.left;
+      else if (t.right > end) rail.scrollLeft += t.right - end;
+    } else {
+      const end = r.bottom - (tools?.height || 0) - 5;
+      if (t.top < r.top) rail.scrollTop -= r.top - t.top;
+      else if (t.bottom > end) rail.scrollTop += t.bottom - end;
+    }
+  }
+
   _editBar(tab) {
+    // The rail runs down on a desk and across on a phone, so the words follow it.
+    const at = this._dash.tabs.findIndex((t) => t.id === tab.id);
+    const [back, on] = this._mode === "phone" ? ["Move left", "Move right"] : ["Move up", "Move down"];
     return `<div class="editbar">
       <label>Tab name <input class="tab-name" value="${esc(tab.title)}" maxlength="24"></label>
+      <span class="tab-move" role="group" aria-label="Move this tab">
+        <button class="btn move-tab" data-by="-1" ${at <= 0 ? "disabled" : ""}>${back}</button>
+        <button class="btn move-tab" data-by="1" ${at >= this._dash.tabs.length - 1 ? "disabled" : ""}>${on}</button>
+      </span>
       <button class="btn add-tab">Add a tab</button>
       ${tab.tiles.length ? "" : `<button class="btn remove-tab">Remove this tab</button>`}
       <button class="btn reset">${this._resetArmed ? "Tap again to reset everything" : "Reset layout"}</button>
@@ -620,6 +655,15 @@ class DashboardBuilderPanel extends HTMLElement {
   _wireEdit(tab) {
     const r = this.shadowRoot;
     r.querySelector(".tab-name")?.addEventListener("change", (e) => this._commit(renameTab(this._dash, tab.id, e.target.value)));
+    r.querySelectorAll(".move-tab").forEach((b) => b.addEventListener("click", () => {
+      const by = Number(b.dataset.by);
+      if (!this._commit(moveTab(this._dash, tab.id, by))) return;
+      this._say(`moved ${tab.title}`);
+      // The render replaced the button; keep the keyboard where it was, or on
+      // the other one once this end of the row is reached.
+      const again = this.shadowRoot.querySelector(`.move-tab[data-by="${by}"]`);
+      (again && !again.disabled ? again : this.shadowRoot.querySelector(`.move-tab[data-by="${-by}"]`))?.focus();
+    }));
     r.querySelector(".add-tab")?.addEventListener("click", () => {
       const res = addTab(this._dash);
       if (this._commit(res, { render: false })) { this._tab = res.tab.id; store.set(TAB_KEY, this._tab); this._render(); }
@@ -864,6 +908,8 @@ const STYLE = `
   .btn { border: 0; border-radius: var(--db-ctl-r); padding: 6px 14px; cursor: pointer; font-size: 13px; text-transform: uppercase;
          letter-spacing: .04em; background: var(--db-tab); color: var(--db-tab-text); }
   .btn.reset { background: #000000; color: #ffffff; outline: 1px solid #ffffff; }
+  .btn:disabled { opacity: .4; cursor: default; }
+  .tab-move { display: inline-flex; gap: 6px; }
   .hint { opacity: .75; font-size: 12px; }
   .shelf { margin-top: 16px; border-top: 5px solid var(--db-frame); padding-top: 8px; font-size: 13px; }
   .shelf-head { text-transform: uppercase; letter-spacing: .08em; color: var(--db-active); margin-bottom: 6px; }
@@ -897,7 +943,7 @@ const STYLE = `
   .phone .tab { min-height: 40px; flex: none; border-radius: var(--db-ctl-r); padding: 6px 16px; align-items: center; }
   /* With a dozen tabs the strip scrolls; Edit and Theme stay pinned at its right edge. */
   .phone .tools { flex-direction: row; position: sticky; right: 0; z-index: 1; margin-left: auto;
-                  background: var(--db-bg); box-shadow: -8px 0 0 var(--db-bg); }
+                  background: var(--db-bg); box-shadow: -5px 0 0 var(--db-bg); }
   .rows { display: flex; flex-direction: column; gap: 6px; }
   .row { display: grid; grid-template-columns: 18px 1fr auto; grid-template-areas: "mark title chev" "mark sum chev";
          column-gap: 10px; align-items: center; text-align: left; width: 100%; min-height: 60px; padding: 8px 12px;

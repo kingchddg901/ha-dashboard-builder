@@ -24,7 +24,7 @@ The base everything else sits in. The panel owns the whole area and the render; 
 | tabs | down the rail; with more than fit, they scroll and **Edit layout** / **Theme** stay pinned at its foot | a strip under the bar; **Edit** / **Theme** pinned at its end |
 | tiles | on a 12-column grid, 64 px rows | status rows, in the desk layout's reading order |
 | a tile's control | inside the tile | one tap deep, in a sheet |
-| editing | **Edit layout**: move, resize, send or copy to another tab, remove to the shelf, add / rename / remove tabs, theme, reset | **Edit layout**: send or copy to another tab, remove to the shelf, add from the shelf |
+| editing | **Edit layout**: move, resize, send or copy to another tab, remove to the shelf, add / rename / reorder / remove tabs, reset | **Edit layout**: send or copy to another tab, remove to the shelf, add from the shelf, reorder tabs |
 
 The grid rules, and why:
 
@@ -36,6 +36,9 @@ The grid rules, and why:
 - **Controls pause while editing.** Tile bodies take no input in edit mode, so arranging the fan
   tile cannot also turn the fan on.
 - **The phone reads the desk layout like a page.** There is no second list to keep in sync.
+- **Tabs move one place at a time.** **Move up / Move down** (left / right on a phone) shifts the
+  tab you are on, tiles and all; the ends refuse rather than wrap. The rail keeps its scroll
+  across a redraw and brings the selected tab into view, clear of the pinned tools.
 - **Phone rows follow design rule 7.** On, off, unavailable and unknown each get their own mark. An
   unavailable row is inert, and an entity the layout names but HA does not have reads as
   unavailable, never as "off".

@@ -11,7 +11,7 @@ import { readFileSync } from "node:fs";
 
 import {
   overlaps, inBounds, whyNot, canPlace, firstFit, gridRows, readingOrder, findTile,
-  placeTile, moveToTab, shelveTile, unshelveTile, addTab, renameTab, removeTab, sanitize,
+  placeTile, moveToTab, shelveTile, unshelveTile, addTab, renameTab, removeTab, moveTab, sanitize,
   copyToTab, availableFrom, addTile, modeFor,
   cellsFromPixels, COLS,
 } from "../layout-core.js";
@@ -24,6 +24,28 @@ const two = () => dash([
   { id: "a", title: "A", tiles: [T("one", 0, 0, 6, 4), T("two", 6, 0, 6, 4)] },
   { id: "b", title: "B", tiles: [T("three", 0, 0, 12, 2)] },
 ]);
+
+/* -------------------------------------------------------------- tab order */
+
+// RED IF: a move loses or duplicates a tab, leaves its tiles behind, wraps
+// past an end, or edits the stored dashboard in place.
+test("a tab moves one place at a time, tiles and all, and never wraps", () => {
+  const d = dash([
+    { id: "a", title: "A", tiles: [T("one", 0, 0, 6, 4)] },
+    { id: "b", title: "B", tiles: [] },
+    { id: "c", title: "C", tiles: [T("two", 0, 0, 12, 2)] },
+  ]);
+  const up = moveTab(d, "c", -1);
+  assert.equal(up.ok, true);
+  assert.deepEqual(up.dash.tabs.map((t) => t.id), ["a", "c", "b"]);
+  assert.deepEqual(up.dash.tabs[1].tiles.map((t) => t.id), ["two"], "its tiles travel with it");
+  assert.deepEqual(d.tabs.map((t) => t.id), ["a", "b", "c"], "the input is untouched");
+  assert.deepEqual(moveTab(d, "a", 2).dash.tabs.map((t) => t.id), ["b", "c", "a"]);
+  assert.equal(moveTab(d, "a", -1).reason, "already first");
+  assert.equal(moveTab(d, "c", 1).reason, "already last");
+  assert.equal(moveTab(d, "nope", 1).reason, "no such tab");
+  assert.equal(moveTab(d, "b", 0).ok, false);
+});
 
 /* ---------------------------------------------------------------- geometry */
 
