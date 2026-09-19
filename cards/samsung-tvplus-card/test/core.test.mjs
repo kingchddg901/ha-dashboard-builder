@@ -2,7 +2,10 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
-import { indexLineup, airing, tuneCommand, tuneDuration, KEY_GAP_MS, whatsOn, upcoming, loadLineup } from "../tvplus-core.js";
+import {
+  indexLineup, airing, tuneCommand, tuneDuration, KEY_GAP_MS, whatsOn, upcoming, loadLineup,
+  groupsOf, searchChannels, toggleSaved, moveSaved, savedKey,
+} from "../tvplus-core.js";
 
 /**
  * The core has no DOM and no Home Assistant in it, so it tests here — which is
@@ -74,6 +77,83 @@ test("core samsungtv and unknown remotes get plain keys", () => {
 test("a tune's sending time covers every pause", () => {
   assert.equal(tuneDuration(1833, { platform: "samsungtv_smart" }), 4000);
   assert.equal(tuneDuration(1833, { platform: "samsungtv_smart", gapMs: 500 }), 2000);
+});
+
+/* ---------- search ---------- */
+
+// The fixture's programme times are from 2026-09-15; search as of a moment in them.
+const AT = 1789521000;
+
+test("categories are counted, largest first", () => {
+  const g = groupsOf(indexLineup(RAW, "us"));
+  assert.deepEqual(g[0], { name: "Kids", count: 2 });
+  assert.equal(g.length, 4);
+});
+
+// RED IF: a query word has to match the NAME only - "court cam" (a show) and
+// "kids" (a category) would find nothing.
+test("search reads the name, the category and what is on", () => {
+  const ix = indexLineup(RAW, "us");
+  const names = (q, o = {}) => searchChannels(ix, { query: q, now: AT, ...o }).results.map((r) => r.name);
+  assert.deepEqual(names("court cam"), ["Witness to Justice"]);
+  assert.deepEqual(names("kids"), ["PBS Kids", "Peppa Pig & Friends"]);
+  assert.deepEqual(names("PEPPA"), ["Peppa Pig & Friends"]);
+  assert.deepEqual(names("nothing like this"), []);
+});
+
+// RED IF: accents have to be typed - "pokemon" would miss the Pokémon channel,
+// which is how it was found.
+test("search ignores accents and case", () => {
+  const ix = { "Pokémon": { n: 3695, group: "Kids", programs: [[AT - 60, "Pokémon Journeys"]] } };
+  assert.deepEqual(searchChannels(ix, { query: "pokemon", now: AT }).results.map((r) => r.name), ["Pokémon"]);
+  assert.deepEqual(searchChannels(ix, { query: "POKÉMON journeys", now: AT }).results.length, 1);
+});
+
+// RED IF: a number finds nothing, or matches digits anywhere in the number.
+test("an all-digit word matches a channel number by prefix", () => {
+  const ix = indexLineup(RAW, "us");
+  assert.deepEqual(searchChannels(ix, { query: "36", now: AT }).results.map((r) => r.n), [3614, 3615]);
+  assert.deepEqual(searchChannels(ix, { query: "14", now: AT }).results.map((r) => r.n), []);
+});
+
+test("a name match outranks a match on what is showing", () => {
+  const ix = indexLineup(RAW, "us");
+  const r = searchChannels(ix, { query: "pbs", now: AT }).results;
+  assert.equal(r[0].name, "PBS Kids");
+  assert.equal(r[0].rank, 0);
+});
+
+test("a category alone lists that category; the limit reports what it hides", () => {
+  const ix = indexLineup(RAW, "us");
+  const all = searchChannels(ix, { group: "Kids", now: AT });
+  assert.equal(all.total, 2);
+  const cut = searchChannels(ix, { query: "", limit: 3, now: AT });
+  assert.equal(cut.results.length, 3);
+  assert.equal(cut.total, 5);
+});
+
+/* ---------- the saved list ---------- */
+
+// RED IF: saving twice duplicates a channel, or removing leaves it in.
+test("saving toggles: add to the end, or take out", () => {
+  const a = toggleSaved(["CBS News 24/7"], "Movie Hub");
+  assert.deepEqual(a, ["CBS News 24/7", "Movie Hub"]);
+  assert.deepEqual(toggleSaved(a, "CBS News 24/7"), ["Movie Hub"]);
+  assert.deepEqual(toggleSaved(null, "Movie Hub"), ["Movie Hub"]);
+});
+
+test("moving stops at either end", () => {
+  const l = ["a", "b", "c"];
+  assert.deepEqual(moveSaved(l, "c", -1), ["a", "c", "b"]);
+  assert.deepEqual(moveSaved(l, "a", -1), ["a", "b", "c"]);
+  assert.deepEqual(moveSaved(l, "c", 1), ["a", "b", "c"]);
+  assert.deepEqual(l, ["a", "b", "c"], "the input is not changed");
+});
+
+test("a list name becomes a safe storage key", () => {
+  assert.equal(savedKey(), "samsung_tvplus.saved.default");
+  assert.equal(savedKey("Living Room!"), "samsung_tvplus.saved.living_room");
+  assert.equal(savedKey("!!!"), "samsung_tvplus.saved.default");
 });
 
 /* ---------- now / next ---------- */

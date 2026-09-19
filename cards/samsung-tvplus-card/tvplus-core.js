@@ -112,6 +112,80 @@ export function upcoming(index, { match = null, now = Date.now() / 1000 } = {}) 
   return out.sort((a, b) => a.start - b.start);
 }
 
+/* ---------------- search ---------------- */
+
+/** Lower case with accents stripped, so "Pokémon" and "pokemon" compare equal. */
+const fold = (s) => String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+/** The lineup's categories, largest first. Every channel carries exactly one. */
+export function groupsOf(index) {
+  const counts = new Map();
+  for (const ch of Object.values(index)) {
+    if (ch.group) counts.set(ch.group, (counts.get(ch.group) || 0) + 1);
+  }
+  return [...counts].map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+}
+
+/**
+ * Search the lineup.
+ *
+ * Every word of the query has to appear somewhere in the channel's name, its
+ * category, or what is on now or next - so "court cam" finds the show and
+ * "news" finds the category. A word that is all digits also matches a channel
+ * NUMBER by prefix, so "18" finds 1833. Case and accents are ignored - nobody
+ * types "Pokémon" on a phone. Name matches rank first, then number matches, then
+ * everything else; ties go in channel order.
+ *
+ * Returns `{ results, total }` - `total` counts every match, `results` stops at
+ * `limit`, so a caller can say how many it is not showing.
+ */
+export function searchChannels(index, { query = "", group = null, now = Date.now() / 1000, limit = 40 } = {}) {
+  const q = fold(query).trim();
+  const words = q ? q.split(/\s+/) : [];
+  const hits = [];
+  for (const [name, ch] of Object.entries(index)) {
+    if (group && ch.group !== group) continue;
+    const { cur, next } = airing(ch.programs || [], now);
+    const lname = fold(name);
+    const hay = `${lname} ${fold(ch.group)} ${fold(cur?.title)} ${fold(next?.title)}`;
+    const num = String(ch.n);
+    const ok = words.every((w) => hay.includes(w) || (/^\d+$/.test(w) && num.startsWith(w)));
+    if (!ok) continue;
+    const rank = !q ? 0 : lname.startsWith(q) ? 0 : lname.includes(q) ? 1
+      : /^\d+$/.test(q) && num.startsWith(q) ? 2 : 3;
+    hits.push({ name, n: ch.n, group: ch.group || null, cur, next, rank });
+  }
+  hits.sort((a, b) => a.rank - b.rank || a.n - b.n);
+  return { results: hits.slice(0, limit), total: hits.length };
+}
+
+/* ---------------- the saved list ----------------
+   Channel NAMES, in the order the user keeps them (see indexLineup for why
+   names). Pure list operations; where the list is stored is the card's job. */
+
+/** Add a channel to the end, or take it out if it is already there. */
+export function toggleSaved(list, name) {
+  const cur = Array.isArray(list) ? list : [];
+  return cur.includes(name) ? cur.filter((n) => n !== name) : [...cur, name];
+}
+
+/** Move a saved channel up (-1) or down (+1); at either end it stays put. */
+export function moveSaved(list, name, delta) {
+  const cur = Array.isArray(list) ? list.slice() : [];
+  const i = cur.indexOf(name);
+  const j = i + delta;
+  if (i < 0 || j < 0 || j >= cur.length) return cur;
+  [cur[i], cur[j]] = [cur[j], cur[i]];
+  return cur;
+}
+
+/** The HA storage key for a named list. One list per user unless the card names another. */
+export function savedKey(list = "default") {
+  const id = String(list || "default").toLowerCase().replace(/[^a-z0-9_]+/g, "_").replace(/^_+|_+$/g, "") || "default";
+  return `samsung_tvplus.saved.${id}`;
+}
+
 /* ---------------- storage ----------------
    A per-viewer convenience, never authoritative. Every access is guarded: a
    private window, a cleared profile or a full quota must degrade to a refetch,

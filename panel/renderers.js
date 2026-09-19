@@ -104,7 +104,9 @@ export const RENDERERS = Object.freeze({
   tvplus: {
     label: "TV Plus guide", size: { w: 6, h: 6 },
     load: () => import("../cards/samsung-tvplus-card/samsung-tvplus-card.js"), tag: "samsung-tvplus-card",
-    summary: (hass, cfg) => ({ text: `${(cfg.channels || []).length} channels`, state: "none" }),
+    // The saved list lives in HA's frontend storage, which a summary cannot read
+    // synchronously - so the row says what the tile is, not a count it would guess.
+    summary: () => ({ text: "saved channels · search the lineup", state: "none" }),
   },
   glance: {
     label: "Glance", size: { w: 6, h: 4 },

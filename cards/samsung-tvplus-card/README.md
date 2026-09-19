@@ -1,6 +1,7 @@
 # Samsung TV Plus card
 
-Pick a few channels, see what is on, tap to tune.
+Your saved channels, what is on, tap to tune. **Search** the whole lineup (a channel, a show, a
+category or a number) and save from the results; **Edit list** reorders or removes.
 
 **No integration, no backend, no API key, no subscription.** The lineup comes from a public
 JSON file the browser fetches directly (CORS is open), and tuning goes through
@@ -40,10 +41,26 @@ channels:
 | option | | |
 |---|---|---|
 | `remote` | **required** | a `remote.*` entity for the TV, from core `samsungtv` or from `samsungtv_smart` (see below) |
-| `channels` | **required** | channel **names**, not numbers (see below) |
+| `channels` | optional | the list to start from, until one is saved: channel **names**, not numbers (see below) |
+| `list` | optional | which saved list this card shows; cards with the same name share one (default `default`) |
+| `saved_for` | optional | `user` (default): each HA user keeps their own. `house`: one list for everyone, which only an admin can change |
 | `title` | optional | card heading |
 | `region` | optional | `us` (default), `ca`, `gb`, `de`, `fr`, `es`, `it`, `at`, `ch`, `in`, `kr` |
 | `key_gap_ms` | optional | pause between keys when tuning, `samsungtv_smart` only (200–2000, default 1000) |
+
+## Where saved channels live
+
+In Home Assistant, not the browser, so they follow you to every device: `frontend/set_user_data`
+(per user) or `frontend/set_system_data` (`saved_for: house`), under
+`samsung_tvplus.saved.<list>`. The card subscribes to that key, so the same list open in the
+panel and on a view stays in step. Until anything is saved, it shows `channels`.
+
+## What the lineup carries
+
+Per channel: number, name, logo, a description, **one of 20 categories** (`group` — Sports &
+Outdoors, Music, Kids, News & Opinion, …) and a schedule of `[start, title]` pairs. There are no end
+times (the next start is the end) and no per-programme descriptions. Search reads the name, the
+category and what is on now and next, ignoring case and accents.
 
 ## Three things it does deliberately
 
