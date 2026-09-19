@@ -32,8 +32,10 @@ import {
 import { RENDERERS, rendererFor } from "./renderers.js";
 import { tokenVar as T } from "./tokens.js";
 import { THEMES } from "./themes.js";
-import { TOKEN_GROUPS } from "./token-groups.js";
-import { THEME_TOKENS, baseValues, groupsWithDefaults, paintVars, statusVerdicts, textPairs } from "./theme-core.js";
+import { OWN_THEMES } from "./own-themes.js";
+import {
+  THEME_GROUPS, THEME_TOKENS, activeFrame, baseValues, groupsWithDefaults, paintVars, statusVerdicts, textPairs,
+} from "./theme-core.js";
 import { createThemeKit } from "../vendor/token-theme-kit/src/kit.js";
 import { haUserDataAdapter } from "../vendor/token-theme-kit/src/adapters/ha.js";
 import { cvdValidator } from "../vendor/token-theme-kit/src/plugins/cvd.js";
@@ -45,6 +47,8 @@ const STORE_KEY = "dashboard_builder.layout";
 const TAB_KEY = "dashboard_builder.tab";
 const THEME_KEY = "dashboard_builder.theme";
 const TOKENS_KEY = "dashboard_builder.theme_tokens";
+// Every starting theme by name: the panel's own first, then the 24 mined LCARS ones.
+const PRESETS = Object.freeze({ ...OWN_THEMES, ...THEMES });
 // Its own tag, so another copy of the kit on the page cannot hand us its class.
 const EDITOR_TAG = "db-theme-editor";
 const haThemeOf = (h) => `${h?.selectedTheme?.theme ?? h?.themes?.theme ?? ""}|${h?.selectedTheme?.dark ?? h?.themes?.darkMode ?? ""}`;
@@ -164,27 +168,33 @@ class DashboardBuilderPanel extends HTMLElement {
   _refreshTheme() {
     const above = this.parentElement || this.getRootNode()?.host || document.documentElement;
     const cs = getComputedStyle(above);
-    const base = baseValues(THEME_TOKENS, { preset: THEMES[this._theme] || null, read: (v) => cs.getPropertyValue(v) });
+    const base = baseValues(THEME_TOKENS, { preset: PRESETS[this._theme] || null, read: (v) => cs.getPropertyValue(v),
+      overrides: this._overrides });
     const sig = JSON.stringify(base);
     if (sig !== this._baseSig) {
       this._baseSig = sig;
       this._base = base;
       const kit = this._themeKit();
-      for (const g of groupsWithDefaults(TOKEN_GROUPS, base)) kit.registerTokenGroup(g);
+      for (const g of groupsWithDefaults(THEME_GROUPS, base)) kit.registerTokenGroup(g);
     }
     this._paintTheme();
   }
 
-  /** Write the chosen layers onto the panel; everything inside inherits them. */
+  /**
+   * Write the chosen layers onto the panel; everything inside inherits them.
+   * The frame is structure, not a colour, so it goes on as an attribute the
+   * stylesheet selects on (`:host([data-frame="cockpit"])`).
+   */
   _paintTheme() {
     for (const k of this._themeSet || []) this.style.removeProperty(k);
-    const vars = paintVars(THEME_TOKENS, { base: this._base, preset: THEMES[this._theme] || null, overrides: this._overrides });
+    const vars = paintVars(THEME_TOKENS, { base: this._base, preset: PRESETS[this._theme] || null, overrides: this._overrides });
     for (const [k, v] of Object.entries(vars)) this.style.setProperty(k, v);
     this._themeSet = Object.keys(vars);
+    this.setAttribute("data-frame", activeFrame(this._base, this._overrides));
   }
 
   async _setTheme(name) {
-    this._theme = name && THEMES[name] ? name : null;
+    this._theme = name && PRESETS[name] ? name : null;
     this._refreshTheme();
     try {
       await this._hass.connection.sendMessagePromise({ type: "frontend/set_user_data", key: THEME_KEY, value: this._theme });
@@ -197,7 +207,9 @@ class DashboardBuilderPanel extends HTMLElement {
       <div class="editbar">
         <label>Start from <select class="theme-pick">
           <option value="">Home Assistant's theme</option>
-          ${Object.keys(THEMES).map((n) => `<option value="${esc(n)}" ${n === this._theme ? "selected" : ""}>${esc(n)}</option>`).join("")}
+          ${[["Written for this panel", OWN_THEMES], ["LCARS themes", THEMES]].map(([label, set]) =>
+            `<optgroup label="${esc(label)}">${Object.keys(set).map((n) =>
+              `<option value="${esc(n)}" ${n === this._theme ? "selected" : ""}>${esc(n)}</option>`).join("")}</optgroup>`).join("")}
         </select></label>
         <span class="hint">Changes show at once and are saved for your Home Assistant user. ↺ puts one back;
           <b>Reset all to defaults</b>, at the bottom, returns everything to the theme you started from.</span>
@@ -214,8 +226,8 @@ class DashboardBuilderPanel extends HTMLElement {
       defineThemeKitEditor(EDITOR_TAG);
       const ed = document.createElement(EDITOR_TAG);
       // The editor saves through our adapter first, so `_overrides` is current here.
-      ed.addEventListener("change", () => this._paintTheme());
-      ed.addEventListener("reset", () => { this._paintTheme(); this._say("reset"); });
+      ed.addEventListener("change", () => this._refreshTheme());
+      ed.addEventListener("reset", () => { this._refreshTheme(); this._say("reset"); });
       ed.kit = this._themeKit();
       this._themeEditor = ed;
     }
@@ -265,7 +277,7 @@ class DashboardBuilderPanel extends HTMLElement {
     } catch (e) { failed = e?.message || e?.code || String(e); }
     try {
       const t = await this._hass.connection.sendMessagePromise({ type: "frontend/get_user_data", key: THEME_KEY });
-      this._theme = typeof t?.value === "string" && THEMES[t.value] ? t.value : null;
+      this._theme = typeof t?.value === "string" && PRESETS[t.value] ? t.value : null;
     } catch { this._theme = null; }
     this._themeKit();
     const own = await this._tokenStore.load();
@@ -735,14 +747,27 @@ const STYLE = `
     --db-outer: ${T("--lcars-outer-radius")};
     --db-inner: ${T("--lcars-inner-radius")};
     --db-font: ${T("--lcars-font")}, ${T("--lcars-fallback-font")}, Antonio, "Arial Narrow", sans-serif;
+    /* The panel's own tokens (panel-tokens.js). Each falls back to the LCARS
+       frame as it was, or to the token it follows. */
+    --db-surface: var(--db-tile-surface, var(--db-bg));
+    --db-border: var(--db-tile-border, var(--db-line));
+    --db-tab-on: var(--db-tab-active, var(--db-active));
+    --db-tab-on-text: var(--db-tab-active-text, var(--db-active-text));
+    --db-radius: var(--db-tile-radius, 14px);
+    --db-radius-start: var(--db-tile-radius-start, 0px);
+    --db-tab-r: var(--db-tab-radius, 0px);
+    --db-ctl-r: var(--db-control-radius, 20px);
+    --db-shadow: var(--db-tile-shadow, none);
+    --db-c: var(--db-chamfer, 14px);
+    --db-mono: ui-monospace, "Cascadia Mono", Consolas, "Roboto Mono", monospace;
     /* The tiles' cards read Home Assistant's standard variables. Pointing those
        at the LCARS roles here themes every tile - and every pop-up a tile opens -
        with no change to the cards; outside the panel they keep HA's theme. */
     --primary-text-color: var(--db-text);
     --secondary-text-color: color-mix(in srgb, var(--db-text) 62%, var(--db-bg));
     --accent-color: var(--db-active);
-    --card-background-color: var(--db-bg);
-    --ha-card-background: var(--db-bg);
+    --card-background-color: var(--db-surface);
+    --ha-card-background: var(--db-surface);
     --secondary-background-color: color-mix(in srgb, var(--db-tab) 30%, var(--db-bg));
     --divider-color: color-mix(in srgb, var(--db-frame) 55%, var(--db-bg));
     --ha-card-border-radius: 0;
@@ -766,7 +791,7 @@ const STYLE = `
            border-top-left-radius: var(--db-outer); display: flex; align-items: flex-start; }
   .elbow::after { content: ""; position: absolute; left: 100%; top: 22px; width: var(--db-inner); height: var(--db-inner);
                   background: radial-gradient(circle at 100% 100%, transparent calc(var(--db-inner) - .5px), var(--db-frame) var(--db-inner)); }
-  .menu { margin: 8px 0 0 14px; width: 44px; height: 40px; border: 0; border-radius: 20px; cursor: pointer;
+  .menu { margin: 8px 0 0 14px; width: 44px; height: 40px; border: 0; border-radius: var(--db-ctl-r); cursor: pointer;
           background: var(--db-bg); color: var(--db-text); font-size: 20px; }
   .bar { grid-area: bar; display: flex; align-items: flex-start; gap: 8px; min-width: 0; }
   .band { height: 22px; flex: 1; background: var(--db-frame); }
@@ -780,10 +805,10 @@ const STYLE = `
   .phone .clock { font-size: 20px; line-height: 18px; }
 
   .rail { grid-area: rail; display: flex; flex-direction: column; gap: 5px; min-height: 0; overflow-y: auto; }
-  .tab { border: 0; cursor: pointer; min-height: 56px; padding: 6px 10px; text-align: right;
+  .tab { border: 0; border-radius: var(--db-tab-r); cursor: pointer; min-height: 56px; padding: 6px 10px; text-align: right;
          display: flex; align-items: flex-end; justify-content: flex-end;
          background: var(--db-tab); color: var(--db-tab-text); text-transform: uppercase; letter-spacing: .06em; font-size: 15px; }
-  .tab.active { background: var(--db-active); color: var(--db-active-text); }
+  .tab.active { background: var(--db-tab-on); color: var(--db-tab-on-text); }
   .tab.tool { background: var(--db-edit); color: var(--db-edit-text); min-height: 48px; }
   .tab:focus-visible, .btn:focus-visible, .row:focus-visible, .close:focus-visible, .grab:focus-visible
     { outline: 2px solid var(--db-text); outline-offset: 2px; }
@@ -799,30 +824,37 @@ const STYLE = `
   .grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-auto-rows: ${ROW_H}px;
           gap: ${GAP}px; min-height: calc(var(--rows) * ${ROW_H + GAP}px); position: relative; }
   .tile { position: relative; min-width: 0; min-height: 0; display: flex; flex-direction: column;
-          border: 1px solid var(--db-line);
-          border-radius: 0 14px 14px 0; overflow: hidden; background: var(--db-bg); }
+          border: 1px solid var(--db-border); box-shadow: var(--db-shadow);
+          border-radius: var(--db-radius-start) var(--db-radius) var(--db-radius) var(--db-radius-start);
+          overflow: hidden; background: var(--db-surface); }
   .tile-bar { display: flex; align-items: center; gap: 6px; padding: 4px 6px 4px 10px; flex: none;
               background: var(--db-tile-bar); color: var(--db-tile-bar-text); text-transform: uppercase;
               letter-spacing: .05em; font-size: 13px; }
   .tile-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .tile-body { flex: 1; min-height: 0; overflow: auto; }
+  /* A card's outer box is see-through here, so the tile's own surface - and in
+     the cockpit frame its texture - shows wherever there is no control. Only
+     --ha-card-background: pop-ups, inputs and sticky headers paint
+     --card-background-color, which stays solid. */
+  .tile-body, .sheet-body { --ha-card-background: transparent; }
   .editing .tile { border-color: var(--db-edit); }
   .editing .tile-body { pointer-events: none; opacity: .55; }
-  .grab, .shelve, .to-tab, .copy-tab { border: 0; border-radius: 10px; padding: 4px 10px; cursor: pointer; font-size: 12px;
+  .grab, .shelve, .to-tab, .copy-tab { border: 0; border-radius: var(--db-ctl-r); padding: 4px 10px; cursor: pointer; font-size: 12px;
                             background: var(--db-bg); color: var(--db-text); text-transform: uppercase; }
   .grab { cursor: grab; touch-action: none; background: var(--db-active); color: var(--db-active-text); }
   .resize { position: absolute; right: 0; bottom: 0; width: 26px; height: 26px; cursor: nwse-resize; touch-action: none;
             background: linear-gradient(135deg, transparent 50%, var(--db-edit) 50%); }
   .ghost { grid-column: 1; grid-row: 1; z-index: 3; pointer-events: none; border: 2px dashed var(--db-ok);
            background: color-mix(in srgb, var(--db-ok) 18%, transparent); color: var(--db-text);
-           display: flex; align-items: center; justify-content: center; font-size: 13px; border-radius: 0 14px 14px 0; }
+           display: flex; align-items: center; justify-content: center; font-size: 13px;
+           border-radius: var(--db-radius-start) var(--db-radius) var(--db-radius) var(--db-radius-start); }
   .ghost.bad { border-color: var(--db-edit); background: color-mix(in srgb, var(--db-edit) 22%, transparent); }
   .ghost[hidden] { display: none; }
 
   .editbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 13px; }
   .editbar input { background: var(--db-bg); color: var(--db-text); border: 1px solid var(--db-edit);
-                   border-radius: 10px; padding: 4px 10px; width: 12em; }
-  .btn { border: 0; border-radius: 14px; padding: 6px 14px; cursor: pointer; font-size: 13px; text-transform: uppercase;
+                   border-radius: var(--db-ctl-r); padding: 4px 10px; width: 12em; }
+  .btn { border: 0; border-radius: var(--db-ctl-r); padding: 6px 14px; cursor: pointer; font-size: 13px; text-transform: uppercase;
          letter-spacing: .04em; background: var(--db-tab); color: var(--db-tab-text); }
   .btn.reset { background: #000000; color: #ffffff; outline: 1px solid #ffffff; }
   .hint { opacity: .75; font-size: 12px; }
@@ -855,14 +887,15 @@ const STYLE = `
   .phone .menu { margin: 0; flex: none; background: var(--db-frame); color: var(--db-frame-text); }
   .phone .rail { flex-direction: row; overflow-x: auto; overflow-y: hidden; }
   .phone .rail-fill { display: none; }
-  .phone .tab { min-height: 40px; flex: none; border-radius: 20px; padding: 6px 16px; align-items: center; }
+  .phone .tab { min-height: 40px; flex: none; border-radius: var(--db-ctl-r); padding: 6px 16px; align-items: center; }
   /* With a dozen tabs the strip scrolls; Edit and Theme stay pinned at its right edge. */
   .phone .tools { flex-direction: row; position: sticky; right: 0; z-index: 1; margin-left: auto;
                   background: var(--db-bg); box-shadow: -8px 0 0 var(--db-bg); }
   .rows { display: flex; flex-direction: column; gap: 6px; }
   .row { display: grid; grid-template-columns: 18px 1fr auto; grid-template-areas: "mark title chev" "mark sum chev";
          column-gap: 10px; align-items: center; text-align: left; width: 100%; min-height: 60px; padding: 8px 12px;
-         border: 0; border-radius: 0 20px 20px 0; cursor: pointer; background: var(--db-line); color: var(--db-text); }
+         border: 0; cursor: pointer; background: var(--db-line); color: var(--db-text);
+         border-radius: var(--db-radius-start) calc(var(--db-radius) * 10 / 7) calc(var(--db-radius) * 10 / 7) var(--db-radius-start); }
   .row-title { grid-area: title; text-transform: uppercase; letter-spacing: .05em; font-size: 15px; }
   .row.edit-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; cursor: default;
                   box-shadow: inset 3px 0 0 var(--db-edit); }
@@ -870,7 +903,7 @@ const STYLE = `
   .row-tools { display: flex; flex-wrap: wrap; gap: 6px; }
   .phone .editbar label { flex: 1 1 100%; }
   .phone .editbar input { width: 100%; }
-  .row-kind { font-size: 11px; letter-spacing: .08em; padding: 1px 7px; margin-left: 6px; border-radius: 8px;
+  .row-kind { font-size: 11px; letter-spacing: .08em; padding: 1px 7px; margin-left: 6px; border-radius: var(--db-ctl-r);
               vertical-align: 2px; background: var(--db-frame); color: var(--db-frame-text); }
   .row-sum { grid-area: sum; font-size: 13px; opacity: .85; font-variant-numeric: tabular-nums; }
   .chev { grid-area: chev; font-size: 22px; opacity: .7; }
@@ -887,12 +920,82 @@ const STYLE = `
            display: flex; flex-direction: column; justify-content: flex-end; }
   .sheet[hidden] { display: none; }
   .sheet-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px 8px 16px;
-               background: var(--db-frame); color: var(--db-frame-text); border-radius: 20px 20px 0 0;
+               background: var(--db-frame); color: var(--db-frame-text);
+               border-radius: calc(var(--db-radius) * 10 / 7) calc(var(--db-radius) * 10 / 7) 0 0;
                text-transform: uppercase; letter-spacing: .06em; }
-  .close { border: 0; border-radius: 16px; padding: 8px 18px; cursor: pointer; background: var(--db-bg); color: var(--db-text); }
-  .sheet-body { background: var(--db-bg); max-height: 85dvh; overflow: auto; padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .close { border: 0; border-radius: var(--db-ctl-r); padding: 8px 18px; cursor: pointer; background: var(--db-bg); color: var(--db-text); }
+  .sheet-body { background: var(--db-surface); max-height: 85dvh; overflow: auto; padding-bottom: env(safe-area-inset-bottom, 0px); }
   /* A phone on its side has little height to give; the sheet takes nearly all of it. */
   @media (max-height: 500px) { .sheet-body { max-height: calc(100dvh - 64px); } }
+
+  /* ---------------------------------------------------------- cockpit frame
+     The same structure drawn as a fighter's instrument panels: chamfered
+     consoles instead of elbows, a scale on the top band, a recessed readout
+     for the time, tabs as switches with indicator lamps, hazard-striped tools,
+     tiles screwed down like panels. Chosen by the \`frame\` token; nothing in
+     this block reaches the LCARS frame. Colours still come from the tokens. */
+  :host([data-frame="cockpit"]) {
+    /* Controls sit on the tile's surface, a step above the ground, so the cards'
+       control fill and dividers are mixed from THAT surface - mixed from the
+       ground they land on the surface exactly and vanish. VA's Black One recipe:
+       warm text at ~8% for a control, ~17% for an edge. */
+    --secondary-background-color: color-mix(in srgb, var(--db-text) 8%, var(--db-surface));
+    --divider-color: color-mix(in srgb, var(--db-text) 17%, var(--db-surface));
+    --db-lamp-off: color-mix(in srgb, var(--db-text) 16%, var(--db-bg));
+    --db-screw: color-mix(in srgb, var(--db-text) 24%, var(--db-surface));
+    --db-glow: color-mix(in srgb, var(--db-active) 55%, transparent);
+  }
+  :host([data-frame="cockpit"]) .shell {
+    background-image:
+      linear-gradient(color-mix(in srgb, var(--db-text) 3.5%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--db-text) 3.5%, transparent) 1px, transparent 1px);
+    background-size: 24px 24px; }
+  :host([data-frame="cockpit"]) .elbow { border-top-left-radius: 0;
+    clip-path: polygon(0 var(--db-c), var(--db-c) 0, 100% 0, 100% 100%, 0 100%); }
+  :host([data-frame="cockpit"]) .elbow::after { display: none; }
+  :host([data-frame="cockpit"]) .band {
+    background-image: repeating-linear-gradient(90deg, color-mix(in srgb, var(--db-text) 32%, transparent) 0 1px, transparent 1px 10px);
+    background-size: 100% 6px; background-position: 0 100%; background-repeat: no-repeat; }
+  :host([data-frame="cockpit"]) .cap { border-radius: 0;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%); }
+  :host([data-frame="cockpit"]) .title { letter-spacing: .16em; font-weight: 600; }
+  :host([data-frame="cockpit"]) .clock { font-family: var(--db-mono); font-size: 17px; line-height: 22px; padding: 0 8px;
+    background: color-mix(in srgb, #000 65%, var(--db-bg)); color: var(--db-active);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, .85), 0 0 0 1px var(--db-border); text-shadow: 0 0 6px var(--db-glow); }
+  :host([data-frame="cockpit"]) .tab { position: relative;
+    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--db-text) 9%, transparent), inset 0 -2px 0 rgba(0, 0, 0, .45); }
+  :host([data-frame="cockpit"]) .tab::before { content: ""; position: absolute; left: 10px; top: 10px; width: 16px; height: 4px;
+    border-radius: 1px; background: var(--db-lamp-off); }
+  :host([data-frame="cockpit"]) .tab.active::before { background: var(--db-active); box-shadow: 0 0 8px var(--db-active); }
+  :host([data-frame="cockpit"]) .tab.active {
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--db-active) 55%, transparent), 0 0 14px color-mix(in srgb, var(--db-active) 22%, transparent); }
+  :host([data-frame="cockpit"]) .phone .tab::before { left: 50%; top: auto; bottom: 4px; width: 18px; height: 3px; transform: translateX(-50%); }
+  :host([data-frame="cockpit"]) .tab.tool::before { display: none; }
+  :host([data-frame="cockpit"]) .tab.tool {
+    background-image: repeating-linear-gradient(-45deg, rgba(0, 0, 0, .6) 0 5px, transparent 5px 10px);
+    background-size: 10px 100%; background-repeat: no-repeat; }
+  :host([data-frame="cockpit"]) .rail-fill { border-bottom-left-radius: 0;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, var(--db-c) 100%, 0 calc(100% - var(--db-c)));
+    background-image: repeating-linear-gradient(0deg, rgba(0, 0, 0, .4) 0 2px, transparent 2px 7px);
+    background-size: 56% 44%; background-position: center; background-repeat: no-repeat; }
+  /* The panel itself, behind the controls (cards are see-through in a tile):
+     a screw in each corner and light falling from above. */
+  :host([data-frame="cockpit"]) .tile {
+    background-image:
+      radial-gradient(circle at 7px 7px, var(--db-screw) 0 1.8px, transparent 2.4px),
+      radial-gradient(circle at calc(100% - 7px) 7px, var(--db-screw) 0 1.8px, transparent 2.4px),
+      radial-gradient(circle at 7px calc(100% - 7px), var(--db-screw) 0 1.8px, transparent 2.4px),
+      radial-gradient(circle at calc(100% - 7px) calc(100% - 7px), var(--db-screw) 0 1.8px, transparent 2.4px),
+      linear-gradient(180deg, color-mix(in srgb, var(--db-text) 4%, transparent), transparent 45%); }
+  :host([data-frame="cockpit"]) .tile-bar { font-size: 11px; letter-spacing: .14em;
+    border-bottom: 1px solid color-mix(in srgb, var(--db-active) 45%, transparent); }
+  :host([data-frame="cockpit"]) .row { border: 1px solid var(--db-border); box-shadow: var(--db-shadow); }
+  :host([data-frame="cockpit"]) .mark { border-radius: 2px; }
+  :host([data-frame="cockpit"]) .row.st-on .mark { box-shadow: 0 0 8px var(--db-active); }
+  :host([data-frame="cockpit"]) .g-val, :host([data-frame="cockpit"]) .status { font-family: var(--db-mono); }
+  :host([data-frame="cockpit"]) .g-row.on .g-val { text-shadow: 0 0 6px var(--db-glow); }
+  :host([data-frame="cockpit"]) .sheet-bar { border-radius: 0;
+    clip-path: polygon(var(--db-c) 0, calc(100% - var(--db-c)) 0, 100% var(--db-c), 100% 100%, 0 100%, 0 var(--db-c)); }
 `;
 
 if (!customElements.get("dashboard-builder-panel")) {

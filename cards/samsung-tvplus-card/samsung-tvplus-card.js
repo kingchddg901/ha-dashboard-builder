@@ -559,9 +559,11 @@ SamsungTvPlusCard.styles = `
      attribute - so both showed in the saved list too. Hidden means hidden. */
   [hidden] { display: none !important; }
   /* The header, search box and categories stay put while a long list scrolls
-     under them - in a tile, and in the remote's pop-up. */
+     under them - in a tile, and in the remote's pop-up. So it needs a SOLID
+     surface: --card-background-color, not --ha-card-background, which a host
+     may make transparent to show its own surface through the card. */
   .top { position: sticky; top: 0; z-index: 2; padding-top: 10px;
-         background: var(--ha-card-background, var(--card-background-color, #111)); }
+         background: var(--card-background-color, #111); }
   .row { content-visibility: auto; contain-intrinsic-size: auto 48px; }
   * { box-sizing: border-box; }
   .hd { display:flex; align-items:center; gap:8px; padding:2px 12px 8px 16px; }

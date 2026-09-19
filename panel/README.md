@@ -9,6 +9,8 @@ The base everything else sits in. The panel owns the whole area and the render; 
     tokens.js            LCARS token fallbacks, held to ../tokens/lcars/core-tokens.json by a test
     themes.js            the 24 mined LCARS themes as role -> colour, held to ../tokens/lcars/presets.json by a test
     token-groups.js      the theme tokens as token-theme-kit groups — generated (tools/gen-panel-tokens.py), held by a test
+    panel-tokens.js      the panel's own tokens: surfaces, corners, and the frame — hand-written, same shape
+    own-themes.js        starting themes written for this panel (Black One), beside the 24 mined ones
     theme-core.js        where each token's value comes from, what the panel writes, readable status — no DOM, tested
     dashboard-panel.js   the element — the disposable half
     loader.js            the one stable file (see Deploy)
@@ -40,16 +42,62 @@ The grid rules, and why:
 ## Themes
 
 The last tab, **Theme**, is [token-theme-kit](https://github.com/kingchddg901/token-theme-kit)'s
-self-building editor. It draws one control per token in `token-groups.js`: 30 tokens in five
-groups (frame roles, card regions, status, frame shape, type). Add a token to the mined set, run
-`tools/gen-panel-tokens.py`, and a control appears. No editor code changes.
+self-building editor. It draws one control per token: the 30 mined ones in `token-groups.js`,
+then the panel's own 11 in `panel-tokens.js`, in seven groups. Add a token to either, and a
+control appears. No editor code changes.
 
 Each token's value comes in layers, bottom to top:
 
-1. the mined default
+1. the declared default — for a token with `byFrame`, the active frame's
 2. Home Assistant's theme, where it sets the variable
-3. **Start from**: one of the 24 LCARS themes, or none (follow Home Assistant's theme)
+3. **Start from**: Black One, one of the 24 LCARS themes, or none (follow Home Assistant's theme)
 4. your own changes
+
+### Frames
+
+`frame` is the master token. It picks how the panel draws its structure. The LCARS frame has
+elbows, pill tabs and a rail. The cockpit frame draws the same structure as instrument panels:
+
+- chamfered consoles
+- a scale on the top band
+- the time in a recessed readout
+- tabs as switches with indicator lamps
+- hazard-striped tools
+- tiles with a screw in each corner and light from above
+- square status lamps that glow
+
+The frame goes on as an attribute (`data-frame`), and the cockpit's rules all select on it, so
+none of them reach LCARS. Colours still come from the tokens either way.
+
+A frame brings its own shape. Tokens with `byFrame` (tile, tab and button corners, the tile's
+bevel) take the active frame's value as their default. Switching **Frame** alone reshapes the
+panel, a hand-set value still beats it, and a reset returns to the frame you started from.
+
+The panel's own tokens cover what LCARS cannot say:
+
+- **the tile surface:** a step above the ground; `follows` the background until set
+- **the tile border and the active tab:** `follows` the matching LCARS role
+- **tile shadow and bevel**
+- **corners:** tile, tab and button
+- **the chamfer**
+
+A `follows` token is never written unless someone chose it, so its leader still reaches it
+through CSS. Every default is the LCARS frame as it was drawn before these tokens existed. A
+computed-style diff of the old and new panel, on the same tab with no theme picked, differs only
+in edit mode: a few small buttons' corners grow by 0–2.5px and become full pills.
+
+**Black One** (`own-themes.js`) echoes Vacuum Agent's Black One: Poe Dameron's T-70, matte warm
+black, burnt-oxide markings and mustard for caution. Its colours come from VA's theme, made opaque
+where VA layers them at low alpha. It picks the cockpit frame.
+
+### The tile shows through the card
+
+Inside a tile or a sheet, `--ha-card-background` is transparent. So the tile's surface, and the
+cockpit's screws and lighting, show wherever there is no control. Everything that must cover
+content paints `--card-background-color`, which stays solid: pop-ups, inputs, the TV Plus guide's
+sticky header, and the "on" power icon's text. In the cockpit frame, the cards' control fill and
+dividers are mixed from the tile surface, not the ground. Mixed from the ground, they land exactly
+on Black One's tile surface and vanish.
 
 1-3 are what the editor shows for a token you have not changed, and what ↺ or **Reset all to
 defaults** puts back. So a reset lands on the theme you started from, not on the mined one.

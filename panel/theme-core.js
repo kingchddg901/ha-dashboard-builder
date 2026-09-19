@@ -2,17 +2,18 @@
  * Themes for the panel - where each theme token's value comes from, which
  * variables the panel sets, and keeping status colours readable. No DOM.
  *
- * The tokens are ./token-groups.js (the mined LCARS vocabulary). Their values
- * come in layers, bottom to top:
+ * The tokens are ./token-groups.js (the mined LCARS vocabulary) and
+ * ./panel-tokens.js (the panel's own: surfaces, corners, and the frame). Their
+ * values come in layers, bottom to top:
  *
- *   1. the mined default                    - always there
+ *   1. the declared default - for a `byFrame` token, the active frame's
  *   2. Home Assistant's theme               - where it sets the variable
- *   3. a picked LCARS theme (./themes.js)   - where it sets the token
+ *   3. a picked starting theme              - where it sets the token
  *   4. your own changes, from the theme tab
  *
  * 1-3 are the BASE: what the editor shows for a token you have not changed, and
- * what a reset puts back. The panel writes only 3 and 4 onto itself; 1 and 2
- * reach it through the cascade anyway. It maps Home Assistant's standard
+ * what a reset puts back. The panel writes 3, 4, and the active frame's own
+ * defaults onto itself; the rest reaches it through the cascade anyway. It maps Home Assistant's standard
  * variables onto the tokens, so every tile - and every pop-up a tile opens -
  * wears the result with no change to the cards.
  *
@@ -24,10 +25,24 @@
  */
 
 import { TOKEN_GROUPS } from "./token-groups.js";
+import { PANEL_GROUPS, FRAMES } from "./panel-tokens.js";
 import { BUILTIN_CONTROL_TYPES } from "../vendor/token-theme-kit/src/control-types.js";
 
+/** Every theme token group, in editor order: the mined vocabulary, then the panel's own. */
+export const THEME_GROUPS = Object.freeze([...TOKEN_GROUPS, ...PANEL_GROUPS]);
+
 /** Every theme token, flat, in editor order. */
-export const THEME_TOKENS = Object.freeze(TOKEN_GROUPS.flatMap((g) => g.tokens));
+export const THEME_TOKENS = Object.freeze(THEME_GROUPS.flatMap((g) => g.tokens));
+
+/** A frame id the panel can draw; anything else is the LCARS frame. */
+export function frameFor(value) {
+  return FRAMES.some((f) => f.value === value) ? value : "lcars";
+}
+
+/** The frame in force: your own choice, else the base's (picked theme, HA, default). */
+export function activeFrame(base = {}, overrides = {}) {
+  return frameFor(has(overrides, "frame") ? overrides.frame : base.frame);
+}
 
 export const STATUS_ROLES = Object.freeze(["success", "warning", "error"]);
 export const MIN_STATUS_CONTRAST = 3;
@@ -132,17 +147,27 @@ export function fromCss(token, css) {
 
 /**
  * Layers 1-3 for every token: the picked theme if it sets the token, else Home
- * Assistant's theme if it sets the variable, else the mined default.
- * `read(cssVar)` is what the page gives that variable ABOVE the panel ("" for
- * nothing) - read above it, because the panel's own writes would answer back.
+ * Assistant's theme if it sets the variable, else the default - the active
+ * frame's, for a `byFrame` token, and for a `follows` token the value of the
+ * token it follows. `read(cssVar)` is what the page gives that variable ABOVE
+ * the panel ("" for nothing) - read above it, because the panel's own writes
+ * would answer back. Of `overrides` only `frame` is read: your frame decides
+ * which frame's defaults the base carries.
  */
-export function baseValues(tokens, { preset = null, read = () => "" } = {}) {
+export function baseValues(tokens, { preset = null, read = () => "", overrides = {} } = {}) {
   const out = {};
+  const pending = [];
+  const layered = (t) => (preset && preset[t.key] != null ? preset[t.key] : fromCss(t, read(t.cssVar)));
+  const frameToken = tokens.find((t) => t.key === "frame");
+  const baseFrame = frameToken ? layered(frameToken) ?? frameToken.default : undefined;
+  const frame = activeFrame({ frame: baseFrame }, overrides);
   for (const t of tokens) {
-    if (preset && preset[t.key] != null) { out[t.key] = preset[t.key]; continue; }
-    const fromHa = fromCss(t, read(t.cssVar));
-    out[t.key] = fromHa !== undefined ? fromHa : t.default;
+    const v = layered(t);
+    if (v !== undefined) out[t.key] = v;
+    else if (t.follows) pending.push(t);
+    else out[t.key] = t.byFrame && has(t.byFrame, frame) ? t.byFrame[frame] : t.default;
   }
+  for (const t of pending) out[t.key] = out[t.follows];
   return out;
 }
 
@@ -161,18 +186,22 @@ export function groupsWithDefaults(groups, base = {}) {
 const toCss = (t, v) => (BUILTIN_CONTROL_TYPES[t.type] || BUILTIN_CONTROL_TYPES.raw).toCss(v, t);
 
 /**
- * The variables the panel sets on itself: layers 3 and 4, and nothing else. A
- * token nobody chose is left unset so Home Assistant's theme keeps showing
- * through it - writing it would pin it to today's value, and a later change to
- * the HA theme would never arrive. Last, the status floor: a status colour that
- * would vanish on the background is written readable, whoever chose it.
+ * The variables the panel sets on itself: layers 3 and 4, plus the active
+ * frame's own defaults - and nothing else. A token nobody chose is left unset
+ * so Home Assistant's theme keeps showing through it - writing it would pin it
+ * to today's value, and a later change to the HA theme would never arrive.
+ * Last, the status floor: a status colour that would vanish on the background
+ * is written readable, whoever chose it.
  */
 export function paintVars(tokens, { base = {}, preset = null, overrides = {} } = {}) {
   const out = {};
+  const frame = activeFrame(base, overrides);
   for (const t of tokens) {
     const own = has(overrides, t.key);
-    if (!own && !(preset && preset[t.key] != null)) continue;
-    out[t.cssVar] = toCss(t, own ? overrides[t.key] : preset[t.key]);
+    const picked = !own && preset && preset[t.key] != null;
+    const framed = !own && !picked && t.byFrame && has(t.byFrame, frame);
+    if (!own && !picked && !framed) continue;
+    out[t.cssVar] = toCss(t, own ? overrides[t.key] : picked ? preset[t.key] : t.byFrame[frame]);
   }
   const resolved = { ...base, ...overrides };
   for (const t of tokens) {

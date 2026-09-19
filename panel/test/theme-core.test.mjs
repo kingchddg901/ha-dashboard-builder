@@ -12,9 +12,11 @@ import { readFileSync } from "node:fs";
 
 import { THEMES, ROLE_VARS } from "../themes.js";
 import { TOKEN_GROUPS } from "../token-groups.js";
+import { OWN_THEMES } from "../own-themes.js";
+import { FRAMES } from "../panel-tokens.js";
 import {
   parseColor, contrast, legibleOn, legibleStatus, MIN_STATUS_CONTRAST,
-  THEME_TOKENS, baseValues, groupsWithDefaults, paintVars, statusVerdicts, textPairs,
+  THEME_GROUPS, THEME_TOKENS, activeFrame, frameFor, baseValues, groupsWithDefaults, paintVars, statusVerdicts, textPairs,
 } from "../theme-core.js";
 import { createThemeKit } from "../../vendor/token-theme-kit/src/kit.js";
 import { resetValues } from "../../vendor/token-theme-kit/src/reset.js";
@@ -141,9 +143,9 @@ test("the kit builds the theme tab from the groups, and a reset lands on the pic
   const mined = THEME_TOKENS.find((t) => t.key === "ui-primary").default;
   assert.notEqual(romulus["ui-primary"], mined, "precondition: the two are distinguishable");
   const kit = createThemeKit();
-  for (const g of groupsWithDefaults(TOKEN_GROUPS, baseValues(THEME_TOKENS, { preset: romulus }))) kit.registerTokenGroup(g);
+  for (const g of groupsWithDefaults(THEME_GROUPS, baseValues(THEME_TOKENS, { preset: romulus }))) kit.registerTokenGroup(g);
   const model = kit.editorModel({});
-  assert.deepEqual(model.groups.map((g) => g.id), TOKEN_GROUPS.map((g) => g.id));
+  assert.deepEqual(model.groups.map((g) => g.id), THEME_GROUPS.map((g) => g.id));
   const controls = model.groups.flatMap((g) => g.controls);
   assert.equal(controls.length, THEME_TOKENS.length);
   const input = Object.fromEntries(controls.map((c) => [c.key, c.input]));
@@ -165,4 +167,68 @@ test("text that matches its own background is flagged on the control", () => {
   const verdictsOn = (values, key) => kit.editorModel(values).groups.flatMap((g) => g.controls).find((c) => c.key === key).verdicts;
   assert.equal(verdictsOn({}, "background-text").length, 0);
   assert.equal(verdictsOn({ "background-text": "#000000" }, "background-text").length, 1);
+});
+
+// RED IF: two tokens write the same variable, or a `follows` / `byFrame` names
+// something that does not exist - each fails silently on screen.
+test("the panel's own tokens are well formed beside the mined ones", () => {
+  const keys = THEME_TOKENS.map((t) => t.key);
+  const vars = THEME_TOKENS.map((t) => t.cssVar);
+  assert.equal(new Set(keys).size, keys.length, "keys are unique");
+  assert.equal(new Set(vars).size, vars.length, "variables are unique");
+  const frames = FRAMES.map((f) => f.value);
+  for (const t of THEME_TOKENS) {
+    if (t.follows) assert.ok(keys.includes(t.follows) && !THEME_TOKENS.find((u) => u.key === t.follows).follows, `${t.key} follows ${t.follows}`);
+    for (const f of Object.keys(t.byFrame || {})) assert.ok(frames.includes(f), `${t.key}: unknown frame ${f}`);
+  }
+  assert.equal(frameFor("cockpit"), "cockpit");
+  assert.equal(frameFor("x-wing"), "lcars", "an unknown frame draws as LCARS");
+});
+
+// RED IF: a follower ignores what it follows - the tile surface would then show
+// the mined black under a theme whose background is not black.
+test("a following token takes its leader's value until one is chosen", () => {
+  const base = baseValues(THEME_TOKENS, { read: (v) => (v === "--lcars-background-color" ? "#123456" : "") });
+  assert.equal(base["tile-surface"], "#123456");
+  assert.equal(baseValues(THEME_TOKENS, { preset: { background: "#123456", "tile-surface": "#222222" } })["tile-surface"], "#222222");
+  assert.deepEqual(paintVars(THEME_TOKENS, { base: { ...base, warning: "#ffcc66", error: "#ff4444" } }), {},
+    "an unchosen follower is not written - CSS falls back to its leader");
+});
+
+// RED IF: the frame alone does not reshape the panel, or choosing it leaks into
+// the base - then a reset would not return to the frame you started from.
+test("the frame is the master token: choosing it brings its shape, a reset takes it back", () => {
+  const cockpit = { frame: "cockpit" };
+  const base = baseValues(THEME_TOKENS, { overrides: cockpit });
+  assert.equal(base.frame, "lcars", "the base keeps the starting frame");
+  assert.equal(activeFrame(base, cockpit), "cockpit");
+  assert.equal(base["tile-radius"], 4, "the editor shows the cockpit's corner as the default");
+  const vars = paintVars(THEME_TOKENS, { base, overrides: cockpit });
+  assert.equal(vars["--db-tile-radius"], "4px");
+  assert.match(vars["--db-tile-shadow"], /inset/);
+  const own = paintVars(THEME_TOKENS, { base, overrides: { ...cockpit, "tile-radius": 9 } });
+  assert.equal(own["--db-tile-radius"], "9px", "a value set by hand beats the frame's");
+  const lcars = baseValues(THEME_TOKENS, {});
+  assert.equal(lcars["tile-radius"], 14);
+  assert.ok(!("--db-tile-radius" in paintVars(THEME_TOKENS, { base: lcars })), "the LCARS frame writes no shape");
+});
+
+// RED IF: a starting theme names a token that does not exist (it silently does
+// nothing), takes a mined theme's name, or trips its own warnings the moment it
+// is picked.
+test("the panel's own starting themes are sound", () => {
+  const keys = new Set(THEME_TOKENS.map((t) => t.key));
+  const pairs = textPairs(THEME_TOKENS);
+  for (const [name, theme] of Object.entries(OWN_THEMES)) {
+    assert.ok(!(name in THEMES), `${name} collides with a mined theme`);
+    for (const k of Object.keys(theme)) assert.ok(keys.has(k), `${name}: no token ${k}`);
+    const values = baseValues(THEME_TOKENS, { preset: theme });
+    assert.equal(frameFor(values.frame), values.frame, `${name}: unknown frame`);
+    assert.deepEqual(statusVerdicts(values), [], `${name}: a status colour needs lifting`);
+    for (const p of pairs) {
+      const r = contrast(values[p.fg], values[p.bg]);
+      assert.ok(r >= 4.5, `${name}: ${p.label} is ${r?.toFixed(2)}:1`);
+    }
+  }
+  assert.equal(OWN_THEMES["Black One"].frame, "cockpit");
 });
