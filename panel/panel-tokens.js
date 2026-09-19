@@ -28,8 +28,8 @@
  * outline instead of rounding them.
  */
 export const FRAMES = Object.freeze([
-  { value: "lcars", label: "LCARS", skips: ["chamfer", "greeble-density"] },
-  { value: "cockpit", label: "Cockpit", skips: ["outer-radius", "inner-radius", "tile-radius", "tile-radius-start"] },
+  { value: "lcars", label: "LCARS", skips: ["chamfer", "greeble-density", "light-angle", "light-intensity"] },
+  { value: "cockpit", label: "Cockpit", skips: ["outer-radius", "inner-radius", "tile-radius", "tile-radius-start", "tile-shadow"] },
 ]);
 
 /**
@@ -40,10 +40,6 @@ export const NOT_DRAWN = Object.freeze([
   "ui-primary-text", "ui-quaternary", "ui-quaternary-text", "card-mid", "card-mid-text",
   "card-bottom", "card-bottom-text", "settings-card", "horizontal-border", "vertical-border",
 ]);
-
-/** Instrument-panel bevel: a lit top edge, a dark lip, and a deep drop shadow. */
-const BEVEL = "inset 0 1px 0 rgba(232, 227, 220, 0.07), inset 0 -1px 0 rgba(0, 0, 0, 0.7), "
-  + "0 1px 2px rgba(0, 0, 0, 0.62), 0 6px 18px rgba(0, 0, 0, 0.5)";
 
 export const PANEL_GROUPS = [
   {
@@ -67,10 +63,19 @@ export const PANEL_GROUPS = [
       { key: "tile-border", type: "color", cssVar: "--db-tile-border", follows: "ui-primary", label: "Tile border" },
       { key: "tab-active", type: "color", cssVar: "--db-tab-active", follows: "ui-accent", label: "Active tab" },
       { key: "tab-active-text", type: "color", cssVar: "--db-tab-active-text", follows: "ui-accent-text", label: "Active tab text" },
-      { key: "tile-shadow", type: "raw", cssVar: "--db-tile-shadow", default: "none", byFrame: { cockpit: BEVEL },
-        label: "Tile shadow and bevel" },
+      { key: "tile-shadow", type: "raw", cssVar: "--db-tile-shadow", default: "none", label: "Tile shadow and bevel" },
       { key: "greeble-density", type: "number", input: "range", unit: "%", min: 0, max: 100, step: 5,
         cssVar: "--db-greeble-density", default: 0, byFrame: { cockpit: 60 }, label: "Greeble density" },
+    ],
+  },
+  {
+    /* One light for everything a frame draws as lit - greebles, plate bevels,
+       key bevels - so nothing is lit from two directions at once. */
+    id: "panel-light", label: "Light", tokens: [
+      { key: "light-angle", type: "number", input: "range", unit: "deg", min: 0, max: 355, step: 5,
+        cssVar: "--db-light-angle", default: 0, label: "Light angle" },
+      { key: "light-intensity", type: "number", input: "range", unit: "%", min: 0, max: 100, step: 5,
+        cssVar: "--db-light-intensity", default: 60, label: "Light intensity" },
     ],
   },
 ];

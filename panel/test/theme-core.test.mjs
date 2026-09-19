@@ -219,7 +219,7 @@ test("the frame is the master token: choosing it brings its shape, a reset takes
   assert.equal(base["tab-radius"], 3, "the editor shows the cockpit's corner as the default");
   const vars = paintVars(THEME_TOKENS, { base, overrides: cockpit });
   assert.equal(vars["--db-tab-radius"], "3px");
-  assert.match(vars["--db-tile-shadow"], /inset/);
+  assert.equal(vars["--db-control-radius"], "3px");
   const own = paintVars(THEME_TOKENS, { base, overrides: { ...cockpit, "tab-radius": 9 } });
   assert.equal(own["--db-tab-radius"], "9px", "a value set by hand beats the frame's");
   const lcars = baseValues(THEME_TOKENS, {});

@@ -1007,8 +1007,18 @@ const STYLE = `
     --db-screw: color-mix(in srgb, var(--db-text) 24%, var(--db-surface));
     --db-glow: color-mix(in srgb, var(--db-active) 55%, transparent);
     --db-recess: color-mix(in srgb, #000 65%, var(--db-bg));
-    --db-plate-lit: linear-gradient(180deg, color-mix(in srgb, var(--db-text) 6%, transparent), transparent 55%);
-    --db-plate-edge: inset 0 1px 0 color-mix(in srgb, var(--db-text) 10%, transparent), inset 0 -1px 0 rgba(0, 0, 0, .6);
+    /* One light (the Light tokens, painted as --db-lx/--db-ly, a unit vector toward
+       it, and --db-light-k, its strength): the plate's sheen falls from it, the
+       edge facing it catches it, the edge facing away is dark. */
+    --db-plate-lit: linear-gradient(calc(var(--db-light-deg, 0) * 1deg + 180deg),
+      color-mix(in srgb, var(--db-text) calc(var(--db-light-k, .6) * 10%), transparent), transparent 55%);
+    --db-plate-edge:
+      inset calc(var(--db-lx, 0) * -1px) calc(var(--db-ly, -1) * -1px) 0 color-mix(in srgb, var(--db-text) calc(var(--db-light-k, .6) * 17%), transparent),
+      inset calc(var(--db-lx, 0) * 1px) calc(var(--db-ly, -1) * 1px) 0 rgba(0, 0, 0, calc(var(--db-light-k, .6)));
+    --db-key-edge:
+      inset calc(var(--db-lx, 0) * -1px) calc(var(--db-ly, -1) * -1px) 0 color-mix(in srgb, var(--db-text) calc(var(--db-light-k, .6) * 15%), transparent),
+      inset calc(var(--db-lx, 0) * 2px) calc(var(--db-ly, -1) * 2px) 0 rgba(0, 0, 0, calc(var(--db-light-k, .6) * .75)),
+      calc(var(--db-lx, 0) * -1px) calc(var(--db-ly, -1) * -1px) 2px rgba(0, 0, 0, .6);
     --db-grain: ${GRAIN};
   }
   :host([data-frame="cockpit"]) .shell { row-gap: 8px;
@@ -1044,8 +1054,7 @@ const STYLE = `
     clip-path: polygon(0 0, calc(100% - var(--db-c)) 0, 100% var(--db-c), 100% 100%, 0 100%); }
   /* The pinned tools carry the console's bottom margin themselves, so no tab shows below them. */
   :host([data-frame="cockpit"]) .desk .tools { background: var(--db-frame); box-shadow: 0 -6px 0 var(--db-frame); padding-bottom: 8px; }
-  :host([data-frame="cockpit"]) .tab { position: relative;
-    box-shadow: inset 0 1px 0 color-mix(in srgb, var(--db-text) 9%, transparent), inset 0 -2px 0 rgba(0, 0, 0, .45), 0 1px 2px rgba(0, 0, 0, .6); }
+  :host([data-frame="cockpit"]) .tab { position: relative; box-shadow: var(--db-key-edge); }
   :host([data-frame="cockpit"]) .tab::before { content: ""; position: absolute; left: 10px; top: 10px; width: 16px; height: 4px;
     border-radius: 1px; background: var(--db-lamp-off); }
   :host([data-frame="cockpit"]) .tab.active::before { background: var(--db-active); box-shadow: 0 0 8px var(--db-active); }

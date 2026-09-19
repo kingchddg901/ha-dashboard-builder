@@ -8,8 +8,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { greebleArt, GRAIN } from "../cockpit-art.js";
-import { frameArtVars } from "../theme-core.js";
+import { greebleArt, GRAIN, shadeEdges, lightOf } from "../cockpit-art.js";
+import { frameArtVars, baseValues, THEME_TOKENS } from "../theme-core.js";
+
+/** The base the panel really builds for a frame: every token, frame defaults applied. */
+const baseFor = (frame, extra = {}) => ({ ...baseValues(THEME_TOKENS, { overrides: { frame } }), frame, ...extra });
 
 const DENSITIES = [0, .1, .2, .3, .4, .5, .6, .7, .8, .9, 1];
 
@@ -51,12 +54,54 @@ test("greebles are lit in white and black only, never a colour", () => {
 // RED IF: the slider is wired to nothing, or LCARS - which draws no greebles -
 // gets art written onto it anyway.
 test("the panel paints greebles for the cockpit only, at the chosen density", () => {
-  assert.deepEqual(frameArtVars({ frame: "lcars", "greeble-density": 100 }, {}), {});
-  const base = { frame: "cockpit", "greeble-density": 60 };
+  assert.deepEqual(frameArtVars(baseFor("lcars", { "greeble-density": 100 }), {}), {});
+  const base = baseFor("cockpit");
+  assert.equal(base["greeble-density"], 60, "precondition: the cockpit's default density");
   const at60 = frameArtVars(base, {});
-  assert.equal(at60["--db-greeble-strip"], greebleArt(.6).strip);
+  assert.equal(at60["--db-greeble-strip"], greebleArt(.6, { angle: 0, intensity: .6 }).strip);
   const at0 = frameArtVars(base, { "greeble-density": 0 });
   assert.equal(at0["--db-greeble-strip"], greebleArt(0).strip, "your own density beats the frame's");
   assert.notEqual(at0["--db-greeble-strip"], at60["--db-greeble-strip"]);
   assert.ok("--db-greeble-strip" in frameArtVars({ frame: "lcars" }, { frame: "cockpit" }), "choosing the cockpit brings its art");
+});
+
+// RED IF: the light does not steer the shading - an edge facing the light must
+// catch it and the one facing away go dark, whichever way the light comes from.
+test("each edge is shaded by where the light comes from", () => {
+  const sq = [[0, 0], [10, 0], [10, 10], [0, 10]];            // top, right, bottom, left
+  const lit = (angle) => shadeEdges(sq, lightOf({ angle, intensity: .6 })).map((e) => (e.hi ? "L" : e.sh ? "D" : "-")).join("");
+  assert.equal(lit(0), "L-D-", "from above: top lit, bottom dark");
+  assert.equal(lit(90), "-L-D", "from the right");
+  assert.equal(lit(180), "D-L-", "from below");
+  assert.equal(lit(270), "-D-L", "from the left");
+  const hole = shadeEdges(sq, lightOf({ angle: 0, intensity: .6 }), { raised: false }).map((e) => (e.hi ? "L" : e.sh ? "D" : "-")).join("");
+  assert.equal(hole, "D-L-", "a hole is the reverse: its far wall catches the light");
+});
+
+// RED IF: intensity is not wired - at 0 there must be no relief at all, and
+// stronger light must mean stronger shading.
+test("light intensity scales the shading, down to flat", () => {
+  const sq = [[0, 0], [10, 0], [10, 10], [0, 10]];
+  const flat = shadeEdges(sq, lightOf({ angle: 30, intensity: 0 }));
+  assert.ok(flat.every((e) => !e.hi && !e.sh), "no light, no relief");
+  const top = (k) => shadeEdges(sq, lightOf({ angle: 0, intensity: k }))[0].hi;
+  assert.ok(top(1) > top(.5) && top(.5) > 0);
+});
+
+// RED IF: the light moves hardware - light changes shading, never placement.
+test("changing the light never moves a greeble", () => {
+  const a = greebleArt(.7, { angle: 0, intensity: .6 });
+  const b = greebleArt(.7, { angle: 135, intensity: .9 });
+  assert.deepEqual(b.placed, a.placed);
+  assert.notEqual(b.strip, a.strip, "but it does change how they are drawn");
+});
+
+// RED IF: the plates and keys are not told where the light is - they would stay
+// lit from above while the greebles turned.
+test("the panel paints the light itself for the plates and keys to use", () => {
+  const v = frameArtVars(baseFor("cockpit"), { "light-angle": 90, "light-intensity": 80 });
+  assert.equal(v["--db-lx"], "1");
+  assert.equal(v["--db-ly"], "0");
+  assert.equal(v["--db-light-k"], "0.8");
+  assert.equal(v["--db-light-deg"], "90");
 });

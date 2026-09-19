@@ -86,6 +86,20 @@ LCARS skips it. Each surface has a fixed seed and fixed slots, and density only 
 are shown. Raising it adds hardware in place, lowering it takes hardware away, nothing moves. A test
 compares positions, not slot numbers: slot numbers alone passed while every module slid sideways.
 
+**Light** is two tokens, **Light angle** (where the light comes from; 0° is above, 90° is the
+right) and **Light intensity**, and one light for everything the cockpit draws as lit:
+
+- **Greebles:** every edge's outward direction is compared with the light. An edge facing it gets
+  a highlight in proportion, an edge facing away gets shadow, and a raised part casts a short
+  shadow opposite the light, darker as the light gets stronger. A hole is the reverse: its far
+  wall catches the light.
+- **Plates:** their sheen, and the bevels of plates and keys, follow the same light through CSS
+  variables the panel paints (`--db-lx`, `--db-ly` for a unit vector toward the light,
+  `--db-light-k` for its strength).
+
+At 0° and 60% everything draws exactly as before these tokens existed. The light changes shading
+only, never where a greeble sits (tested). LCARS draws nothing lit, so it skips both tokens.
+
 **Each frame declares the tokens it does not draw with** (`FRAMES[].skips`), and the theme tab
 marks those controls "Not used by the Cockpit frame" rather than offering a setting that changes
 nothing. Controls are marked, not hidden, so a value you set stays in view when a frame ignores

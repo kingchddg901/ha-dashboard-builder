@@ -27,7 +27,7 @@
 import { TOKEN_GROUPS } from "./token-groups.js";
 import { PANEL_GROUPS, FRAMES, NOT_DRAWN } from "./panel-tokens.js";
 import { BUILTIN_CONTROL_TYPES } from "../vendor/token-theme-kit/src/control-types.js";
-import { greebleArt } from "./cockpit-art.js";
+import { greebleArt, lightOf } from "./cockpit-art.js";
 
 /** Every theme token group, in editor order: the mined vocabulary, then the panel's own. */
 export const THEME_GROUPS = Object.freeze([...TOKEN_GROUPS, ...PANEL_GROUPS]);
@@ -215,14 +215,22 @@ export function paintVars(tokens, { base = {}, preset = null, overrides = {} } =
 
 /**
  * Generated art the active frame draws with, as CSS variables - today the
- * cockpit's greebles at the chosen density. A frame without generated art gets
+ * cockpit's greebles at the chosen density under the chosen light, and the
+ * light itself as a unit vector and a strength, which the stylesheet uses to
+ * shade the plates and keys the same way. A frame without generated art gets
  * none, so nothing is written for it.
  */
 export function frameArtVars(base = {}, overrides = {}) {
   if (activeFrame(base, overrides) !== "cockpit") return {};
-  const pct = has(overrides, "greeble-density") ? overrides["greeble-density"] : base["greeble-density"];
-  const art = greebleArt((Number(pct) || 0) / 100);
-  return { "--db-greeble-strip": art.strip, "--db-greeble-corner": art.corner, "--db-greeble-column": art.column };
+  const pick = (k) => (has(overrides, k) ? overrides[k] : base[k]);
+  const lightIn = { angle: Number(pick("light-angle")) || 0, intensity: (Number(pick("light-intensity")) || 0) / 100 };
+  const art = greebleArt((Number(pick("greeble-density")) || 0) / 100, lightIn);
+  const light = lightOf(lightIn);
+  const r3 = (v) => String(Math.round(v * 1000) / 1000);
+  return {
+    "--db-greeble-strip": art.strip, "--db-greeble-corner": art.corner, "--db-greeble-column": art.column,
+    "--db-lx": r3(light.x), "--db-ly": r3(light.y), "--db-light-k": r3(light.k), "--db-light-deg": r3(lightIn.angle),
+  };
 }
 
 /**
