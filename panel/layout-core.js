@@ -105,6 +105,49 @@ export function moveToTab(dash, tileId, toTabId) {
   return { ok: true, dash: out, reason: null };
 }
 
+/** Every tile id in use, on any tab or the shelf. */
+const idsIn = (dash) => new Set([...dash.tabs.flatMap((t) => t.tiles.map((x) => x.id)),
+  ...(dash.shelf || []).map((x) => x.id)]);
+
+/**
+ * Put the same control on another tab as well. The copy is its own tile - its
+ * own id, place and size - holding the same declaration, so the two can be
+ * arranged independently while controlling the same thing.
+ */
+export function copyToTab(dash, tileId, toTabId) {
+  const at = findTile(dash, tileId);
+  const dest = tabOf(dash, toTabId);
+  if (!at) return { ok: false, dash, reason: "no such tile" };
+  if (!dest) return { ok: false, dash, reason: "no such tab" };
+  const taken = idsIn(dash);
+  const base = at.tile.id.replace(/~\d+$/, "");
+  let n = 2;
+  while (taken.has(`${base}~${n}`)) n++;
+  const copy = { ...at.tile, id: `${base}~${n}`, ...firstFit(dest.tiles, at.tile.w, at.tile.h, dash.cols || COLS) };
+  return { ok: true, reason: null, tile: copy,
+    dash: withTab(dash, dest.id, (tab) => ({ ...tab, tiles: [...tab.tiles, copy] })) };
+}
+
+/**
+ * Tiles in the starting layout that this layout has never had - so a control
+ * added to the seed after a layout was saved still reaches the shelf, instead
+ * of existing only for people who never edited anything.
+ */
+export function availableFrom(dash, seed) {
+  const taken = new Set([...idsIn(dash)].map((id) => id.replace(/~\d+$/, "")));
+  return (seed?.tabs || []).flatMap((t) => t.tiles).filter((t) => !taken.has(t.id))
+    .map(({ x, y, ...rest }) => rest);
+}
+
+/** Place a tile that is not on the grid yet (from the shelf or the starting layout). */
+export function addTile(dash, tile, tabId) {
+  const dest = tabOf(dash, tabId);
+  if (!dest) return { ok: false, dash, reason: "no such tab" };
+  if (idsIn(dash).has(tile.id)) return { ok: false, dash, reason: "already in this layout" };
+  const spot = firstFit(dest.tiles, tile.w || 4, tile.h || 4, dash.cols || COLS);
+  return { ok: true, reason: null, dash: withTab(dash, dest.id, (tab) => ({ ...tab, tiles: [...tab.tiles, { ...tile, ...spot }] })) };
+}
+
 /** Take a tile off the grid and keep it on the shelf, so removing is never losing. */
 export function shelveTile(dash, tileId) {
   const at = findTile(dash, tileId);

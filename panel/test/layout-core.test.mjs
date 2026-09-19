@@ -12,6 +12,7 @@ import { readFileSync } from "node:fs";
 import {
   overlaps, inBounds, whyNot, canPlace, firstFit, gridRows, readingOrder, findTile,
   placeTile, moveToTab, shelveTile, unshelveTile, addTab, renameTab, removeTab, sanitize,
+  copyToTab, availableFrom, addTile,
   cellsFromPixels, COLS,
 } from "../layout-core.js";
 import { SEED } from "../seed.js";
@@ -103,6 +104,32 @@ test("sending a tile to another tab puts it in a free spot and only there", () =
   assert.ok(!a.tiles.some((t) => t.id === "one"));
   assert.equal(moveToTab(two(), "one", "a").ok, false);
   assert.equal(moveToTab(two(), "one", "nope").ok, false);
+});
+
+// RED IF: a copy reuses the original's id (the two would share one element and
+// one place), lands on top of something, or the original moves.
+test("copying a tile to another tab keeps the original and adds its own copy", () => {
+  const res = copyToTab(two(), "one", "b");
+  assert.equal(res.ok, true);
+  assert.equal(res.tile.id, "one~2");
+  assert.ok(findTile(res.dash, "one").tab.id === "a", "the original stays");
+  const b = res.dash.tabs.find((t) => t.id === "b").tiles;
+  for (const t of b) for (const u of b) if (t !== u) assert.equal(overlaps(t, u), false);
+  const again = copyToTab(res.dash, "one~2", "a");
+  assert.equal(again.tile.id, "one~3", "a copy of a copy numbers from the same base");
+});
+
+// RED IF: a tile added to the starting layout later never reaches a saved layout,
+// or a tile the user already has (or has copied, or shelved) is offered again.
+test("new starting-layout tiles are offered; ones already used are not", () => {
+  const seed = dash([{ id: "a", title: "A", tiles: [T("one", 0, 0, 2, 2), T("new", 2, 0, 2, 2), T("shelved", 4, 0, 2, 2)] }]);
+  const mine = dash([{ id: "a", title: "A", tiles: [T("one~2", 0, 0, 2, 2)] }], [{ id: "shelved", kind: "glance", w: 2, h: 2 }]);
+  const avail = availableFrom(mine, seed);
+  assert.deepEqual(avail.map((t) => t.id), ["new"]);
+  assert.equal(avail[0].x, undefined);
+  const added = addTile(mine, avail[0], "a");
+  assert.equal(added.ok, true);
+  assert.equal(addTile(added.dash, avail[0], "a").ok, false);
 });
 
 // RED IF: removing a tile loses it.

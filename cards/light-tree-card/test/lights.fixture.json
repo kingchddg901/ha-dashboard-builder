@@ -1,0 +1,439 @@
+{
+ "captured": "2026-09-19 from the live house (lights only, minimal attributes)",
+ "states": {
+  "light.main_house": {
+   "entity_id": "light.main_house",
+   "state": "on",
+   "attributes": {
+    "friendly_name": "Main house",
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "brightness": 245,
+    "rgb_color": [
+     255,
+     228,
+     205
+    ],
+    "entity_id": [
+     "light.entryway",
+     "light.hall_master",
+     "light.kitchen",
+     "light.living_room",
+     "light.office",
+     "light.dinning_room"
+    ],
+    "color_mode": "color_temp"
+   }
+  },
+  "light.entryway": {
+   "entity_id": "light.entryway",
+   "state": "off",
+   "attributes": {
+    "friendly_name": "Entryway",
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "brightness": null,
+    "rgb_color": null,
+    "entity_id": [
+     "light.entryway1",
+     "light.entryway2"
+    ],
+    "color_mode": null
+   }
+  },
+  "light.entryway1": {
+   "entity_id": "light.entryway1",
+   "state": "off",
+   "attributes": {
+    "friendly_name": "Entryway1",
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "brightness": null,
+    "rgb_color": null,
+    "color_mode": null
+   }
+  },
+  "light.entryway2": {
+   "entity_id": "light.entryway2",
+   "state": "off",
+   "attributes": {
+    "friendly_name": "Entryway2",
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "brightness": null,
+    "rgb_color": null,
+    "color_mode": null
+   }
+  },
+  "light.hall_master": {
+   "entity_id": "light.hall_master",
+   "state": "off",
+   "attributes": {
+    "friendly_name": "Hall master",
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "brightness": null,
+    "rgb_color": null,
+    "entity_id": [
+     "light.hall_front_2",
+     "light.hall_middle",
+     "light.hall_back"
+    ],
+    "color_mode": null
+   }
+  },
+  "light.hall_front_2": {
+   "entity_id": "light.hall_front_2",
+   "state": "off",
+   "attributes": {
+    "friendly_name": "Hall Front",
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "brightness": null,
+    "rgb_color": null,
+    "entity_id": [
+     "light.hallfront1",
+     "light.hall_front2"
+    ],
+    "color_mode": null
+   }
+  },
+  "light.hallfront1": {
+   "entity_id": "light.hallfront1",
+   "state": "off",
+   "attributes": {
+    "friendly_name": "Hallfront1",
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "brightness": null,
+    "rgb_color": null,
+    "color_mode": null
+   }
+  },
+  "light.hall_front2": {
+   "entity_id": "light.hall_front2",
+   "state": "off",
+   "attributes": {
+    "friendly_name": "Hall front2",
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "brightness": null,
+    "rgb_color": null,
+    "color_mode": null
+   }
+  },
+  "light.hall_middle": {
+   "entity_id": "light.hall_middle",
+   "state": "off",
+   "attributes": {
+    "friendly_name": "Hall middle",
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "brightness": null,
+    "rgb_color": null,
+    "entity_id": [
+     "light.hall_center1",
+     "light.hall_center2"
+    ],
+    "color_mode": null
+   }
+  },
+  "light.hall_center1": {
+   "entity_id": "light.hall_center1",
+   "state": "off",
+   "attributes": {
+    "friendly_name": "Hall center1",
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "brightness": null,
+    "rgb_color": null,
+    "color_mode": null
+   }
+  },
+  "light.hall_center2": {
+   "entity_id": "light.hall_center2",
+   "state": "off",
+   "attributes": {
+    "friendly_name": "Hall center2",
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "brightness": null,
+    "rgb_color": null,
+    "color_mode": null
+   }
+  },
+  "light.hall_back": {
+   "entity_id": "light.hall_back",
+   "state": "off",
+   "attributes": {
+    "friendly_name": "Hall back",
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "brightness": null,
+    "rgb_color": null,
+    "entity_id": [
+     "light.hall_back_hall_back1",
+     "light.hall_back_hall_back2"
+    ],
+    "color_mode": null
+   }
+  },
+  "light.hall_back_hall_back1": {
+   "entity_id": "light.hall_back_hall_back1",
+   "state": "off",
+   "attributes": {
+    "friendly_name": "Hall back1",
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "brightness": null,
+    "rgb_color": null,
+    "color_mode": null
+   }
+  },
+  "light.hall_back_hall_back2": {
+   "entity_id": "light.hall_back_hall_back2",
+   "state": "off",
+   "attributes": {
+    "friendly_name": "Hall back2",
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "brightness": null,
+    "rgb_color": null,
+    "color_mode": null
+   }
+  },
+  "light.kitchen": {
+   "entity_id": "light.kitchen",
+   "state": "on",
+   "attributes": {
+    "friendly_name": "Kitchen",
+    "supported_color_modes": [
+     "onoff"
+    ],
+    "color_mode": "onoff"
+   }
+  },
+  "light.living_room": {
+   "entity_id": "light.living_room",
+   "state": "on",
+   "attributes": {
+    "friendly_name": "Livingroom",
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "brightness": 245,
+    "rgb_color": [
+     255,
+     228,
+     205
+    ],
+    "entity_id": [
+     "light.livingroom1",
+     "light.livingroom2",
+     "light.livingroom3"
+    ],
+    "color_mode": "color_temp"
+   }
+  },
+  "light.livingroom1": {
+   "entity_id": "light.livingroom1",
+   "state": "on",
+   "attributes": {
+    "friendly_name": "Livingroom1",
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "brightness": 245,
+    "rgb_color": [
+     255,
+     228,
+     205
+    ],
+    "color_mode": "color_temp"
+   }
+  },
+  "light.livingroom2": {
+   "entity_id": "light.livingroom2",
+   "state": "on",
+   "attributes": {
+    "friendly_name": "Livingroom2",
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "brightness": 245,
+    "rgb_color": [
+     255,
+     228,
+     205
+    ],
+    "color_mode": "color_temp"
+   }
+  },
+  "light.livingroom3": {
+   "entity_id": "light.livingroom3",
+   "state": "on",
+   "attributes": {
+    "friendly_name": "Livingroom3",
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "brightness": 245,
+    "rgb_color": [
+     255,
+     228,
+     205
+    ],
+    "color_mode": "color_temp"
+   }
+  },
+  "light.office": {
+   "entity_id": "light.office",
+   "state": "on",
+   "attributes": {
+    "friendly_name": "Office",
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "brightness": 245,
+    "rgb_color": [
+     255,
+     228,
+     205
+    ],
+    "color_mode": "color_temp"
+   }
+  },
+  "light.dinning_room": {
+   "entity_id": "light.dinning_room",
+   "state": "off",
+   "attributes": {
+    "friendly_name": "Dinning room",
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "brightness": null,
+    "rgb_color": null,
+    "color_mode": null
+   }
+  },
+  "light.bathroom": {
+   "entity_id": "light.bathroom",
+   "state": "off",
+   "attributes": {
+    "friendly_name": "Bathroom",
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "brightness": null,
+    "rgb_color": null,
+    "entity_id": [
+     "light.bathroom1",
+     "light.washroom_bathroom2",
+     "light.bathroom3"
+    ],
+    "color_mode": null
+   }
+  },
+  "light.bathroom1": {
+   "entity_id": "light.bathroom1",
+   "state": "off",
+   "attributes": {
+    "friendly_name": "Bathroom1",
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "brightness": null,
+    "rgb_color": null,
+    "color_mode": null
+   }
+  },
+  "light.washroom_bathroom2": {
+   "entity_id": "light.washroom_bathroom2",
+   "state": "off",
+   "attributes": {
+    "friendly_name": "Bathroom2",
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "brightness": null,
+    "rgb_color": null,
+    "color_mode": null
+   }
+  },
+  "light.bathroom3": {
+   "entity_id": "light.bathroom3",
+   "state": "off",
+   "attributes": {
+    "friendly_name": "Bathroom3",
+    "supported_color_modes": [
+     "color_temp",
+     "hs",
+     "xy"
+    ],
+    "brightness": null,
+    "rgb_color": null,
+    "color_mode": null
+   }
+  }
+ }
+}

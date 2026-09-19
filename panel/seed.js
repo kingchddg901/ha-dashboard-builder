@@ -37,6 +37,14 @@ export const SEED = Object.freeze({
         light("office", "Office", "light.office", { x: 4, y: 5, w: 4, h: 5 }),
         light("bryans-room", "Bryan's room", "light.bryan_s_room", { x: 8, y: 5, w: 4, h: 5 }),
         light("dining-room", "Dining room", "light.dinning_room", { x: 0, y: 8, w: 4, h: 5 }),
+        // Groups as one nested control: the group acts on everything beneath it,
+        // and opens to its parts (docs/placement-conventions.md).
+        { id: "house-lights", kind: "lights", title: "Whole house", x: 0, y: 13, w: 6, h: 9,
+          config: { entity: "light.main_house", title: "Whole house" } },
+        { id: "hallway-tree", kind: "lights", title: "Hallway", x: 6, y: 13, w: 6, h: 6,
+          config: { entity: "light.hall_master", title: "Hallway" } },
+        { id: "bathroom-tree", kind: "lights", title: "Bathroom", x: 6, y: 19, w: 6, h: 5,
+          config: { entity: "light.bathroom", title: "Bathroom" } },
       ],
     },
     {

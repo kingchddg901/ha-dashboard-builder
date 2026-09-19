@@ -23,7 +23,7 @@
 import { SEED } from "./seed.js";
 import {
   sanitize, placeTile, moveToTab, shelveTile, unshelveTile, addTab, renameTab, removeTab,
-  gridRows, readingOrder, cellsFromPixels, whyNot, findTile, COLS,
+  gridRows, readingOrder, cellsFromPixels, whyNot, findTile, COLS, copyToTab, availableFrom, addTile,
 } from "./layout-core.js";
 import { RENDERERS, rendererFor } from "./renderers.js";
 import { tokenVar as T } from "./tokens.js";
@@ -230,6 +230,10 @@ class DashboardBuilderPanel extends HTMLElement {
                 <option value="">Send to…</option>
                 ${others.map((o) => `<option value="${esc(o.id)}">${esc(o.title)}</option>`).join("")}
               </select>
+              <select class="copy-tab" aria-label="Also show on another tab">
+                <option value="">Copy to…</option>
+                ${this._dash.tabs.map((o) => `<option value="${esc(o.id)}">${esc(o.title)}</option>`).join("")}
+              </select>
               <button class="shelve" aria-label="Remove ${esc(t.title)} to the shelf">Remove</button>` : ""}
           </div>` : ""}
           <div class="tile-body" data-body="${esc(t.id)}"></div>
@@ -242,11 +246,15 @@ class DashboardBuilderPanel extends HTMLElement {
 
   _shelfHtml() {
     const shelf = this._dash.shelf || [];
+    const fresh = availableFrom(this._dash, SEED);
+    const item = (t, cls) => `<div class="shelf-item"><span>${esc(t.title || t.id)}
+        <small>${esc(rendererFor(t.kind)?.label || t.kind)}</small></span>
+      <button class="btn ${cls}" data-id="${esc(t.id)}">Put on this tab</button></div>`;
     return `<div class="shelf"><div class="shelf-head">Shelf</div>
-      ${shelf.length ? shelf.map((t) => `<div class="shelf-item"><span>${esc(t.title || t.id)}
-          <small>${esc(rendererFor(t.kind)?.label || t.kind)}</small></span>
-        <button class="btn unshelve" data-id="${esc(t.id)}">Put on this tab</button></div>`).join("")
+      ${shelf.length ? shelf.map((t) => item(t, "unshelve")).join("")
         : `<div class="shelf-empty">Removed tiles wait here, so nothing is lost.</div>`}
+      ${fresh.length ? `<div class="shelf-head sub-head">From the starting layout</div>
+        ${fresh.map((t) => item(t, "add-fresh")).join("")}` : ""}
     </div>`;
   }
 
@@ -401,6 +409,15 @@ class DashboardBuilderPanel extends HTMLElement {
       const dest = this._dash.tabs.find((t) => t.id === sel.value);
       if (dest && this._commit(moveToTab(this._dash, id, dest.id))) this._say(`sent to ${dest.title}`);
     }));
+    r.querySelectorAll(".copy-tab").forEach((sel) => sel.addEventListener("change", () => {
+      const id = sel.closest(".tile").dataset.id;
+      const dest = this._dash.tabs.find((t) => t.id === sel.value);
+      if (dest && this._commit(copyToTab(this._dash, id, dest.id))) this._say(`copied to ${dest.title}`);
+    }));
+    r.querySelectorAll(".add-fresh").forEach((b) => b.addEventListener("click", () => {
+      const tile = availableFrom(this._dash, SEED).find((t) => t.id === b.dataset.id);
+      if (tile) this._commit(addTile(this._dash, tile, tab.id));
+    }));
     r.querySelectorAll(".shelve").forEach((b) => b.addEventListener("click", () =>
       this._commit(shelveTile(this._dash, b.closest(".tile").dataset.id))));
     r.querySelectorAll(".unshelve").forEach((b) => b.addEventListener("click", () =>
@@ -526,7 +543,7 @@ const STYLE = `
   .tile-body { flex: 1; min-height: 0; overflow: auto; }
   .editing .tile { border-color: var(--db-edit); }
   .editing .tile-body { pointer-events: none; opacity: .55; }
-  .grab, .shelve, .to-tab { border: 0; border-radius: 10px; padding: 4px 10px; cursor: pointer; font-size: 12px;
+  .grab, .shelve, .to-tab, .copy-tab { border: 0; border-radius: 10px; padding: 4px 10px; cursor: pointer; font-size: 12px;
                             background: var(--db-bg); color: var(--db-text); text-transform: uppercase; }
   .grab { cursor: grab; touch-action: none; background: var(--db-active); color: var(--db-active-text); }
   .resize { position: absolute; right: 0; bottom: 0; width: 26px; height: 26px; cursor: nwse-resize; touch-action: none;
@@ -546,6 +563,7 @@ const STYLE = `
   .hint { opacity: .75; font-size: 12px; }
   .shelf { margin-top: 16px; border-top: 5px solid var(--db-frame); padding-top: 8px; font-size: 13px; }
   .shelf-head { text-transform: uppercase; letter-spacing: .08em; color: var(--db-active); margin-bottom: 6px; }
+  .shelf-head.sub-head { margin-top: 12px; }
   .shelf-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 0; }
   .shelf-item small { opacity: .7; margin-left: 6px; }
   .shelf-empty, .missing, .loading { opacity: .75; font-size: 13px; padding: 10px; }

@@ -18,6 +18,7 @@ import { describeEntity } from "../cards/builder-debug-card/capability-core.js";
 import { applianceSummary } from "../cards/appliance-card/control-core.js";
 import { tvControls, tvSummary } from "../cards/tv-card/tv-core.js";
 import { readingOf, summary as readingSummary, robotGlance } from "../cards/readings-card/readings-core.js";
+import { lightNode, treeSummary, rowState } from "../cards/light-tree-card/light-tree-core.js";
 
 const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -95,6 +96,14 @@ export const RENDERERS = Object.freeze({
     label: "Fan & light", size: { w: 4, h: 5 },
     load: () => import("../cards/appliance-card/appliance-card.js"), tag: "appliance-card",
     summary: applianceRow,
+  },
+  lights: {
+    label: "Light group", size: { w: 5, h: 6 },
+    load: () => import("../cards/light-tree-card/light-tree-card.js"), tag: "light-tree-card",
+    summary: (hass, cfg) => {
+      const node = lightNode(cfg.entity, hass?.states || {});
+      return { text: treeSummary(node), state: rowState(node) };
+    },
   },
   tv: {
     label: "TV", size: { w: 6, h: 6 },
