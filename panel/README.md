@@ -56,7 +56,10 @@ panel offset.
     python tools/deploy.py
 
 HA serves `/local` with `Cache-Control: max-age=2678400` (31 days). A `?v=` on a card's entry
-file refreshes that file only, and every module it imports keeps its cached copy. So each deploy
+file refreshes that file only, and every module it imports keeps its cached copy. That happened
+for real: HA's log holds a phone failing to load the appliance card because the new card asked
+its cached `control-core.js` for an export the old copy didn't have
+(`RGB_WHITE_TRAP_SATURATION`). So each deploy
 goes into its own directory, `www/dashboard-builder/vN/`, which mirrors the repo so relative
 imports resolve. Every URL in it is new. The tool verifies each file over HTTP, switches
 `current.json` last, and repoints the cards' Lovelace resources. `loader.js` is the only fixed URL:
