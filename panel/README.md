@@ -13,6 +13,7 @@ The base everything else sits in. The panel owns the whole area and the render; 
     own-themes.js        starting themes written for this panel, one per frame, beside the 24 mined ones
     frame-styles.js      how each frame but LCARS draws the structure - one block per frame, scoped to it
     cockpit-art.js       the cockpit's generated greebles and grain
+    theme-library.js     your saved themes, and the export envelope and ingest gate for sharing them — no DOM, tested
     theme-core.js        where each token's value comes from, what the panel writes, readable status — no DOM, tested
     dashboard-panel.js   the element — the disposable half
     loader.js            the one stable file (see Deploy)
@@ -58,6 +59,50 @@ Each token's value comes in layers, bottom to top:
 2. Home Assistant's theme, where it sets the variable
 3. **Start from**: Black One, one of the 24 LCARS themes, or none (follow Home Assistant's theme)
 4. your own changes
+
+### Your themes, and sharing them
+
+The Theme tab opens on a **gallery**. Every card is a small preview drawn in that theme's own
+colours, labelled with its name and frame, in three groups: **Your themes**, **Written for this
+panel** and **LCARS themes**. Picking one uses it whole: frame, colours, shape and light.
+
+What you change in the token editor below is a **draft** on top of the active theme, as in
+Vacuum Agent's editor:
+
+- **Save** writes the draft into the theme, for your own themes only.
+- **Save as new** makes a theme of what is on screen.
+- **Discard** drops the draft.
+- Picking another theme with a draft asks before discarding it.
+
+A saved theme holds every token, so it comes back exactly, whatever the defaults are by then.
+Your themes are kept per HA user under `dashboard_builder.saved_themes`. The theme in use is
+stored as its name, or `user:<id>` for one of yours.
+
+**Sharing** borrows Vacuum Agent's format and flow. **Export** copies the theme's JSON and
+**Download** saves it as `<name>.dashboard-theme.json`. **Import** (paste) and **Upload** (file)
+add a shared theme to your themes; they don't switch to it. The envelope is VA's shape, marked
+as ours:
+
+    { ok, kind: "dashboard-builder-theme", version: 1, exported_at, theme: { name, source, tokens } }
+
+A shared theme is **data, never code**. It passes an ingest gate (`ingestTheme`) before anything
+is stored:
+
+- Only this panel's token keys are kept.
+- A colour must parse.
+- A number is clamped to its range.
+- A choice must be one of its options.
+- Free text (fonts, shadows) is refused if it could escape a CSS value or fetch something:
+  `;`, braces, `url(`, `@import`.
+
+What is left out or clamped is reported by name. A name already in use gets " (imported)". An
+import never claims to be built in, and an author link must be `http(s)`. A Vacuum Agent export
+is refused whole ("none of its settings are ones this panel has"); its `--evcc-*` vocabulary means
+nothing here.
+
+Export copies with the clipboard API where the page is secure (`https://`). On a plain `http://`
+Home Assistant it falls back to the older copy command, and failing that leaves the JSON selected
+to copy by hand.
 
 ### Frames
 

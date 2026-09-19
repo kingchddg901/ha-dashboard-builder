@@ -45,11 +45,16 @@ import { clockParts, hour12For, msToNextTick } from "../cards/clock-card/clock-c
 import { discover, unplacedByArea, withStartingTiles } from "./discover-core.js";
 import { upgradeProperties } from "./upgrade-props.js";
 import { FRAME_STYLES } from "./frame-styles.js";
+import { FRAMES } from "./panel-tokens.js";
+import {
+  readLibrary, listThemes, saveAs, updateTheme, removeTheme, exportTheme, ingestTheme, fileNameFor, emptyLibrary, USER_PREFIX,
+} from "./theme-library.js";
 
 const STORE_KEY = "dashboard_builder.layout";
 const TAB_KEY = "dashboard_builder.tab";
 const THEME_KEY = "dashboard_builder.theme";
 const TOKENS_KEY = "dashboard_builder.theme_tokens";
+const LIB_KEY = "dashboard_builder.saved_themes";
 // Every starting theme by name: the panel's own first, then the 24 mined LCARS ones.
 const PRESETS = Object.freeze({ ...OWN_THEMES, ...THEMES });
 // Its own tag, so another copy of the kit on the page cannot hand us its class.
@@ -83,6 +88,8 @@ class DashboardBuilderPanel extends HTMLElement {
     this._theme = null;          // a picked LCARS theme, or null for Home Assistant's
     this._overrides = {};        // your own token changes: the ONE copy the editor reads
     this._themeOpen = false;
+    this._library = emptyLibrary();   // your saved themes (theme-library.js)
+    this._lib = { mode: null, msg: "", target: null, deleteArmed: false };   // the theme tab's library panel
     this._onKey = (e) => { if (e.key === "Escape" && this._sheetId) this._closeSheet(); };
   }
 
@@ -175,7 +182,7 @@ class DashboardBuilderPanel extends HTMLElement {
   _refreshTheme() {
     const above = this.parentElement || this.getRootNode()?.host || document.documentElement;
     const cs = getComputedStyle(above);
-    const base = baseValues(THEME_TOKENS, { preset: PRESETS[this._theme] || null, read: (v) => cs.getPropertyValue(v),
+    const base = baseValues(THEME_TOKENS, { preset: this._presetFor(this._theme), read: (v) => cs.getPropertyValue(v),
       overrides: this._overrides });
     const sig = JSON.stringify(base);
     if (sig !== this._baseSig) {
@@ -195,7 +202,7 @@ class DashboardBuilderPanel extends HTMLElement {
   _paintTheme() {
     for (const k of this._themeSet || []) this.style.removeProperty(k);
     const vars = {
-      ...paintVars(THEME_TOKENS, { base: this._base, preset: PRESETS[this._theme] || null, overrides: this._overrides }),
+      ...paintVars(THEME_TOKENS, { base: this._base, preset: this._presetFor(this._theme), overrides: this._overrides }),
       ...frameArtVars(this._base, this._overrides),
     };
     for (const [k, v] of Object.entries(vars)) this.style.setProperty(k, v);
@@ -203,29 +210,229 @@ class DashboardBuilderPanel extends HTMLElement {
     this.setAttribute("data-frame", activeFrame(this._base, this._overrides));
   }
 
+  /** A theme's values by the name the theme key stores: built in, or "user:<id>" from your library. */
+  _presetFor(name) {
+    if (!name) return null;
+    if (name.startsWith(USER_PREFIX)) return this._library.themes[name.slice(USER_PREFIX.length)]?.tokens || null;
+    return PRESETS[name] || null;
+  }
+
+  _themeLabel(name) {
+    if (!name) return "Home Assistant's theme";
+    return name.startsWith(USER_PREFIX) ? this._library.themes[name.slice(USER_PREFIX.length)]?.name || "a deleted theme" : name;
+  }
+
   async _setTheme(name) {
-    this._theme = name && PRESETS[name] ? name : null;
+    this._theme = name && this._presetFor(name) ? name : null;
     this._refreshTheme();
     try {
       await this._hass.connection.sendMessagePromise({ type: "frontend/set_user_data", key: THEME_KEY, value: this._theme });
-      this._say(this._theme ? `starting from ${this._theme}` : "starting from Home Assistant's theme");
+      this._say(`theme: ${this._themeLabel(this._theme)}`);
     } catch (e) { this._say(`theme NOT saved: ${e?.message || e}`, true); }
   }
 
   _themeHtml() {
+    const cs = getComputedStyle(this.parentElement || this.getRootNode()?.host || document.documentElement);
+    const read = (v) => cs.getPropertyValue(v);
+    const frameLabel = (f) => FRAMES.find((x) => x.value === f)?.label || "LCARS";
+    const card = (name, label) => {
+      const v = baseValues(THEME_TOKENS, { preset: this._presetFor(name), read });
+      const r = Math.min(8, Math.round((Number(v["tile-radius"]) || 0) / 2));
+      const vars = `--m-bg:${v.background};--m-text:${v["background-text"]};--m-frame:${v["ui-secondary"]};`
+        + `--m-tab:${v["card-button"]};--m-on:${v["tab-active"]};--m-surf:${v["tile-surface"]};--m-line:${v["tile-border"]};--m-r:${r}px`;
+      const on = (name || "") === (this._theme || "");
+      return `<button class="theme-card ${on ? "on" : ""}" data-theme="${esc(name || "")}" aria-pressed="${on}">
+        <span class="mini" style="${esc(vars)}"><i class="m-band"></i><i class="m-rail"><b class="on"></b><b></b><b></b></i>
+          <i class="m-tile"><u></u><u></u></i></span>
+        <span class="theme-name">${esc(label)}</span><span class="theme-frame">${esc(frameLabel(v.frame))} frame</span></button>`;
+    };
+    const mine = listThemes(this._library);
+    const groups = [
+      ["Your themes", mine.map((t) => card(USER_PREFIX + t.id, t.name))],
+      ["Written for this panel", [card(null, "Home Assistant's theme"), ...Object.keys(OWN_THEMES).map((n) => card(n, n))]],
+      ["LCARS themes", Object.keys(THEMES).map((n) => card(n, n))],
+    ].filter(([, items]) => items.length);
+    const draft = Object.keys(this._overrides || {}).length > 0;
+    const isUser = (this._theme || "").startsWith(USER_PREFIX);
+    const active = this._themeLabel(this._theme);
+    const L = this._lib;
+    const panel = L.mode === "saveas" ? `<div class="lib-panel"><label>Name <input class="lib-name" maxlength="60"
+          value="${esc(draft || !isUser ? `${active}${draft ? " (edited)" : " copy"}` : `${active} copy`)}"></label>
+        <button class="btn lib-saveas-go">Save</button><button class="btn lib-cancel">Cancel</button></div>`
+      : L.mode === "import" ? `<div class="lib-panel lib-panel-col"><textarea class="lib-json" rows="6"
+          placeholder="Paste a theme's JSON - what Export copies"></textarea>
+        <div><button class="btn lib-import-go">Import</button><button class="btn lib-cancel">Cancel</button></div></div>`
+      : L.mode === "export" ? `<div class="lib-panel lib-panel-col"><textarea class="lib-json" rows="6" readonly>${esc(L.json || "")}</textarea>
+        <div><button class="btn lib-cancel">Done</button></div></div>`
+      : L.mode === "switch" ? `<div class="lib-panel"><span>Switching to ${esc(this._themeLabel(L.target))} discards your unsaved changes.</span>
+        <button class="btn lib-switch-go">Switch</button><button class="btn lib-cancel">Cancel</button></div>`
+      : "";
     return `<div class="theme-view">
-      <div class="editbar">
-        <label>Start from <select class="theme-pick">
-          <option value="">Home Assistant's theme</option>
-          ${[["Written for this panel", OWN_THEMES], ["LCARS themes", THEMES]].map(([label, set]) =>
-            `<optgroup label="${esc(label)}">${Object.keys(set).map((n) =>
-              `<option value="${esc(n)}" ${n === this._theme ? "selected" : ""}>${esc(n)}</option>`).join("")}</optgroup>`).join("")}
-        </select></label>
-        <span class="hint">Changes show at once and are saved for your Home Assistant user. ↺ puts one back;
-          <b>Reset all to defaults</b>, at the bottom, returns everything to the theme you started from.</span>
-      </div>
+      <div class="theme-lib">${groups.map(([label, items]) =>
+        `<div class="lib-group"><div class="lib-label">${esc(label)}</div><div class="lib-grid">${items.join("")}</div></div>`).join("")}</div>
+      <div class="lib-actions">${this._libActionsInner()}</div>
+      ${panel}
+      ${L.msg ? `<div class="lib-msg">${esc(L.msg)}</div>` : ""}
+      <span class="hint">Pick a theme to use it whole - frame, colours and all. What you change below is a draft on top of
+        it: <b>Save</b> keeps it in your own theme, <b>Save as new</b> makes a theme of it, <b>Discard</b> drops it.
+        Export and Download give the theme as a file to share; Import and Upload add one to your themes.</span>
       <div class="theme-slot"></div>
     </div>`;
+  }
+
+  /** The draft line and the library's buttons: Save and Discard only while there is a draft. */
+  _libActionsInner() {
+    const draft = Object.keys(this._overrides || {}).length > 0;
+    const isUser = (this._theme || "").startsWith(USER_PREFIX);
+    const active = this._themeLabel(this._theme);
+    return `${draft ? `<span class="lib-draft">Unsaved changes to ${esc(active)}</span>` : `<span class="lib-draft">Using ${esc(active)}</span>`}
+      ${isUser && draft ? `<button class="btn lib-save">Save</button>` : ""}
+      <button class="btn lib-saveas">Save as new</button>
+      ${draft ? `<button class="btn lib-discard">Discard</button>` : ""}
+      <button class="btn lib-export">Export</button>
+      <button class="btn lib-download">Download</button>
+      <button class="btn lib-import">Import</button>
+      <button class="btn lib-upload">Upload</button><input type="file" class="lib-file" accept=".json,application/json" hidden>
+      ${isUser ? `<button class="btn lib-delete">${this._lib.deleteArmed ? "Tap again to delete" : "Delete"}</button>` : ""}`;
+  }
+
+  /**
+   * An edit in the token editor can start or end a draft. Redraw the library's
+   * bar alone when it does - never the editor, which would lose the control
+   * under your finger mid-drag.
+   */
+  _syncLibBar() {
+    const bar = this.shadowRoot.querySelector(".lib-actions");
+    const draft = Object.keys(this._overrides || {}).length > 0;
+    if (!bar || bar.dataset.draft === String(draft)) return;
+    bar.dataset.draft = String(draft);
+    bar.innerHTML = this._libActionsInner();
+    this._wireLibActions();
+  }
+
+  /** Your draft (token changes) replaced wholesale - saved, and the editor told. */
+  _setOverrides(values) {
+    this._overrides = { ...values };
+    this._themeKit();
+    this._tokenStore.save(this._overrides);
+    if (this._themeEditor) this._themeEditor.values = this._overrides;
+  }
+
+  async _saveLibrary(lib) {
+    this._library = lib;
+    try {
+      await this._hass.connection.sendMessagePromise({ type: "frontend/set_user_data", key: LIB_KEY, value: lib });
+      return true;
+    } catch (e) { this._say(`themes NOT saved: ${e?.message || e}`, true); return false; }
+  }
+
+  /** Everything on screen now: the active theme with your draft on top. */
+  _resolvedTheme() { return { ...this._base, ...this._overrides }; }
+
+  _libDone(msg = "") { this._lib = { mode: null, msg, target: null, deleteArmed: false }; this._render(); }
+
+  async _saveAsNew(name) {
+    const { lib, id } = saveAs(this._library, { name, tokens: this._resolvedTheme() }, { alsoTaken: Object.keys(PRESETS) });
+    if (!(await this._saveLibrary(lib))) return;
+    this._setOverrides({});
+    await this._setTheme(USER_PREFIX + id);
+    this._libDone(`Saved "${lib.themes[id].name}" to your themes.`);
+  }
+
+  async _addImported(text) {
+    const names = [...listThemes(this._library).map((t) => t.name), ...Object.keys(PRESETS)];
+    const got = ingestTheme(text, { tokens: THEME_TOKENS, names });
+    if (!got.ok) {
+      const why = { not_json: "that isn't JSON", invalid_payload: "that isn't a theme", wrong_kind: "that is another program's theme",
+        missing_name: "the theme has no name", invalid_tokens: "the theme has no settings",
+        nothing_usable: "none of its settings are ones this panel has" }[got.reason] || got.reason;
+      this._lib = { ...this._lib, msg: `Not imported: ${why}.` };
+      this._render();
+      return;
+    }
+    const { lib } = saveAs(this._library, got.theme, { alsoTaken: Object.keys(PRESETS) });
+    await this._saveLibrary(lib);
+    const notes = [got.dropped.length ? `${got.dropped.length} setting(s) left out: ${got.dropped.join(", ")}` : "",
+      got.clamped.length ? `brought into range: ${got.clamped.join(", ")}` : ""].filter(Boolean).join("; ");
+    this._libDone(`Imported "${got.theme.name}" into your themes${notes ? ` - ${notes}` : ""}.`);
+  }
+
+  _wireThemeLibrary() {
+    const r = this.shadowRoot;
+    const on = (sel, fn) => r.querySelector(sel)?.addEventListener("click", fn);
+    const hasDraft = () => Object.keys(this._overrides || {}).length > 0;
+    const bar = r.querySelector(".lib-actions");
+    if (bar) bar.dataset.draft = String(hasDraft());
+    this._wireLibActions();
+    r.querySelectorAll(".theme-card").forEach((b) => b.addEventListener("click", () => {
+      const target = b.dataset.theme || null;
+      if ((target || "") === (this._theme || "")) return;
+      if (hasDraft()) { this._lib = { ...this._lib, mode: "switch", target, msg: "" }; this._render(); return; }
+      this._setTheme(target).then(() => this._render());
+    }));
+    on(".lib-switch-go", async () => {
+      const target = this._lib.target;
+      this._setOverrides({});
+      await this._setTheme(target);
+      this._libDone();
+    });
+    on(".lib-cancel", () => this._libDone());
+    on(".lib-saveas-go", () => this._saveAsNew(r.querySelector(".lib-name")?.value));
+    on(".lib-import-go", () => this._addImported(r.querySelector(".lib-json")?.value || ""));
+  }
+
+  _wireLibActions() {
+    const r = this.shadowRoot;
+    const on = (sel, fn) => r.querySelector(`.lib-actions ${sel}`)?.addEventListener("click", fn);
+    on(".lib-discard", () => { this._setOverrides({}); this._refreshTheme(); this._libDone("Changes discarded."); });
+    on(".lib-save", async () => {
+      const id = (this._theme || "").slice(USER_PREFIX.length);
+      if (!(await this._saveLibrary(updateTheme(this._library, id, this._resolvedTheme())))) return;
+      this._setOverrides({});
+      this._baseSig = null;
+      this._refreshTheme();
+      this._libDone(`Saved "${this._themeLabel(this._theme)}".`);
+    });
+    on(".lib-saveas", () => { this._lib = { ...this._lib, mode: "saveas", msg: "" }; this._render(); r.querySelector(".lib-name")?.select(); });
+    on(".lib-export", async () => {
+      const json = JSON.stringify(exportTheme({ name: this._themeLabel(this._theme), tokens: this._resolvedTheme() }), null, 2);
+      let copied = false;
+      try { await navigator.clipboard.writeText(json); copied = true; } catch { /* not a secure page - select it instead */ }
+      this._lib = { ...this._lib, mode: "export", json, msg: copied ? "Copied - paste it anywhere to share." : "" };
+      this._render();
+      const ta = r.querySelector(".lib-json");
+      if (ta && !copied) {
+        ta.focus(); ta.select();
+        try { copied = document.execCommand("copy"); } catch { copied = false; }
+        this._lib.msg = copied ? "Copied - paste it anywhere to share." : "Select it all and copy it.";
+        const m = r.querySelector(".lib-msg"); if (m) m.textContent = this._lib.msg; else this._render();
+      }
+    });
+    on(".lib-download", () => {
+      const name = this._themeLabel(this._theme);
+      const blob = new Blob([JSON.stringify(exportTheme({ name, tokens: this._resolvedTheme() }), null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = fileNameFor(name);
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      this._say(`downloaded ${a.download}`);
+    });
+    on(".lib-import", () => { this._lib = { ...this._lib, mode: "import", msg: "" }; this._render(); r.querySelector(".lib-json")?.focus(); });
+    on(".lib-upload", () => r.querySelector(".lib-actions .lib-file")?.click());
+    r.querySelector(".lib-actions .lib-file")?.addEventListener("change", async (e) => {
+      const file = e.target.files?.[0];
+      if (file) this._addImported(await file.text());
+    });
+    on(".lib-delete", async () => {
+      if (!this._lib.deleteArmed) { this._lib = { ...this._lib, deleteArmed: true }; this._render(); return; }
+      const id = (this._theme || "").slice(USER_PREFIX.length);
+      const name = this._themeLabel(this._theme);
+      if (!(await this._saveLibrary(removeTheme(this._library, id)))) return;
+      this._setOverrides({});
+      await this._setTheme(null);
+      this._libDone(`Deleted "${name}".`);
+    });
   }
 
   /** The editor element is made once and moved into each render. */
@@ -236,8 +443,8 @@ class DashboardBuilderPanel extends HTMLElement {
       defineThemeKitEditor(EDITOR_TAG);
       const ed = document.createElement(EDITOR_TAG);
       // The editor saves through our adapter first, so `_overrides` is current here.
-      ed.addEventListener("change", () => this._refreshTheme());
-      ed.addEventListener("reset", () => { this._refreshTheme(); this._say("reset"); });
+      ed.addEventListener("change", () => { this._refreshTheme(); this._syncLibBar(); });
+      ed.addEventListener("reset", () => { this._refreshTheme(); this._syncLibBar(); this._say("reset"); });
       ed.kit = this._themeKit();
       this._themeEditor = ed;
     }
@@ -286,8 +493,12 @@ class DashboardBuilderPanel extends HTMLElement {
       raw = res?.value ?? null;
     } catch (e) { failed = e?.message || e?.code || String(e); }
     try {
+      const l = await this._hass.connection.sendMessagePromise({ type: "frontend/get_user_data", key: LIB_KEY });
+      this._library = readLibrary(l?.value);
+    } catch { this._library = emptyLibrary(); }
+    try {
       const t = await this._hass.connection.sendMessagePromise({ type: "frontend/get_user_data", key: THEME_KEY });
-      this._theme = typeof t?.value === "string" && PRESETS[t.value] ? t.value : null;
+      this._theme = typeof t?.value === "string" && this._presetFor(t.value) ? t.value : null;
     } catch { this._theme = null; }
     this._themeKit();
     const own = await this._tokenStore.load();
@@ -651,7 +862,7 @@ class DashboardBuilderPanel extends HTMLElement {
     r.querySelector(".theme-toggle")?.addEventListener("click", () => {
       this._themeOpen = !this._themeOpen; if (this._themeOpen) this._edit = false; this._closeSheet(); this._render();
     });
-    r.querySelector(".theme-pick")?.addEventListener("change", (e) => this._setTheme(e.target.value));
+    if (this._themeOpen) this._wireThemeLibrary();
     if (!this._edit) r.querySelectorAll("button.row").forEach((b) => b.addEventListener("click", () => this._openSheet(b.dataset.id)));
     r.querySelector(".sheet .close")?.addEventListener("click", () => this._closeSheet());
     r.querySelector(".sheet")?.addEventListener("click", (e) => { if (e.target.classList.contains("sheet")) this._closeSheet(); });
@@ -871,7 +1082,33 @@ const STYLE = `
   /* With more tabs than fit, the tabs scroll and the tools stay pinned at the
      rail's foot. The shadow paints the rail's 5px gap over a tab scrolling under. */
   .desk .tools { position: sticky; bottom: 0; z-index: 1; background: var(--db-bg); box-shadow: 0 -5px 0 var(--db-bg); }
-  .theme-view { max-width: 760px; }
+  .theme-view { max-width: 980px; }
+  .theme-lib { display: grid; gap: 14px; margin-bottom: 12px; }
+  .lib-label { font-size: 12px; letter-spacing: .08em; opacity: .8; margin-bottom: 6px; text-transform: uppercase; }
+  .lib-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+  .theme-card { display: grid; gap: 3px; padding: 6px; text-align: left; cursor: pointer; font: inherit; color: var(--db-text);
+    background: transparent; border: 1px solid color-mix(in srgb, var(--db-text) 20%, transparent); border-radius: 6px; }
+  .theme-card.on { outline: 2px solid var(--db-active); outline-offset: 1px; }
+  .theme-card:focus-visible { outline: 2px solid var(--db-text); outline-offset: 2px; }
+  .theme-name { font-size: 13px; } .theme-frame { font-size: 11px; opacity: .7; }
+  .mini { position: relative; display: block; height: 72px; overflow: hidden; border-radius: 3px; background: var(--m-bg); }
+  .mini i, .mini b, .mini u { position: absolute; display: block; font-style: normal; text-decoration: none; }
+  .m-band { left: 0; right: 0; top: 0; height: 10px; background: var(--m-frame); }
+  .m-rail { left: 4px; top: 16px; width: 26px; display: grid; gap: 3px; }
+  .m-rail b { position: static; height: 11px; background: var(--m-tab); border-radius: calc(var(--m-r) / 2); }
+  .m-rail b.on { background: var(--m-on); }
+  .m-tile { left: 36px; right: 6px; top: 16px; bottom: 6px; background: var(--m-surf); border: 1px solid var(--m-line);
+    border-radius: 0 var(--m-r) var(--m-r) 0; }
+  .m-tile u { left: 6px; height: 4px; background: var(--m-text); opacity: .75; }
+  .m-tile u:first-child { top: 7px; right: 30%; } .m-tile u + u { top: 16px; width: 40%; background: var(--m-on); opacity: 1; }
+  .lib-actions, .lib-panel { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 0; font-size: 13px; }
+  .lib-panel-col { flex-direction: column; align-items: stretch; }
+  .lib-panel-col > div { display: flex; gap: 8px; }
+  .lib-draft { opacity: .85; margin-right: 4px; }
+  .lib-panel input, .lib-json { background: var(--db-bg); color: var(--db-text); border: 1px solid var(--db-edit);
+    border-radius: var(--db-ctl-r); padding: 4px 10px; font: inherit; }
+  .lib-json { font-family: var(--db-mono, ui-monospace, monospace); font-size: 12px; border-radius: 6px; width: 100%; }
+  .lib-msg { font-size: 13px; margin: 4px 0 8px; color: var(--db-ok); }
   .theme-slot { margin-top: 4px; }
 
   .stage { grid-area: stage; min-width: 0; min-height: 0; overflow: auto; padding: 4px 12px 16px 14px; }
