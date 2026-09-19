@@ -1,0 +1,1973 @@
+{
+ "captured": "2026-09-19 from the live house: VA room switches for alfred and robin, and VA's panels",
+ "panels": {
+  "eufy-vacuum-alfred": {
+   "title": "Eufy Alfred",
+   "config": {
+    "vacuum_entity_id": "vacuum.alfred",
+    "_panel_custom": {
+     "name": "eufy-vacuum-command-center",
+     "embed_iframe": false,
+     "trust_external": false,
+     "handle_safe_area": false,
+     "js_url": "/eufy_vacuum/frontend/eufy-vacuum-command-center.js?v=1789369535"
+    }
+   }
+  },
+  "eufy-vacuum-ivy": {
+   "title": "Robo Rock Ivy",
+   "config": {
+    "vacuum_entity_id": "vacuum.ivy",
+    "_panel_custom": {
+     "name": "eufy-vacuum-command-center",
+     "embed_iframe": false,
+     "trust_external": false,
+     "handle_safe_area": false,
+     "js_url": "/eufy_vacuum/frontend/eufy-vacuum-command-center.js?v=1789369535"
+    }
+   }
+  },
+  "eufy-vacuum-robin": {
+   "title": "Robin Dreame",
+   "config": {
+    "vacuum_entity_id": "vacuum.robin",
+    "_panel_custom": {
+     "name": "eufy-vacuum-command-center",
+     "embed_iframe": false,
+     "trust_external": false,
+     "handle_safe_area": false,
+     "js_url": "/eufy_vacuum/frontend/eufy-vacuum-command-center.js?v=1789369535"
+    }
+   }
+  }
+ },
+ "states": {
+  "switch.other_alfred_bathroom_selected_for_cleaning": {
+   "entity_id": "switch.other_alfred_bathroom_selected_for_cleaning",
+   "state": "on",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.alfred",
+    "map_id": "12",
+    "room_id": 2,
+    "room_name": "Bathroom",
+    "slug": "bathroom",
+    "last_cleaned_at": null,
+    "last_vacuumed_at": null,
+    "last_mopped_at": null,
+    "last_job_mode": null,
+    "profile_name": "custom",
+    "floor_type": "hardwood",
+    "clean_mode": "vacuum",
+    "fan_speed": "Max",
+    "water_level": "Off",
+    "clean_intensity": "Quick",
+    "clean_passes": 1,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 1,
+    "enabled": true,
+    "color": null,
+    "is_dock_room": false,
+    "grants_access_to": [],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "eufy_x10_pro_omni",
+    "clean_mode_options": [
+     {
+      "value": "vacuum",
+      "label": "Vacuum"
+     },
+     {
+      "value": "mop",
+      "label": "Mop"
+     },
+     {
+      "value": "vacuum_mop",
+      "label": "Vacuum & Mop"
+     }
+    ],
+    "fan_speed_options": [
+     {
+      "value": "Quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "Standard",
+      "label": "Standard"
+     },
+     {
+      "value": "Turbo",
+      "label": "Turbo"
+     },
+     {
+      "value": "Max",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [
+     {
+      "value": "Off",
+      "label": "Off"
+     },
+     {
+      "value": "Low",
+      "label": "Low"
+     },
+     {
+      "value": "Medium",
+      "label": "Medium"
+     },
+     {
+      "value": "High",
+      "label": "High"
+     }
+    ],
+    "clean_intensity_options": [
+     {
+      "value": "Quick",
+      "label": "Quick"
+     },
+     {
+      "value": "Narrow",
+      "label": "Narrow"
+     },
+     {
+      "value": "Deep",
+      "label": "Deep"
+     }
+    ],
+    "water_level_range": null,
+    "supports_edge_mopping": true,
+    "friendly_name": "Alfred Bathroom Selected for Cleaning"
+   }
+  },
+  "switch.other_alfred_kitchen_selected_for_cleaning": {
+   "entity_id": "switch.other_alfred_kitchen_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.alfred",
+    "map_id": "12",
+    "room_id": 5,
+    "room_name": "Kitchen",
+    "slug": "kitchen",
+    "last_cleaned_at": "2026-08-09T03:05:57Z",
+    "last_vacuumed_at": "2026-08-09T03:05:57Z",
+    "last_mopped_at": "2026-08-03T00:24:16Z",
+    "last_job_mode": "vacuum",
+    "profile_name": "vacuum_deep",
+    "floor_type": "hardwood",
+    "clean_mode": "Vacuum",
+    "fan_speed": "Max",
+    "water_level": "Off",
+    "clean_intensity": "Deep",
+    "clean_passes": 2,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 1,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": false,
+    "grants_access_to": [],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "eufy_x10_pro_omni",
+    "clean_mode_options": [
+     {
+      "value": "vacuum",
+      "label": "Vacuum"
+     },
+     {
+      "value": "mop",
+      "label": "Mop"
+     },
+     {
+      "value": "vacuum_mop",
+      "label": "Vacuum & Mop"
+     }
+    ],
+    "fan_speed_options": [
+     {
+      "value": "Quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "Standard",
+      "label": "Standard"
+     },
+     {
+      "value": "Turbo",
+      "label": "Turbo"
+     },
+     {
+      "value": "Max",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [
+     {
+      "value": "Off",
+      "label": "Off"
+     },
+     {
+      "value": "Low",
+      "label": "Low"
+     },
+     {
+      "value": "Medium",
+      "label": "Medium"
+     },
+     {
+      "value": "High",
+      "label": "High"
+     }
+    ],
+    "clean_intensity_options": [
+     {
+      "value": "Quick",
+      "label": "Quick"
+     },
+     {
+      "value": "Narrow",
+      "label": "Narrow"
+     },
+     {
+      "value": "Deep",
+      "label": "Deep"
+     }
+    ],
+    "water_level_range": null,
+    "supports_edge_mopping": true,
+    "friendly_name": "Alfred Kitchen Selected for Cleaning"
+   }
+  },
+  "switch.other_alfred_entryway_selected_for_cleaning": {
+   "entity_id": "switch.other_alfred_entryway_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.alfred",
+    "map_id": "12",
+    "room_id": 8,
+    "room_name": "Entryway",
+    "slug": "entryway",
+    "last_cleaned_at": "2026-08-05T15:07:01Z",
+    "last_vacuumed_at": "2026-08-05T15:07:01Z",
+    "last_mopped_at": null,
+    "last_job_mode": "vacuum",
+    "profile_name": "vacuum_deep",
+    "floor_type": "hardwood",
+    "clean_mode": "Vacuum",
+    "fan_speed": "Max",
+    "water_level": "Off",
+    "clean_intensity": "Deep",
+    "clean_passes": 2,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 2,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": false,
+    "grants_access_to": [
+     "9"
+    ],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "eufy_x10_pro_omni",
+    "clean_mode_options": [
+     {
+      "value": "vacuum",
+      "label": "Vacuum"
+     },
+     {
+      "value": "mop",
+      "label": "Mop"
+     },
+     {
+      "value": "vacuum_mop",
+      "label": "Vacuum & Mop"
+     }
+    ],
+    "fan_speed_options": [
+     {
+      "value": "Quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "Standard",
+      "label": "Standard"
+     },
+     {
+      "value": "Turbo",
+      "label": "Turbo"
+     },
+     {
+      "value": "Max",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [
+     {
+      "value": "Off",
+      "label": "Off"
+     },
+     {
+      "value": "Low",
+      "label": "Low"
+     },
+     {
+      "value": "Medium",
+      "label": "Medium"
+     },
+     {
+      "value": "High",
+      "label": "High"
+     }
+    ],
+    "clean_intensity_options": [
+     {
+      "value": "Quick",
+      "label": "Quick"
+     },
+     {
+      "value": "Narrow",
+      "label": "Narrow"
+     },
+     {
+      "value": "Deep",
+      "label": "Deep"
+     }
+    ],
+    "water_level_range": null,
+    "supports_edge_mopping": true,
+    "friendly_name": "Alfred Entryway Selected for Cleaning"
+   }
+  },
+  "switch.other_alfred_master_bedroom_selected_for_cleaning": {
+   "entity_id": "switch.other_alfred_master_bedroom_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.alfred",
+    "map_id": "12",
+    "room_id": 3,
+    "room_name": "Master bedroom",
+    "slug": "master_bedroom",
+    "last_cleaned_at": null,
+    "last_vacuumed_at": null,
+    "last_mopped_at": null,
+    "last_job_mode": null,
+    "profile_name": "vacuum_quick",
+    "floor_type": "carpet_low_pile",
+    "clean_mode": "vacuum",
+    "fan_speed": "Max",
+    "water_level": "Off",
+    "clean_intensity": "Quick",
+    "clean_passes": 1,
+    "edge_mopping": false,
+    "carpet": true,
+    "order": 2,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": false,
+    "grants_access_to": [],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "eufy_x10_pro_omni",
+    "clean_mode_options": [
+     {
+      "value": "vacuum",
+      "label": "Vacuum"
+     },
+     {
+      "value": "mop",
+      "label": "Mop"
+     },
+     {
+      "value": "vacuum_mop",
+      "label": "Vacuum & Mop"
+     }
+    ],
+    "fan_speed_options": [
+     {
+      "value": "Quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "Standard",
+      "label": "Standard"
+     },
+     {
+      "value": "Turbo",
+      "label": "Turbo"
+     },
+     {
+      "value": "Max",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [
+     {
+      "value": "Off",
+      "label": "Off"
+     },
+     {
+      "value": "Low",
+      "label": "Low"
+     },
+     {
+      "value": "Medium",
+      "label": "Medium"
+     },
+     {
+      "value": "High",
+      "label": "High"
+     }
+    ],
+    "clean_intensity_options": [
+     {
+      "value": "Quick",
+      "label": "Quick"
+     },
+     {
+      "value": "Narrow",
+      "label": "Narrow"
+     },
+     {
+      "value": "Deep",
+      "label": "Deep"
+     }
+    ],
+    "water_level_range": null,
+    "supports_edge_mopping": true,
+    "friendly_name": "Alfred Master bedroom Selected for Cleaning"
+   }
+  },
+  "switch.other_alfred_home_office_selected_for_cleaning": {
+   "entity_id": "switch.other_alfred_home_office_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.alfred",
+    "map_id": "12",
+    "room_id": 9,
+    "room_name": "Home Office",
+    "slug": "home_office",
+    "last_cleaned_at": "2026-08-05T15:07:01Z",
+    "last_vacuumed_at": "2026-08-05T15:07:01Z",
+    "last_mopped_at": null,
+    "last_job_mode": "vacuum",
+    "profile_name": "vacuum_deep",
+    "floor_type": "hardwood",
+    "clean_mode": "Vacuum",
+    "fan_speed": "Max",
+    "water_level": "Off",
+    "clean_intensity": "Deep",
+    "clean_passes": 2,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 3,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": false,
+    "grants_access_to": [],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "eufy_x10_pro_omni",
+    "clean_mode_options": [
+     {
+      "value": "vacuum",
+      "label": "Vacuum"
+     },
+     {
+      "value": "mop",
+      "label": "Mop"
+     },
+     {
+      "value": "vacuum_mop",
+      "label": "Vacuum & Mop"
+     }
+    ],
+    "fan_speed_options": [
+     {
+      "value": "Quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "Standard",
+      "label": "Standard"
+     },
+     {
+      "value": "Turbo",
+      "label": "Turbo"
+     },
+     {
+      "value": "Max",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [
+     {
+      "value": "Off",
+      "label": "Off"
+     },
+     {
+      "value": "Low",
+      "label": "Low"
+     },
+     {
+      "value": "Medium",
+      "label": "Medium"
+     },
+     {
+      "value": "High",
+      "label": "High"
+     }
+    ],
+    "clean_intensity_options": [
+     {
+      "value": "Quick",
+      "label": "Quick"
+     },
+     {
+      "value": "Narrow",
+      "label": "Narrow"
+     },
+     {
+      "value": "Deep",
+      "label": "Deep"
+     }
+    ],
+    "water_level_range": null,
+    "supports_edge_mopping": true,
+    "friendly_name": "Alfred Home Office Selected for Cleaning"
+   }
+  },
+  "switch.other_alfred_bryan_s_room_selected_for_cleaning": {
+   "entity_id": "switch.other_alfred_bryan_s_room_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.alfred",
+    "map_id": "12",
+    "room_id": 1,
+    "room_name": "Bryan's Room",
+    "slug": "bryans_room",
+    "last_cleaned_at": null,
+    "last_vacuumed_at": null,
+    "last_mopped_at": null,
+    "last_job_mode": null,
+    "profile_name": "custom",
+    "floor_type": "marble",
+    "clean_mode": "vacuum",
+    "fan_speed": "Max",
+    "water_level": "Off",
+    "clean_intensity": "Narrow",
+    "clean_passes": 1,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 4,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": false,
+    "grants_access_to": [],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "eufy_x10_pro_omni",
+    "clean_mode_options": [
+     {
+      "value": "vacuum",
+      "label": "Vacuum"
+     },
+     {
+      "value": "mop",
+      "label": "Mop"
+     },
+     {
+      "value": "vacuum_mop",
+      "label": "Vacuum & Mop"
+     }
+    ],
+    "fan_speed_options": [
+     {
+      "value": "Quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "Standard",
+      "label": "Standard"
+     },
+     {
+      "value": "Turbo",
+      "label": "Turbo"
+     },
+     {
+      "value": "Max",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [
+     {
+      "value": "Off",
+      "label": "Off"
+     },
+     {
+      "value": "Low",
+      "label": "Low"
+     },
+     {
+      "value": "Medium",
+      "label": "Medium"
+     },
+     {
+      "value": "High",
+      "label": "High"
+     }
+    ],
+    "clean_intensity_options": [
+     {
+      "value": "Quick",
+      "label": "Quick"
+     },
+     {
+      "value": "Narrow",
+      "label": "Narrow"
+     },
+     {
+      "value": "Deep",
+      "label": "Deep"
+     }
+    ],
+    "water_level_range": null,
+    "supports_edge_mopping": true,
+    "friendly_name": "Alfred Bryan's Room Selected for Cleaning"
+   }
+  },
+  "switch.other_alfred_dining_room_selected_for_cleaning": {
+   "entity_id": "switch.other_alfred_dining_room_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.alfred",
+    "map_id": "12",
+    "room_id": 7,
+    "room_name": "Dining Room",
+    "slug": "dining_room",
+    "last_cleaned_at": "2026-08-08T22:59:51Z",
+    "last_vacuumed_at": "2026-08-08T22:59:51Z",
+    "last_mopped_at": null,
+    "last_job_mode": "vacuum",
+    "profile_name": "vacuum_deep",
+    "floor_type": "hardwood",
+    "clean_mode": "Vacuum",
+    "fan_speed": "Max",
+    "water_level": "Off",
+    "clean_intensity": "Deep",
+    "clean_passes": 2,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 4,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": true,
+    "grants_access_to": [
+     "5",
+     "6"
+    ],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "eufy_x10_pro_omni",
+    "clean_mode_options": [
+     {
+      "value": "vacuum",
+      "label": "Vacuum"
+     },
+     {
+      "value": "mop",
+      "label": "Mop"
+     },
+     {
+      "value": "vacuum_mop",
+      "label": "Vacuum & Mop"
+     }
+    ],
+    "fan_speed_options": [
+     {
+      "value": "Quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "Standard",
+      "label": "Standard"
+     },
+     {
+      "value": "Turbo",
+      "label": "Turbo"
+     },
+     {
+      "value": "Max",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [
+     {
+      "value": "Off",
+      "label": "Off"
+     },
+     {
+      "value": "Low",
+      "label": "Low"
+     },
+     {
+      "value": "Medium",
+      "label": "Medium"
+     },
+     {
+      "value": "High",
+      "label": "High"
+     }
+    ],
+    "clean_intensity_options": [
+     {
+      "value": "Quick",
+      "label": "Quick"
+     },
+     {
+      "value": "Narrow",
+      "label": "Narrow"
+     },
+     {
+      "value": "Deep",
+      "label": "Deep"
+     }
+    ],
+    "water_level_range": null,
+    "supports_edge_mopping": true,
+    "friendly_name": "Alfred Dining Room Selected for Cleaning"
+   }
+  },
+  "switch.other_alfred_hallway_selected_for_cleaning": {
+   "entity_id": "switch.other_alfred_hallway_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.alfred",
+    "map_id": "12",
+    "room_id": 4,
+    "room_name": "Hallway",
+    "slug": "hallway",
+    "last_cleaned_at": "2026-08-02T18:36:51Z",
+    "last_vacuumed_at": "2026-08-02T18:36:51Z",
+    "last_mopped_at": null,
+    "last_job_mode": "vacuum",
+    "profile_name": "vacuum_deep",
+    "floor_type": "hardwood",
+    "clean_mode": "Vacuum",
+    "fan_speed": "Max",
+    "water_level": "Off",
+    "clean_intensity": "Deep",
+    "clean_passes": 2,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 4,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": false,
+    "grants_access_to": [
+     "1",
+     "2",
+     "3",
+     "10"
+    ],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "eufy_x10_pro_omni",
+    "clean_mode_options": [
+     {
+      "value": "vacuum",
+      "label": "Vacuum"
+     },
+     {
+      "value": "mop",
+      "label": "Mop"
+     },
+     {
+      "value": "vacuum_mop",
+      "label": "Vacuum & Mop"
+     }
+    ],
+    "fan_speed_options": [
+     {
+      "value": "Quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "Standard",
+      "label": "Standard"
+     },
+     {
+      "value": "Turbo",
+      "label": "Turbo"
+     },
+     {
+      "value": "Max",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [
+     {
+      "value": "Off",
+      "label": "Off"
+     },
+     {
+      "value": "Low",
+      "label": "Low"
+     },
+     {
+      "value": "Medium",
+      "label": "Medium"
+     },
+     {
+      "value": "High",
+      "label": "High"
+     }
+    ],
+    "clean_intensity_options": [
+     {
+      "value": "Quick",
+      "label": "Quick"
+     },
+     {
+      "value": "Narrow",
+      "label": "Narrow"
+     },
+     {
+      "value": "Deep",
+      "label": "Deep"
+     }
+    ],
+    "water_level_range": null,
+    "supports_edge_mopping": true,
+    "friendly_name": "Alfred Hallway Selected for Cleaning"
+   }
+  },
+  "switch.other_alfred_living_room_selected_for_cleaning": {
+   "entity_id": "switch.other_alfred_living_room_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.alfred",
+    "map_id": "12",
+    "room_id": 6,
+    "room_name": "Living Room",
+    "slug": "living_room",
+    "last_cleaned_at": null,
+    "last_vacuumed_at": null,
+    "last_mopped_at": null,
+    "last_job_mode": null,
+    "profile_name": "custom",
+    "floor_type": "hardwood",
+    "clean_mode": "vacuum",
+    "fan_speed": "Max",
+    "water_level": "Off",
+    "clean_intensity": "Narrow",
+    "clean_passes": 1,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 8,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": false,
+    "grants_access_to": [
+     "8",
+     "4"
+    ],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "eufy_x10_pro_omni",
+    "clean_mode_options": [
+     {
+      "value": "vacuum",
+      "label": "Vacuum"
+     },
+     {
+      "value": "mop",
+      "label": "Mop"
+     },
+     {
+      "value": "vacuum_mop",
+      "label": "Vacuum & Mop"
+     }
+    ],
+    "fan_speed_options": [
+     {
+      "value": "Quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "Standard",
+      "label": "Standard"
+     },
+     {
+      "value": "Turbo",
+      "label": "Turbo"
+     },
+     {
+      "value": "Max",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [
+     {
+      "value": "Off",
+      "label": "Off"
+     },
+     {
+      "value": "Low",
+      "label": "Low"
+     },
+     {
+      "value": "Medium",
+      "label": "Medium"
+     },
+     {
+      "value": "High",
+      "label": "High"
+     }
+    ],
+    "clean_intensity_options": [
+     {
+      "value": "Quick",
+      "label": "Quick"
+     },
+     {
+      "value": "Narrow",
+      "label": "Narrow"
+     },
+     {
+      "value": "Deep",
+      "label": "Deep"
+     }
+    ],
+    "water_level_range": null,
+    "supports_edge_mopping": true,
+    "friendly_name": "Alfred Living Room Selected for Cleaning"
+   }
+  },
+  "switch.other_alfred_cat_room_selected_for_cleaning": {
+   "entity_id": "switch.other_alfred_cat_room_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.alfred",
+    "map_id": "12",
+    "room_id": 10,
+    "room_name": "Cat Room",
+    "slug": "cat_room",
+    "last_cleaned_at": null,
+    "last_vacuumed_at": null,
+    "last_mopped_at": null,
+    "last_job_mode": null,
+    "profile_name": "custom",
+    "floor_type": "hardwood",
+    "clean_mode": "vacuum",
+    "fan_speed": "Max",
+    "water_level": "Off",
+    "clean_intensity": "Narrow",
+    "clean_passes": 1,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 10,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": false,
+    "grants_access_to": [],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "eufy_x10_pro_omni",
+    "clean_mode_options": [
+     {
+      "value": "vacuum",
+      "label": "Vacuum"
+     },
+     {
+      "value": "mop",
+      "label": "Mop"
+     },
+     {
+      "value": "vacuum_mop",
+      "label": "Vacuum & Mop"
+     }
+    ],
+    "fan_speed_options": [
+     {
+      "value": "Quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "Standard",
+      "label": "Standard"
+     },
+     {
+      "value": "Turbo",
+      "label": "Turbo"
+     },
+     {
+      "value": "Max",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [
+     {
+      "value": "Off",
+      "label": "Off"
+     },
+     {
+      "value": "Low",
+      "label": "Low"
+     },
+     {
+      "value": "Medium",
+      "label": "Medium"
+     },
+     {
+      "value": "High",
+      "label": "High"
+     }
+    ],
+    "clean_intensity_options": [
+     {
+      "value": "Quick",
+      "label": "Quick"
+     },
+     {
+      "value": "Narrow",
+      "label": "Narrow"
+     },
+     {
+      "value": "Deep",
+      "label": "Deep"
+     }
+    ],
+    "water_level_range": null,
+    "supports_edge_mopping": true,
+    "friendly_name": "Alfred Cat Room Selected for Cleaning"
+   }
+  },
+  "switch.robin_entryway_selected_for_cleaning": {
+   "entity_id": "switch.robin_entryway_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.robin",
+    "map_id": "Main",
+    "room_id": 1,
+    "room_name": "Entryway",
+    "slug": "entryway",
+    "last_cleaned_at": "2026-08-31T00:58:57Z",
+    "last_vacuumed_at": "2026-08-31T00:58:57Z",
+    "last_mopped_at": null,
+    "last_job_mode": "vacuum",
+    "profile_name": "custom",
+    "floor_type": "tile",
+    "clean_mode": "Vacuum",
+    "fan_speed": "quiet",
+    "water_level": "",
+    "clean_intensity": "standard",
+    "clean_passes": 1,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 1,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": false,
+    "grants_access_to": [],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "dreame",
+    "clean_mode_options": [
+     {
+      "value": "vacuum",
+      "label": "Vacuum"
+     },
+     {
+      "value": "mop",
+      "label": "Mop"
+     },
+     {
+      "value": "vacuum_mop",
+      "label": "Vacuum & Mop"
+     }
+    ],
+    "fan_speed_options": [
+     {
+      "value": "quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "standard",
+      "label": "Standard"
+     },
+     {
+      "value": "strong",
+      "label": "Intense"
+     },
+     {
+      "value": "turbo",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [],
+    "clean_intensity_options": [
+     {
+      "value": "standard",
+      "label": "Standard"
+     },
+     {
+      "value": "intensive",
+      "label": "Intensive"
+     },
+     {
+      "value": "deep",
+      "label": "Deep"
+     }
+    ],
+    "water_level_range": {
+     "min": 1,
+     "max": 32,
+     "step": 1,
+     "labels": {
+      "min_label": "Slightly Dry",
+      "mid_label": "Moist",
+      "max_label": "Wet"
+     }
+    },
+    "supports_edge_mopping": false,
+    "friendly_name": "Robin Entryway Selected for Cleaning"
+   }
+  },
+  "switch.robin_kitchen_selected_for_cleaning": {
+   "entity_id": "switch.robin_kitchen_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.robin",
+    "map_id": "Main",
+    "room_id": 3,
+    "room_name": "Kitchen",
+    "slug": "kitchen",
+    "last_cleaned_at": "2026-09-13T07:39:02Z",
+    "last_vacuumed_at": "2026-09-13T07:39:02Z",
+    "last_mopped_at": "2026-09-07T03:14:16Z",
+    "last_job_mode": "vacuum",
+    "profile_name": "custom",
+    "floor_type": "granite",
+    "clean_mode": "Vacuum",
+    "fan_speed": "quiet",
+    "water_level": "",
+    "clean_intensity": "deep",
+    "clean_passes": 1,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 2,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": false,
+    "grants_access_to": [],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "dreame",
+    "clean_mode_options": [
+     {
+      "value": "vacuum",
+      "label": "Vacuum"
+     },
+     {
+      "value": "mop",
+      "label": "Mop"
+     },
+     {
+      "value": "vacuum_mop",
+      "label": "Vacuum & Mop"
+     }
+    ],
+    "fan_speed_options": [
+     {
+      "value": "quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "standard",
+      "label": "Standard"
+     },
+     {
+      "value": "strong",
+      "label": "Intense"
+     },
+     {
+      "value": "turbo",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [],
+    "clean_intensity_options": [
+     {
+      "value": "standard",
+      "label": "Standard"
+     },
+     {
+      "value": "intensive",
+      "label": "Intensive"
+     },
+     {
+      "value": "deep",
+      "label": "Deep"
+     }
+    ],
+    "water_level_range": {
+     "min": 1,
+     "max": 32,
+     "step": 1,
+     "labels": {
+      "min_label": "Slightly Dry",
+      "mid_label": "Moist",
+      "max_label": "Wet"
+     }
+    },
+    "supports_edge_mopping": false,
+    "friendly_name": "Robin Kitchen Selected for Cleaning"
+   }
+  },
+  "switch.robin_bryan_s_room_selected_for_cleaning": {
+   "entity_id": "switch.robin_bryan_s_room_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.robin",
+    "map_id": "Main",
+    "room_id": 2,
+    "room_name": "Bryan's Room",
+    "slug": "bryans_room",
+    "last_cleaned_at": null,
+    "last_vacuumed_at": null,
+    "last_mopped_at": null,
+    "last_job_mode": null,
+    "profile_name": "vacuum_quick",
+    "floor_type": "hardwood",
+    "clean_mode": "vacuum",
+    "fan_speed": "standard",
+    "water_level": "",
+    "clean_intensity": "standard",
+    "clean_passes": 1,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 3,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": false,
+    "grants_access_to": [],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "dreame",
+    "clean_mode_options": [
+     {
+      "value": "vacuum",
+      "label": "Vacuum"
+     },
+     {
+      "value": "mop",
+      "label": "Mop"
+     },
+     {
+      "value": "vacuum_mop",
+      "label": "Vacuum & Mop"
+     }
+    ],
+    "fan_speed_options": [
+     {
+      "value": "quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "standard",
+      "label": "Standard"
+     },
+     {
+      "value": "strong",
+      "label": "Intense"
+     },
+     {
+      "value": "turbo",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [],
+    "clean_intensity_options": [
+     {
+      "value": "standard",
+      "label": "Standard"
+     },
+     {
+      "value": "intensive",
+      "label": "Intensive"
+     },
+     {
+      "value": "deep",
+      "label": "Deep"
+     }
+    ],
+    "water_level_range": {
+     "min": 1,
+     "max": 32,
+     "step": 1,
+     "labels": {
+      "min_label": "Slightly Dry",
+      "mid_label": "Moist",
+      "max_label": "Wet"
+     }
+    },
+    "supports_edge_mopping": false,
+    "friendly_name": "Robin Bryan's Room Selected for Cleaning"
+   }
+  },
+  "switch.robin_bathroom_selected_for_cleaning": {
+   "entity_id": "switch.robin_bathroom_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.robin",
+    "map_id": "Main",
+    "room_id": 4,
+    "room_name": "Bathroom",
+    "slug": "bathroom",
+    "last_cleaned_at": null,
+    "last_vacuumed_at": null,
+    "last_mopped_at": null,
+    "last_job_mode": null,
+    "profile_name": "vacuum_quick",
+    "floor_type": "tile",
+    "clean_mode": "vacuum",
+    "fan_speed": "standard",
+    "water_level": "",
+    "clean_intensity": "standard",
+    "clean_passes": 1,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 4,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": false,
+    "grants_access_to": [],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "dreame",
+    "clean_mode_options": [
+     {
+      "value": "vacuum",
+      "label": "Vacuum"
+     },
+     {
+      "value": "mop",
+      "label": "Mop"
+     },
+     {
+      "value": "vacuum_mop",
+      "label": "Vacuum & Mop"
+     }
+    ],
+    "fan_speed_options": [
+     {
+      "value": "quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "standard",
+      "label": "Standard"
+     },
+     {
+      "value": "strong",
+      "label": "Intense"
+     },
+     {
+      "value": "turbo",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [],
+    "clean_intensity_options": [
+     {
+      "value": "standard",
+      "label": "Standard"
+     },
+     {
+      "value": "intensive",
+      "label": "Intensive"
+     },
+     {
+      "value": "deep",
+      "label": "Deep"
+     }
+    ],
+    "water_level_range": {
+     "min": 1,
+     "max": 32,
+     "step": 1,
+     "labels": {
+      "min_label": "Slightly Dry",
+      "mid_label": "Moist",
+      "max_label": "Wet"
+     }
+    },
+    "supports_edge_mopping": false,
+    "friendly_name": "Robin Bathroom Selected for Cleaning"
+   }
+  },
+  "switch.robin_heidi_chris_selected_for_cleaning": {
+   "entity_id": "switch.robin_heidi_chris_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.robin",
+    "map_id": "Main",
+    "room_id": 5,
+    "room_name": "Heidi & Chris",
+    "slug": "heidi_and_chris",
+    "last_cleaned_at": null,
+    "last_vacuumed_at": null,
+    "last_mopped_at": null,
+    "last_job_mode": null,
+    "profile_name": "custom",
+    "floor_type": "carpet_high_pile",
+    "clean_mode": "vacuum",
+    "fan_speed": "turbo",
+    "water_level": "",
+    "clean_intensity": "standard",
+    "clean_passes": 1,
+    "edge_mopping": false,
+    "carpet": true,
+    "order": 5,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": false,
+    "grants_access_to": [],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "dreame",
+    "clean_mode_options": [
+     {
+      "value": "vacuum",
+      "label": "Vacuum"
+     },
+     {
+      "value": "mop",
+      "label": "Mop"
+     },
+     {
+      "value": "vacuum_mop",
+      "label": "Vacuum & Mop"
+     }
+    ],
+    "fan_speed_options": [
+     {
+      "value": "quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "standard",
+      "label": "Standard"
+     },
+     {
+      "value": "strong",
+      "label": "Intense"
+     },
+     {
+      "value": "turbo",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [],
+    "clean_intensity_options": [
+     {
+      "value": "standard",
+      "label": "Standard"
+     },
+     {
+      "value": "intensive",
+      "label": "Intensive"
+     },
+     {
+      "value": "deep",
+      "label": "Deep"
+     }
+    ],
+    "water_level_range": {
+     "min": 1,
+     "max": 32,
+     "step": 1,
+     "labels": {
+      "min_label": "Slightly Dry",
+      "mid_label": "Moist",
+      "max_label": "Wet"
+     }
+    },
+    "supports_edge_mopping": false,
+    "friendly_name": "Robin Heidi & Chris Selected for Cleaning"
+   }
+  },
+  "switch.robin_office_selected_for_cleaning": {
+   "entity_id": "switch.robin_office_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.robin",
+    "map_id": "Main",
+    "room_id": 6,
+    "room_name": "Office",
+    "slug": "office",
+    "last_cleaned_at": null,
+    "last_vacuumed_at": null,
+    "last_mopped_at": null,
+    "last_job_mode": null,
+    "profile_name": "custom",
+    "floor_type": "carpet_low_pile",
+    "clean_mode": "vacuum",
+    "fan_speed": "strong",
+    "water_level": "",
+    "clean_intensity": "standard",
+    "clean_passes": 1,
+    "edge_mopping": false,
+    "carpet": true,
+    "order": 6,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": false,
+    "grants_access_to": [],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "dreame",
+    "clean_mode_options": [
+     {
+      "value": "vacuum",
+      "label": "Vacuum"
+     },
+     {
+      "value": "mop",
+      "label": "Mop"
+     },
+     {
+      "value": "vacuum_mop",
+      "label": "Vacuum & Mop"
+     }
+    ],
+    "fan_speed_options": [
+     {
+      "value": "quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "standard",
+      "label": "Standard"
+     },
+     {
+      "value": "strong",
+      "label": "Intense"
+     },
+     {
+      "value": "turbo",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [],
+    "clean_intensity_options": [
+     {
+      "value": "standard",
+      "label": "Standard"
+     },
+     {
+      "value": "intensive",
+      "label": "Intensive"
+     },
+     {
+      "value": "deep",
+      "label": "Deep"
+     }
+    ],
+    "water_level_range": {
+     "min": 1,
+     "max": 32,
+     "step": 1,
+     "labels": {
+      "min_label": "Slightly Dry",
+      "mid_label": "Moist",
+      "max_label": "Wet"
+     }
+    },
+    "supports_edge_mopping": false,
+    "friendly_name": "Robin Office Selected for Cleaning"
+   }
+  },
+  "switch.robin_dining_room_selected_for_cleaning": {
+   "entity_id": "switch.robin_dining_room_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.robin",
+    "map_id": "Main",
+    "room_id": 7,
+    "room_name": "Dining Room",
+    "slug": "dining_room",
+    "last_cleaned_at": "2026-08-30T03:16:40Z",
+    "last_vacuumed_at": "2026-08-30T03:16:40Z",
+    "last_mopped_at": "2026-08-30T03:16:40Z",
+    "last_job_mode": "vacuum and mop",
+    "profile_name": "custom",
+    "floor_type": "granite",
+    "clean_mode": "Vacuum and mop",
+    "fan_speed": "standard",
+    "water_level": "1",
+    "clean_intensity": "standard",
+    "clean_passes": 1,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 7,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": false,
+    "grants_access_to": [],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "dreame",
+    "clean_mode_options": [
+     {
+      "value": "vacuum",
+      "label": "Vacuum"
+     },
+     {
+      "value": "mop",
+      "label": "Mop"
+     },
+     {
+      "value": "vacuum_mop",
+      "label": "Vacuum & Mop"
+     }
+    ],
+    "fan_speed_options": [
+     {
+      "value": "quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "standard",
+      "label": "Standard"
+     },
+     {
+      "value": "strong",
+      "label": "Intense"
+     },
+     {
+      "value": "turbo",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [],
+    "clean_intensity_options": [
+     {
+      "value": "standard",
+      "label": "Standard"
+     },
+     {
+      "value": "intensive",
+      "label": "Intensive"
+     },
+     {
+      "value": "deep",
+      "label": "Deep"
+     }
+    ],
+    "water_level_range": {
+     "min": 1,
+     "max": 32,
+     "step": 1,
+     "labels": {
+      "min_label": "Slightly Dry",
+      "mid_label": "Moist",
+      "max_label": "Wet"
+     }
+    },
+    "supports_edge_mopping": false,
+    "friendly_name": "Robin Dining Room Selected for Cleaning"
+   }
+  },
+  "switch.robin_living_room_selected_for_cleaning": {
+   "entity_id": "switch.robin_living_room_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.robin",
+    "map_id": "Main",
+    "room_id": 8,
+    "room_name": "Living Room",
+    "slug": "living_room",
+    "last_cleaned_at": null,
+    "last_vacuumed_at": null,
+    "last_mopped_at": null,
+    "last_job_mode": null,
+    "profile_name": "vacuum_quick",
+    "floor_type": "marble",
+    "clean_mode": "vacuum",
+    "fan_speed": "standard",
+    "water_level": "",
+    "clean_intensity": "standard",
+    "clean_passes": 1,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 8,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": false,
+    "grants_access_to": [],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "dreame",
+    "clean_mode_options": [
+     {
+      "value": "vacuum",
+      "label": "Vacuum"
+     },
+     {
+      "value": "mop",
+      "label": "Mop"
+     },
+     {
+      "value": "vacuum_mop",
+      "label": "Vacuum & Mop"
+     }
+    ],
+    "fan_speed_options": [
+     {
+      "value": "quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "standard",
+      "label": "Standard"
+     },
+     {
+      "value": "strong",
+      "label": "Intense"
+     },
+     {
+      "value": "turbo",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [],
+    "clean_intensity_options": [
+     {
+      "value": "standard",
+      "label": "Standard"
+     },
+     {
+      "value": "intensive",
+      "label": "Intensive"
+     },
+     {
+      "value": "deep",
+      "label": "Deep"
+     }
+    ],
+    "water_level_range": {
+     "min": 1,
+     "max": 32,
+     "step": 1,
+     "labels": {
+      "min_label": "Slightly Dry",
+      "mid_label": "Moist",
+      "max_label": "Wet"
+     }
+    },
+    "supports_edge_mopping": false,
+    "friendly_name": "Robin Living Room Selected for Cleaning"
+   }
+  },
+  "switch.robin_cat_room_selected_for_cleaning": {
+   "entity_id": "switch.robin_cat_room_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.robin",
+    "map_id": "Main",
+    "room_id": 9,
+    "room_name": "Cat Room",
+    "slug": "cat_room",
+    "last_cleaned_at": null,
+    "last_vacuumed_at": null,
+    "last_mopped_at": null,
+    "last_job_mode": null,
+    "profile_name": "vacuum_quick",
+    "floor_type": "tile",
+    "clean_mode": "vacuum",
+    "fan_speed": "standard",
+    "water_level": "",
+    "clean_intensity": "standard",
+    "clean_passes": 1,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 9,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": false,
+    "grants_access_to": [],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "dreame",
+    "clean_mode_options": [
+     {
+      "value": "vacuum",
+      "label": "Vacuum"
+     },
+     {
+      "value": "mop",
+      "label": "Mop"
+     },
+     {
+      "value": "vacuum_mop",
+      "label": "Vacuum & Mop"
+     }
+    ],
+    "fan_speed_options": [
+     {
+      "value": "quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "standard",
+      "label": "Standard"
+     },
+     {
+      "value": "strong",
+      "label": "Intense"
+     },
+     {
+      "value": "turbo",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [],
+    "clean_intensity_options": [
+     {
+      "value": "standard",
+      "label": "Standard"
+     },
+     {
+      "value": "intensive",
+      "label": "Intensive"
+     },
+     {
+      "value": "deep",
+      "label": "Deep"
+     }
+    ],
+    "water_level_range": {
+     "min": 1,
+     "max": 32,
+     "step": 1,
+     "labels": {
+      "min_label": "Slightly Dry",
+      "mid_label": "Moist",
+      "max_label": "Wet"
+     }
+    },
+    "supports_edge_mopping": false,
+    "friendly_name": "Robin Cat Room Selected for Cleaning"
+   }
+  },
+  "switch.robin_hallway_selected_for_cleaning": {
+   "entity_id": "switch.robin_hallway_selected_for_cleaning",
+   "state": "off",
+   "attributes": {
+    "vacuum_entity_id": "vacuum.robin",
+    "map_id": "Main",
+    "room_id": 10,
+    "room_name": "Hallway",
+    "slug": "hallway",
+    "last_cleaned_at": null,
+    "last_vacuumed_at": null,
+    "last_mopped_at": null,
+    "last_job_mode": null,
+    "profile_name": "vacuum_quick",
+    "floor_type": "hardwood",
+    "clean_mode": "vacuum",
+    "fan_speed": "standard",
+    "water_level": "",
+    "clean_intensity": "standard",
+    "clean_passes": 1,
+    "edge_mopping": false,
+    "carpet": false,
+    "order": 10,
+    "enabled": false,
+    "color": null,
+    "is_dock_room": false,
+    "grants_access_to": [],
+    "rules": [],
+    "integration": "01KNGFDPR1DAEN58SB9PGVTRTE",
+    "adapter_id": "dreame",
+    "clean_mode_options": [
+     {
+      "value": "vacuum",
+      "label": "Vacuum"
+     },
+     {
+      "value": "mop",
+      "label": "Mop"
+     },
+     {
+      "value": "vacuum_mop",
+      "label": "Vacuum & Mop"
+     }
+    ],
+    "fan_speed_options": [
+     {
+      "value": "quiet",
+      "label": "Quiet"
+     },
+     {
+      "value": "standard",
+      "label": "Standard"
+     },
+     {
+      "value": "strong",
+      "label": "Intense"
+     },
+     {
+      "value": "turbo",
+      "label": "Max"
+     }
+    ],
+    "water_level_options": [],
+    "clean_intensity_options": [
+     {
+      "value": "standard",
+      "label": "Standard"
+     },
+     {
+      "value": "intensive",
+      "label": "Intensive"
+     },
+     {
+      "value": "deep",
+      "label": "Deep"
+     }
+    ],
+    "water_level_range": {
+     "min": 1,
+     "max": 32,
+     "step": 1,
+     "labels": {
+      "min_label": "Slightly Dry",
+      "mid_label": "Moist",
+      "max_label": "Wet"
+     }
+    },
+    "supports_edge_mopping": false,
+    "friendly_name": "Robin Hallway Selected for Cleaning"
+   }
+  },
+  "vacuum.alfred": {
+   "entity_id": "vacuum.alfred",
+   "state": "docked",
+   "attributes": {
+    "friendly_name": "Alfred"
+   }
+  },
+  "vacuum.robin": {
+   "entity_id": "vacuum.robin",
+   "state": "docked",
+   "attributes": {
+    "friendly_name": "Robin"
+   }
+  }
+ }
+}

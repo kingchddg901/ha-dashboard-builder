@@ -19,6 +19,7 @@ import { applianceSummary } from "../cards/appliance-card/control-core.js";
 import { tvControls, tvSummary } from "../cards/tv-card/tv-core.js";
 import { readingOf, summary as readingSummary, robotGlance } from "../cards/readings-card/readings-core.js";
 import { lightNode, treeSummary, rowState } from "../cards/light-tree-card/light-tree-core.js";
+import { roomsFor, robotName } from "../cards/va-room-card/va-room-core.js";
 
 const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -103,6 +104,17 @@ export const RENDERERS = Object.freeze({
     summary: (hass, cfg) => {
       const node = lightNode(cfg.entity, hass?.states || {});
       return { text: treeSummary(node), state: rowState(node) };
+    },
+  },
+  "va-rooms": {
+    label: "Robot rooms", size: { w: 4, h: 7 },
+    load: () => import("../cards/va-room-card/va-room-card.js"), tag: "va-room-card",
+    summary: (hass, cfg) => {
+      const g = robotGlance(hass?.states || {}, String(cfg.vacuum || "").split(".")[1]);
+      const picked = roomsFor(hass?.states || {}, cfg.vacuum).filter((r) => r.selected).map((r) => r.name);
+      const status = !g.available ? "unavailable" : g.error ? `error: ${g.error}` : String(g.state).replace(/_/g, " ");
+      return { text: `${robotName(hass?.panels, cfg.vacuum, hass?.states)}: ${status}${picked.length ? ` · ${picked.join(", ")} selected` : ""}`,
+        state: !g.available ? "unavailable" : g.running ? "on" : "off" };
     },
   },
   tv: {

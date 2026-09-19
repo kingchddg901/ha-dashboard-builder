@@ -25,6 +25,10 @@ export const SEED = Object.freeze({
         { id: "glance", kind: "glance", title: "Glance", x: 6, y: 0, w: 6, h: 4,
           config: { entities: ["weather.forecast_home"], robots: ["alfred", "ivy", "robin"] } },
         light("living-room", "Living room", "light.living_room", { x: 6, y: 4, w: 6, h: 5 }),
+        // One tile per robot: pick a room, start it; settings stay in Vacuum Agent.
+        { id: "alfred-rooms", kind: "va-rooms", title: "Alfred", x: 0, y: 9, w: 4, h: 7, config: { vacuum: "vacuum.alfred" } },
+        { id: "ivy-rooms", kind: "va-rooms", title: "Ivy", x: 4, y: 9, w: 4, h: 7, config: { vacuum: "vacuum.ivy" } },
+        { id: "robin-rooms", kind: "va-rooms", title: "Robin", x: 8, y: 9, w: 4, h: 7, config: { vacuum: "vacuum.robin" } },
       ],
     },
     {
