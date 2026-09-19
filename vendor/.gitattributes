@@ -1,0 +1,3 @@
+# A vendored copy is byte-exact: VENDORED.json hashes its bytes, so git must
+# never convert its line endings on checkout.
+* -text
