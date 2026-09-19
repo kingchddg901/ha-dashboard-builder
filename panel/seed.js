@@ -74,6 +74,8 @@ export const SEED = Object.freeze({
             channels: ["Witness to Justice", "CBS News 24/7", "Movie Hub", "BBC Earth"] } },
         { id: "monitor", kind: "tv", title: "Monitor", x: 0, y: 6, w: 6, h: 6,
           config: { title: "Monitor", media_player: "media_player.android_tv_2", remote: "remote.android_tv" } },
+        { id: "living-room-tv", kind: "tv", title: "Living Room TV", x: 6, y: 6, w: 6, h: 6,
+          config: { title: "Living Room TV", media_player: "media_player.living_room_tv", remote: "remote.living_room_tv" } },
       ],
     },
   ],
