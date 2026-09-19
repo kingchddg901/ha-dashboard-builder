@@ -48,10 +48,37 @@ channels:
 | `remote` | **required** | a `remote.*` entity for the TV, from core `samsungtv` or from `samsungtv_smart` (see below) |
 | `channels` | optional | the list to start from, until one is saved: channel **names**, not numbers (see below) |
 | `list` | optional | which saved list this card shows; cards with the same name share one (default `default`) |
+| `notify` | optional | where reminders go (a notify service or a list). Default: the signed-in person's phones |
+| `media_player` | optional | the TV's media player, checked before tuning at the start. Default: the one on the remote's device |
+| `remind_lead` | optional | minutes before a show the reminder starts at: `0`, `5` (default), `10` or `15` |
 | `saved_for` | optional | `user` (default): each HA user keeps their own. `house`: one list for everyone, which only an admin can change |
 | `title` | optional | card heading |
 | `region` | optional | `us` (default), `ca`, `gb`, `de`, `fr`, `es`, `it`, `at`, `ch`, `in`, `kr` |
 | `key_gap_ms` | optional | pause between keys when tuning, `samsungtv_smart` only (200–2000, default 1000) |
+
+## Reminders
+
+Step to a later show and **Remind me** appears: pick how long before (at the start, 5, 10 or
+15 minutes; times already past are greyed out), tick **Tune when it starts** if you want that
+too, and **Set reminder**.
+
+- **Stage one** is a notification to your phones, found through your person entity's device
+  trackers (only notify services that exist; `notify:` overrides it).
+- **Stage two** happens only when ticked. At the start, `script.tvplus_tune` (from
+  [`ha-config/packages/tvplus_reminders.yaml`](../../ha-config/packages/tvplus_reminders.yaml))
+  tunes the channel **if the TV is on**. It never switches the TV on, and it says what it did
+  either way.
+
+Each stage is a one-shot entry in the **Scheduler** integration (HACS), so it fires in Home
+Assistant with no browser open, survives a restart, shows in Scheduler's own card, and removes
+itself once it has run. Two entries rather than one, because a reminder at 23:55 for a show at
+00:05 falls on two dates. Times go to Scheduler in Home Assistant's time zone. The card finds its
+reminders again by their tags; a channel with one pending shows "reminder 8:55 PM", and
+**Cancel reminder** removes both stages. The logic is in `reminders-core.js`, tested in
+`test/reminders.test.mjs`.
+
+Without Scheduler, the card says reminders need it. Without the package, "Tune when it starts"
+is disabled and says why.
 
 ## Where saved channels live
 

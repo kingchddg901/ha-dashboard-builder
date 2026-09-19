@@ -8,6 +8,8 @@
  *   saved   : Home Assistant's own frontend storage — per user by default, or
  *             one list for the house (`saved_for: house`, which only an admin
  *             can change)
+ *   remind  : one-shot Scheduler entries (see ./reminders-core.js), so a
+ *             reminder fires in Home Assistant with no browser open
  *
  * Everything this card claims was measured against a real set on 2026-09-15; the
  * reasoning behind each rule is in ../../docs/samsung-tv-local-control.md.
@@ -27,6 +29,10 @@ import {
   loadLineup, airing, tuneCommand, tuneDuration, groupsOf, searchChannels,
   toggleSaved, moveSaved, savedKey, slotsFrom,
 } from "./tvplus-core.js";
+import {
+  LEADS, TUNE_SCRIPT, reminderPlan, reminderTag, schedulerAdds, pendingReminders,
+  notifyTargetsFor, mediaPlayerFor,
+} from "./reminders-core.js";
 
 const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -51,6 +57,10 @@ class SamsungTvPlusCard extends HTMLElement {
     this._note = "";
     this._selected = null;        // the channel whose detail is open
     this._slotStart = null;       // which of its shows the detail is showing
+    this._lead = null;            // minutes before, for the next reminder set
+    this._tuneAtStart = false;    // declared per reminder, never assumed
+    this._pending = null;         // the reminder being set, until its entries appear
+    this._remindNote = "";
   }
 
   setConfig(config) {
@@ -71,6 +81,15 @@ class SamsungTvPlusCard extends HTMLElement {
   set hass(hass) {
     this._hass = hass;
     this._subscribe();
+    // Reminders are Scheduler entities, so they arrive - and fire, and vanish -
+    // as state changes. Re-render only when that set changes.
+    const mine = pendingReminders(hass?.states);
+    const sig = JSON.stringify(mine.map((r) => [r.entity_id, r.next]));
+    if (sig !== this._remSig) {
+      this._remSig = sig;
+      if (this._pending && mine.some((r) => r.tag === this._pending)) this._pending = null;
+      this._renderRows();
+    }
   }
 
   getCardSize() { return 2 + (this._saved().length || 3); }
@@ -321,7 +340,7 @@ class SamsungTvPlusCard extends HTMLElement {
     return `<button type="button" class="row ${selected ? "sel" : ""}" data-act="select" data-name="${esc(name)}"
         aria-expanded="${selected}">
       <span class="no">${ch.n}</span>
-      <span class="mid"><span class="nm">${esc(name)}${inSearch && saved ? ` <span class="badge">saved</span>` : ""}</span>
+      <span class="mid"><span class="nm">${esc(name)}${inSearch && saved ? ` <span class="badge">saved</span>` : ""}${this._reminderBadge(name)}</span>
         <span class="pg">${sending ? "sending…" : cur ? `${esc(cur.title)} · until ${fmt(cur.end)}` : "no listing"}</span>
         ${inSearch ? `<span class="grp">${esc(ch.group || "")}</span>` : ""}</span>
       ${inSearch ? "" : `<span class="nx">${next ? esc(`${fmt(next.start)} ${next.title}`) : ""}</span>`}
@@ -364,7 +383,128 @@ class SamsungTvPlusCard extends HTMLElement {
         <button type="button" class="tb ${saved ? "on" : ""}" data-act="save" data-name="${n}" aria-pressed="${saved}">${saved ? "Saved" : "Save"}</button>
       </div>
       ${slot && !slot.onNow ? `<div class="hint">Tuning changes the channel now; this show starts at ${fmt(slot.start)}.</div>` : ""}
+      ${slot && !slot.onNow ? this._remindHtml(name, slot) : ""}
     </div>`;
+  }
+
+  /* ---------------- reminders ---------------- */
+
+  /** Who gets told: the card's `notify`, else the signed-in person's phones. */
+  _targets() {
+    const c = this._config.notify;
+    if (c) return Array.isArray(c) ? c : [c];
+    return notifyTargetsFor({ states: this._hass?.states, userId: this._hass?.user?.id,
+      notifyServices: this._hass?.services?.notify || {} });
+  }
+
+  _targetName(svc) {
+    const obj = String(svc).replace(/^notify\.mobile_app_/, "");
+    return this._hass?.states?.[`device_tracker.${obj}`]?.attributes?.friendly_name || obj;
+  }
+
+  _mediaPlayer() { return this._config.media_player || mediaPlayerFor(this._config.remote, this._hass?.entities); }
+  _hasScheduler() { return Boolean(this._hass?.services?.scheduler?.add); }
+  _hasTuneScript() { return Boolean(this._hass?.states?.[TUNE_SCRIPT]); }
+  _leadNow() { return this._lead ?? (Number.isFinite(this._config.remind_lead) ? this._config.remind_lead : 5); }
+
+  /** "reminder 8:55 PM" on a channel row that has one pending. */
+  _reminderBadge(name) {
+    const prefix = reminderTag(name, "");
+    const next = pendingReminders(this._hass?.states)
+      .filter((r) => r.tag.startsWith(prefix) && r.next).map((r) => r.next).sort()[0];
+    return next ? ` <span class="badge rem">reminder ${fmt(next)}</span>` : "";
+  }
+
+  _remindHtml(name, slot) {
+    const n = esc(name);
+    const tag = reminderTag(name, slot.start);
+    const mine = pendingReminders(this._hass?.states).filter((r) => r.tag === tag);
+    if (mine.length) {
+      const rem = mine.find((r) => r.stage === "remind");
+      const tune = mine.find((r) => r.stage === "tune");
+      const parts = [rem && `reminder at ${fmt(rem.next ?? slot.start)}`,
+        tune && `tunes at ${fmt(slot.start)} if the TV is on`].filter(Boolean);
+      return `<div class="remind set"><span>Set: ${parts.join(" · ")}</span>
+        <button type="button" class="tb" data-act="unremind" data-name="${n}">Cancel reminder</button></div>`;
+    }
+    if (this._pending === tag) return `<div class="remind"><span class="hint">Setting the reminder…</span></div>`;
+    if (!this._hasScheduler()) {
+      return `<div class="remind"><span class="hint">Reminders need the Scheduler integration.</span></div>`;
+    }
+    const canTune = this._hasTuneScript();
+    const tune = this._tuneAtStart && canTune;
+    const targets = this._targets();
+    const lead = this._leadNow();
+    const now = Date.now() / 1000;
+    const plan = reminderPlan({ start: slot.start, lead, tune, now });
+    const chips = LEADS.map((m) => {
+      const ok = reminderPlan({ start: slot.start, lead: m, tune, now }).ok;
+      return `<button type="button" class="chip ${m === lead ? "on" : ""}" data-act="lead" data-lead="${m}"
+        data-name="${n}" aria-pressed="${m === lead}" ${ok ? "" : "disabled"}>${m ? `${m} min before` : "At start"}</button>`;
+    }).join("");
+    const blocked = !plan.ok ? esc(plan.reason)
+      : !targets.length && !tune ? "No phone found for you - add <code>notify:</code> to the card" : "";
+    return `<div class="remind">
+      <div class="remind-head">Remind me</div>
+      <div class="leads" role="group" aria-label="How long before">${chips}</div>
+      <label class="chk"><input type="checkbox" data-act="tune-at-start" data-name="${n}"
+        ${tune ? "checked" : ""} ${canTune ? "" : "disabled"}> Tune when it starts
+        <span class="hint">only if the TV is on</span></label>
+      ${canTune ? "" : `<div class="hint">Tuning at the start needs the <code>tvplus_reminders</code> package.</div>`}
+      <div class="acts"><button type="button" class="tb remind-btn" data-act="remind" data-name="${n}"
+          ${blocked ? "disabled" : ""}>Set reminder</button>
+        <span class="hint">${blocked || (targets.length ? `to ${esc(targets.map((t) => this._targetName(t)).join(", "))}` : "")}</span></div>
+      ${this._remindNote ? `<div class="hint warn">${esc(this._remindNote)}</div>` : ""}
+    </div>`;
+  }
+
+  async _remind(name) {
+    const ch = this._channels?.[name];
+    if (!ch || !this._hass) return;
+    const slots = slotsFrom(ch.programs);
+    const slot = slots[this._slotIndex(slots)];
+    if (!slot) return;
+    const tune = this._tuneAtStart && this._hasTuneScript();
+    const plan = reminderPlan({ start: slot.start, lead: this._leadNow(), tune });
+    const mediaPlayer = this._mediaPlayer();
+    if (tune && !mediaPlayer) {
+      this._remindNote = "Cannot tell which media player is this TV - set media_player: on the card.";
+      this._renderRows();
+      return;
+    }
+    const payloads = schedulerAdds({
+      plan, tz: this._hass.config?.time_zone, channel: name, chno: ch.n, show: slot.title,
+      when: fmt(slot.start), notify: this._targets(), remote: this._config.remote, mediaPlayer,
+      command: tuneCommand(ch.n, { platform: this._hass.entities?.[this._config.remote]?.platform ?? null,
+        gapMs: this._config.key_gap_ms }),
+    });
+    if (!payloads.length) return;
+    const tag = reminderTag(name, slot.start);
+    this._pending = tag;
+    this._remindNote = "";
+    this._renderRows();
+    try {
+      for (const p of payloads) await this._hass.callService("scheduler", "add", p);
+    } catch (e) {
+      this._pending = null;
+      this._remindNote = `Reminder not set: ${e?.message || e}`;
+      this._renderRows();
+      return;
+    }
+    // The entries show up with the next state change; stop waiting after a while.
+    setTimeout(() => { if (this._pending === tag) { this._pending = null; this._renderRows(); } }, 10000);
+  }
+
+  async _unremind(name) {
+    const ch = this._channels?.[name];
+    const slots = slotsFrom(ch?.programs);
+    const slot = slots[this._slotIndex(slots)];
+    if (!slot) return;
+    const tag = reminderTag(name, slot.start);
+    for (const r of pendingReminders(this._hass?.states).filter((x) => x.tag === tag)) {
+      try { await this._hass.callService("scheduler", "remove", { entity_id: r.entity_id }); }
+      catch (e) { this._remindNote = `Could not cancel: ${e?.message || e}`; this._renderRows(); }
+    }
   }
 
   /** Keep an opened detail on screen - on a phone it can open below the fold. */
@@ -383,13 +523,22 @@ class SamsungTvPlusCard extends HTMLElement {
       const open = this._selected !== name;
       this._selected = open ? name : null;
       this._slotStart = null;
+      this._remindNote = "";
       this._reveal = open;
       this._renderRows();
     } else if (act === "prev" || act === "next") {
       const slots = slotsFrom(this._channels?.[name]?.programs);
       const j = this._slotIndex(slots) + (act === "next" ? 1 : -1);
       if (slots[j]) { this._slotStart = slots[j].start; this._renderRows(); }
-    } else if (act === "tune") this._tune(name);
+    } else if (act === "lead") {
+      this._lead = Number(b.dataset.lead);
+      this._renderRows();
+    } else if (act === "tune-at-start") {
+      this._tuneAtStart = b.checked;
+      this._renderRows();
+    } else if (act === "remind") this._remind(name);
+    else if (act === "unremind") this._unremind(name);
+    else if (act === "tune") this._tune(name);
     else if (act === "save") this._save(toggleSaved(this._saved(), name));
     else if (act === "up") this._save(moveSaved(this._saved(), name, -1));
     else if (act === "down") this._save(moveSaved(this._saved(), name, 1));
@@ -402,12 +551,12 @@ SamsungTvPlusCard.styles = `
   .hd { display:flex; align-items:center; gap:8px; padding:2px 12px 8px 16px; }
   .t { font-size:16px; font-weight:600; }
   .sub { margin-left:auto; font-size:11px; color:var(--warning-color,#f5a623); }
-  .hb, .tb, .ib, .cat { font:inherit; cursor:pointer; border-radius:8px; color:var(--primary-text-color);
+  .hb, .tb, .ib, .cat, .chip { font:inherit; cursor:pointer; border-radius:8px; color:var(--primary-text-color);
                         border:1px solid var(--divider-color,#555); background:var(--secondary-background-color,#1c2126); }
   .hb { padding:5px 12px; font-size:12.5px; }
   .hd .hb:first-of-type { margin-left:auto; }
   .sub:not(:empty) + .hb { margin-left:0; }
-  .hb.on, .tb.on, .cat.on { border-color:var(--accent-color,#ff9900); color:var(--accent-color,#ff9900); }
+  .hb.on, .tb.on, .cat.on, .chip.on { border-color:var(--accent-color,#ff9900); color:var(--accent-color,#ff9900); }
   .hb:focus-visible, .tb:focus-visible, .ib:focus-visible, .cat:focus-visible, .row:focus-visible, .q:focus-visible
     { outline:2px solid var(--accent-color,#ff9900); outline-offset:1px; }
   .searchbar { display:flex; gap:8px; padding:0 12px 8px 16px; }
@@ -453,6 +602,18 @@ SamsungTvPlusCard.styles = `
   .acts { display:flex; gap:8px; }
   .tb.tune { flex:1; padding:10px 14px; font-size:14px; font-weight:600; border-color:var(--accent-color,#ff9900); }
   .hint { font-size:11.5px; color:var(--secondary-text-color); }
+  .hint.warn { color:var(--warning-color,#f5a623); }
+  .badge.rem { color:var(--primary-text-color); }
+  .remind { display:flex; flex-direction:column; gap:8px; padding-top:10px; border-top:1px dashed var(--divider-color,#555); }
+  .remind.set { flex-direction:row; align-items:center; justify-content:space-between; gap:10px; font-size:13px;
+                color:var(--accent-color,#ff9900); }
+  .remind-head { font-size:12px; letter-spacing:.04em; text-transform:uppercase; color:var(--secondary-text-color); }
+  .leads { display:flex; flex-wrap:wrap; gap:6px; }
+  .chip { padding:5px 10px; font-size:12.5px; }
+  .chip:disabled { opacity:.35; cursor:default; }
+  .chk { display:flex; align-items:center; gap:8px; font-size:13.5px; cursor:pointer; }
+  .chk input { width:18px; height:18px; accent-color:var(--accent-color,#ff9900); }
+  .tb:disabled { opacity:.4; cursor:default; }
   .row.gone { opacity:.55; }
   .row.gone .no { color:var(--secondary-text-color); }
   @media (max-width:460px){ .nx { display:none; } .tb { min-width:0; padding:6px 9px; } }

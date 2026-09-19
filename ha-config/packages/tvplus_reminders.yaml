@@ -1,0 +1,76 @@
+# TV Plus reminders, stage two: at the show's start, tune - if the TV is on.
+#
+# The TV Plus card schedules this through the Scheduler integration only when
+# "Tune when it starts" was ticked for that reminder. Stage one (the heads-up)
+# is a plain notify action and needs nothing here.
+#
+# Why "only if on": keys sent to a TV that is off are lost, and switching a TV
+# on unasked is not what a reminder means. Either way the script says what it
+# did, so a tune that did not happen is never silent.
+#
+# The card builds the key list (digits, pauses, Enter) the same way it does
+# for its own Tune button, so this script does not know about key spacing.
+script:
+  tvplus_tune:
+    alias: "TV Plus: tune at start"
+    icon: mdi:television-guide
+    mode: queued
+    max: 10
+    fields:
+      remote:
+        description: The TV's remote entity
+        required: true
+        example: remote.big_tv
+        selector:
+          entity:
+            domain: remote
+      media_player:
+        description: The TV's media player, checked for "on" before tuning
+        required: true
+        example: media_player.big_tv_2
+        selector:
+          entity:
+            domain: media_player
+      command:
+        description: The key list to send, as the card built it
+        required: true
+        example: '["KEY_1", "1000", "KEY_8", "1000", "KEY_ENTER"]'
+        selector:
+          object:
+      label:
+        description: Channel name and number, for the message
+        example: Witness to Justice (1833)
+        selector:
+          text:
+      show:
+        description: The show, for the message
+        example: Court Cam
+        selector:
+          text:
+      notify:
+        description: Notify services to tell what happened
+        example: '["notify.mobile_app_sm_s918u"]'
+        selector:
+          object:
+    sequence:
+      - variables:
+          tv_on: "{{ is_state(media_player, 'on') }}"
+          targets: >-
+            {{ notify if notify is list else ([notify] if notify else []) }}
+      - if:
+          - condition: template
+            value_template: "{{ tv_on }}"
+        then:
+          - action: remote.send_command
+            target:
+              entity_id: "{{ remote }}"
+            data:
+              command: "{{ command }}"
+      - repeat:
+          for_each: "{{ targets }}"
+          sequence:
+            - action: "{{ repeat.item }}"
+              data:
+                title: TV Plus
+                message: >-
+                  {% if tv_on %}Tuned to {{ label }} for {{ show }}.{% else %}{{ show }} is starting on {{ label }}. The TV is off, so it was not tuned.{% endif %}
