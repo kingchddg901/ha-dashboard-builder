@@ -27,8 +27,9 @@
 
 import {
   loadLineup, airing, tuneCommand, tuneDuration, groupsOf, searchChannels,
-  toggleSaved, moveSaved, savedKey, slotsFrom,
+  toggleSaved, moveSaved, slotsFrom,
 } from "./tvplus-core.js";
+import { subscribeSaved, writeSaved } from "./saved-list.js";
 import {
   LEADS, TUNE_SCRIPT, reminderPlan, reminderTag, schedulerAdds, pendingReminders,
   notifyTargetsFor, mediaPlayerFor,
@@ -142,11 +143,10 @@ class SamsungTvPlusCard extends HTMLElement {
 
   _subscribe() {
     if (this._unsub || this._subFailed || !this._hass?.connection || !this.isConnected || !this._config) return;
-    const type = this._house() ? "frontend/subscribe_system_data" : "frontend/subscribe_user_data";
-    this._unsub = this._hass.connection.subscribeMessage((ev) => {
-      this._stored = ev?.value ?? null;
+    this._unsub = subscribeSaved(this._hass, { list: this._config.list, savedFor: this._config.saved_for }, (value) => {
+      this._stored = value;
       this._render();
-    }, { type, key: savedKey(this._config.list) });
+    });
     this._unsub.catch((e) => {
       this._unsub = null;
       this._subFailed = true;       // say so once; do not retry on every state change
@@ -167,9 +167,8 @@ class SamsungTvPlusCard extends HTMLElement {
     this._stored = list;            // show it now; put it back if the save fails
     this._note = "";
     this._render();
-    const type = this._house() ? "frontend/set_system_data" : "frontend/set_user_data";
     try {
-      await this._hass.connection.sendMessagePromise({ type, key: savedKey(this._config.list), value: list });
+      await writeSaved(this._hass, { list: this._config.list, savedFor: this._config.saved_for }, list);
     } catch (e) {
       this._stored = prev;
       const why = e?.message || e?.code || String(e);

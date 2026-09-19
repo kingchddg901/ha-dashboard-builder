@@ -18,11 +18,23 @@
  * The d-pad speaks whichever language the remote's integration does - Samsung's
  * KEY_* codes or Android TV's DPAD_* names - looked up from the remote's own
  * platform. A remote on a platform with no key table gets no d-pad at all.
+ *
+ * Favourites: on a Samsung remote, the first few channels saved in the TV Plus
+ * guide show as one-tap buttons - the same saved list, so reordering it in the
+ * guide changes them here.
+ *   favorites: 5        # how many (0 turns them off); default 5 on Samsung, else 0
+ *   list: default       # which saved list, as in the guide card
+ *   saved_for: user     # or house, as in the guide card
  */
 
 import { describeEntity } from "../builder-debug-card/capability-core.js";
 import { layoutFor, axisFor } from "../appliance-card/control-core.js";
 import { platformKey, tvControls } from "./tv-core.js";
+import { loadLineup, tuneCommand, tuneDuration, favoritesFrom } from "../samsung-tvplus-card/tvplus-core.js";
+import { subscribeSaved } from "../samsung-tvplus-card/saved-list.js";
+
+// TV Plus is Samsung's; only these remotes get favourites unless the card asks.
+const TVPLUS_PLATFORMS = new Set(["samsungtv_smart", "samsungtv"]);
 
 const esc = (v) => String(v).replace(/[&<>"]/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -47,9 +59,10 @@ class TvCard extends HTMLElement {
     if (this._hass) this._render();
   }
 
-  set hass(hass) { this._hass = hass; this._render(); }
+  set hass(hass) { this._hass = hass; this._ensureFavs(); this._render(); }
 
   connectedCallback() {
+    this._ensureFavs();
     if (!this._ro && typeof ResizeObserver !== "undefined") {
       this._ro = new ResizeObserver((entries) => {
         const w = Math.round(entries[0].contentRect.width);
@@ -64,6 +77,9 @@ class TvCard extends HTMLElement {
   }
 
   disconnectedCallback() {
+    const unsub = this._unsub;
+    this._unsub = null;
+    unsub?.then((f) => f?.()).catch(() => {});
     if (this._ro) { this._ro.disconnect(); this._ro = null; }
     if (typeof window !== "undefined") {
       window.removeEventListener("resize", this._onResize);
@@ -76,6 +92,68 @@ class TvCard extends HTMLElement {
   static getStubConfig() { return { media_player: "", remote: "" }; }
 
   _call(domain, service, data) { this._hass.callService(domain, service, data); }
+
+  /* ---------------- favourites ---------------- */
+
+  _remotePlatform() {
+    return this._config?.remote ? (this._hass?.entities?.[this._config.remote]?.platform ?? null) : null;
+  }
+
+  _favCount() {
+    if (!this._config?.remote) return 0;
+    const c = this._config.favorites;
+    if (Number.isFinite(c)) return Math.max(0, Math.min(8, Math.round(c)));
+    return TVPLUS_PLATFORMS.has(this._remotePlatform()) ? 5 : 0;
+  }
+
+  /** Follow the saved list and load the lineup, once each, only if favourites are on. */
+  _ensureFavs() {
+    if (!this._favCount() || !this._hass?.connection || !this.isConnected) return;
+    if (!this._unsub && !this._favFailed) {
+      this._unsub = subscribeSaved(this._hass,
+        { list: this._config.list, savedFor: this._config.saved_for }, (value) => {
+          this._favSaved = value; this._sig = null; this._render();
+        });
+      this._unsub.catch(() => { this._unsub = null; this._favFailed = true; this._sig = null; this._render(); });
+    }
+    if (!this._lineup && !this._lineupLoading) {
+      this._lineupLoading = true;
+      loadLineup({ region: this._config.region || "us" })
+        .then(({ index }) => { this._lineup = index; this._sig = null; this._render(); })
+        .catch((e) => { this._lineupErr = e.message; this._sig = null; this._render(); });
+    }
+  }
+
+  _tuneFav(name) {
+    const ch = this._lineup?.[name];
+    if (!ch || !this._config.remote) return;
+    const opts = { platform: this._remotePlatform(), gapMs: this._config.key_gap_ms };
+    this._call("remote", "send_command", { entity_id: this._config.remote, command: tuneCommand(ch.n, opts) });
+    this._favSending = name;
+    this._sig = null; this._render();
+    clearTimeout(this._favT);
+    this._favT = setTimeout(() => { this._favSending = null; this._sig = null; this._render(); },
+      Math.max(1500, tuneDuration(ch.n, opts) + 500));
+  }
+
+  _favHtml(on) {
+    const n = this._favCount();
+    if (!n) return "";
+    if (this._favFailed) return `<div class="srcline">favourites: the saved list could not be read</div>`;
+    if (!this._lineup) return this._lineupErr ? `<div class="srcline">favourites: lineup unavailable</div>` : "";
+    const favs = favoritesFrom(this._favSaved, this._lineup, n);
+    if (!favs.length) {
+      // The guide shows its starting list before anything is saved; nothing is
+      // stored until a channel is saved or moved there, so say what makes them appear.
+      return `<div class="srcline">Favourites appear here once you save or reorder channels in the TV Plus guide (the first ${n}).</div>`;
+    }
+    return `<div class="favs ${on ? "" : "dim"}" role="group" aria-label="Favourite channels">
+      ${favs.map((f) => `<button class="fav ${this._favSending === f.name ? "sent" : ""}" data-fav="${esc(f.name)}"
+          ${f.n == null ? "disabled" : ""} aria-label="Tune ${esc(f.name)}${f.n == null ? " (not in the lineup)" : ` (${f.n})`}">
+          <span class="fno">${f.n ?? "—"}</span><span class="fnm">${esc(f.name)}</span></button>`).join("")}
+    </div>
+    <div class="srcline">${this._favSending ? `sending ${esc(this._favSending)} · the set doesn't confirm channel changes` : ""}</div>`;
+  }
 
   _render() {
     if (!this._hass || !this._config) return;
@@ -90,7 +168,8 @@ class TvCard extends HTMLElement {
     const layout = layoutFor(this._width);
     const axis = axisFor(layout, this._height);
 
-    const sig = JSON.stringify([layout, axis, c, this._lastKey, remotePlatform]);
+    const favHtml = this._favHtml(c.on);
+    const sig = JSON.stringify([layout, axis, c, this._lastKey, remotePlatform, favHtml]);
     if (sig === this._sig) return;
     this._sig = sig;
 
@@ -129,6 +208,7 @@ class TvCard extends HTMLElement {
             </div>
             <div class="srcline">${srcLine}</div>` : ""}
             ${appLine ? `<div class="srcline">${appLine}</div>` : ""}
+            ${favHtml}
           </div>
           ${this._config.remote && !hasPad ? `
           <div class="col pad"><div class="srcline">no key table for ${esc(remotePlatform || "this remote")}
@@ -166,6 +246,7 @@ class TvCard extends HTMLElement {
       this._call("media_player", "volume_up", { entity_id: id }));
     r.querySelector(".vmute")?.addEventListener("click", () =>
       this._call("media_player", "volume_mute", { entity_id: id, is_volume_muted: !c.volume.muted }));
+    r.querySelectorAll(".fav").forEach((b) => b.addEventListener("click", () => this._tuneFav(b.dataset.fav)));
     r.querySelectorAll(".src").forEach((b) => b.addEventListener("click", () =>
       this._call("media_player", "select_source", { entity_id: id, source: b.dataset.src })));
     const platform = this._config.remote
@@ -222,6 +303,15 @@ const STYLE = `
   .sent { font-size: 10.5px; color: var(--secondary-text-color); text-align: center; margin-top: 6px;
           min-height: 14px; font-variant-numeric: tabular-nums; }
   .sent .dim { opacity: .7; }
+  .favs { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 6px; margin-top: 10px; }
+  .fav { font: inherit; cursor: pointer; border-radius: 8px; border: 1px solid var(--divider-color, #555);
+         background: var(--secondary-background-color, #1c2126); color: var(--primary-text-color);
+         padding: 6px 8px; display: flex; flex-direction: column; align-items: flex-start; gap: 1px;
+         min-width: 0; text-align: left; }
+  .fno { font-size: 12px; font-weight: 700; color: var(--accent-color, #ff9900); font-variant-numeric: tabular-nums; }
+  .fnm { font-size: 12px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fav.sent { border-color: var(--accent-color, #ff9900); }
+  .fav:disabled { opacity: .45; cursor: default; }
 `;
 
 // Guarded: the panel and a Lovelace resource can both load this module, and a

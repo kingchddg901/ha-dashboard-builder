@@ -199,6 +199,16 @@ export function moveSaved(list, name, delta) {
   return cur;
 }
 
+/**
+ * The first few saved channels, as one-tap favourites. The number comes from the
+ * CURRENT lineup at render time, like everywhere else; a channel that has left
+ * the lineup keeps its place with no number rather than a guessed one.
+ */
+export function favoritesFrom(saved, index, count = 5) {
+  const list = Array.isArray(saved) ? saved : [];
+  return list.slice(0, Math.max(0, count)).map((name) => ({ name, n: index?.[name]?.n ?? null }));
+}
+
 /** The HA storage key for a named list. One list per user unless the card names another. */
 export function savedKey(list = "default") {
   const id = String(list || "default").toLowerCase().replace(/[^a-z0-9_]+/g, "_").replace(/^_+|_+$/g, "") || "default";

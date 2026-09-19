@@ -4,7 +4,7 @@ import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import {
   indexLineup, airing, tuneCommand, tuneDuration, KEY_GAP_MS, whatsOn, upcoming, loadLineup,
-  groupsOf, searchChannels, toggleSaved, moveSaved, savedKey, slotsFrom,
+  groupsOf, searchChannels, toggleSaved, moveSaved, savedKey, slotsFrom, favoritesFrom,
 } from "../tvplus-core.js";
 
 /**
@@ -168,6 +168,18 @@ test("moving stops at either end", () => {
   assert.deepEqual(moveSaved(l, "a", -1), ["a", "b", "c"]);
   assert.deepEqual(moveSaved(l, "c", 1), ["a", "b", "c"]);
   assert.deepEqual(l, ["a", "b", "c"], "the input is not changed");
+});
+
+// RED IF: more favourites show than asked for, their order is not the saved
+// order, or a channel that left the lineup is given a number.
+test("favourites are the first saved channels, numbered from today's lineup", () => {
+  const ix = indexLineup(RAW, "us");
+  const saved = ["Movie Hub", "Gone Channel", "PBS Kids", "CBS News 24/7", "Witness to Justice", "Peppa Pig & Friends"];
+  const f = favoritesFrom(saved, ix, 5);
+  assert.deepEqual(f.map((x) => x.name), saved.slice(0, 5));
+  assert.deepEqual(f.map((x) => x.n), [1200, null, 3614, 1110, 1833]);
+  assert.deepEqual(favoritesFrom(null, ix), []);
+  assert.deepEqual(favoritesFrom(saved, ix, 0), []);
 });
 
 test("a list name becomes a safe storage key", () => {
