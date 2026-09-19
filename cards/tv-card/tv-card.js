@@ -25,6 +25,11 @@
  *   favorites: 5        # how many (0 turns them off); default 5 on Samsung, else 0
  *   list: default       # which saved list, as in the guide card
  *   saved_for: user     # or house, as in the guide card
+ *
+ * TV Plus guide: on the same remotes, a button opens the whole guide (saved
+ * channels, search, reminders) over the card, so the guide needs no tile of its
+ * own. `guide: false` hides it. The d-pad's "guide" key is different: it is the
+ * TV's own on-screen guide.
  */
 
 import { describeEntity } from "../builder-debug-card/capability-core.js";
@@ -59,10 +64,17 @@ class TvCard extends HTMLElement {
     if (this._hass) this._render();
   }
 
-  set hass(hass) { this._hass = hass; this._ensureFavs(); this._render(); }
+  set hass(hass) {
+    this._hass = hass;
+    if (this._guide) this._guide.hass = hass;
+    this._ensureFavs();
+    this._render();
+  }
 
   connectedCallback() {
     this._ensureFavs();
+    this._onKey = this._onKey || ((e) => { if (e.key === "Escape") this._closeGuide(); });
+    document.addEventListener("keydown", this._onKey);
     if (!this._ro && typeof ResizeObserver !== "undefined") {
       this._ro = new ResizeObserver((entries) => {
         const w = Math.round(entries[0].contentRect.width);
@@ -77,6 +89,7 @@ class TvCard extends HTMLElement {
   }
 
   disconnectedCallback() {
+    if (this._onKey) document.removeEventListener("keydown", this._onKey);
     const unsub = this._unsub;
     this._unsub = null;
     unsub?.then((f) => f?.()).catch(() => {});
@@ -136,6 +149,40 @@ class TvCard extends HTMLElement {
       Math.max(1500, tuneDuration(ch.n, opts) + 500));
   }
 
+  /* ---------------- the TV Plus guide, over the card ---------------- */
+
+  _guideOn() {
+    if (!this._config?.remote || this._config.guide === false) return false;
+    return this._config.guide === true || TVPLUS_PLATFORMS.has(this._remotePlatform());
+  }
+
+  async _openGuide() {
+    const modal = this.shadowRoot.querySelector(".modal");
+    if (!modal) return;
+    if (!this._guide) {
+      try {
+        await import("../samsung-tvplus-card/samsung-tvplus-card.js");
+        const el = document.createElement("samsung-tvplus-card");
+        const c = this._config;
+        el.setConfig({ type: "custom:samsung-tvplus-card", title: "TV Plus guide", remote: c.remote,
+          media_player: c.media_player, list: c.list, saved_for: c.saved_for, key_gap_ms: c.key_gap_ms,
+          channels: c.channels, notify: c.notify, remind_lead: c.remind_lead, region: c.region });
+        el.hass = this._hass;
+        this._guide = el;
+      } catch (e) {
+        modal.querySelector(".mbody").innerHTML = `<div class="srcline">The guide could not load: ${esc(e.message)}</div>`;
+      }
+    }
+    if (this._guide) modal.querySelector(".mbody").replaceChildren(this._guide);
+    modal.hidden = false;
+    modal.querySelector(".close").focus({ preventScroll: true });
+  }
+
+  _closeGuide() {
+    const modal = this.shadowRoot.querySelector(".modal");
+    if (modal && !modal.hidden) modal.hidden = true;
+  }
+
   _favHtml(on) {
     const n = this._favCount();
     if (!n) return "";
@@ -169,7 +216,8 @@ class TvCard extends HTMLElement {
     const axis = axisFor(layout, this._height);
 
     const favHtml = this._favHtml(c.on);
-    const sig = JSON.stringify([layout, axis, c, this._lastKey, remotePlatform, favHtml]);
+    const guideOn = this._guideOn();
+    const sig = JSON.stringify([layout, axis, c, this._lastKey, remotePlatform, favHtml, guideOn]);
     if (sig === this._sig) return;
     this._sig = sig;
 
@@ -182,8 +230,18 @@ class TvCard extends HTMLElement {
     // as the package id it really is - HA gives no display name for it.
     const appLine = c.on && !c.source.canSelect && c.app ? `running ${esc(c.app)}` : "";
 
-    this.shadowRoot.innerHTML = `
-      <style>${STYLE}</style>
+    // Built once, so the guide's pop-up survives every repaint of the card.
+    if (!this.shadowRoot.querySelector(".content")) {
+      this.shadowRoot.innerHTML = `<style>${STYLE}</style><div class="content"></div>
+        <div class="modal" hidden role="dialog" aria-modal="true" aria-label="TV Plus guide">
+          <div class="sheet"><div class="bar"><span>TV Plus guide</span>
+            <button type="button" class="close">Close</button></div><div class="mbody"></div></div>
+        </div>`;
+      const m = this.shadowRoot.querySelector(".modal");
+      m.querySelector(".close").addEventListener("click", () => this._closeGuide());
+      m.addEventListener("click", (e) => { if (e.target === m) this._closeGuide(); });
+    }
+    this.shadowRoot.querySelector(".content").innerHTML = `
       <ha-card class="${esc(axis)} ${c.on ? "on" : "off"}">
         <div class="hd">
           <span class="t">${esc(this._config.title)}</span>
@@ -209,6 +267,8 @@ class TvCard extends HTMLElement {
             <div class="srcline">${srcLine}</div>` : ""}
             ${appLine ? `<div class="srcline">${appLine}</div>` : ""}
             ${favHtml}
+            ${guideOn ? `<div class="row guide-row">
+              <button type="button" class="guide-open" aria-haspopup="dialog">TV Plus guide ›</button></div>` : ""}
           </div>
           ${this._config.remote && !hasPad ? `
           <div class="col pad"><div class="srcline">no key table for ${esc(remotePlatform || "this remote")}
@@ -247,6 +307,7 @@ class TvCard extends HTMLElement {
     r.querySelector(".vmute")?.addEventListener("click", () =>
       this._call("media_player", "volume_mute", { entity_id: id, is_volume_muted: !c.volume.muted }));
     r.querySelectorAll(".fav").forEach((b) => b.addEventListener("click", () => this._tuneFav(b.dataset.fav)));
+    r.querySelector(".guide-open")?.addEventListener("click", () => this._openGuide());
     r.querySelectorAll(".src").forEach((b) => b.addEventListener("click", () =>
       this._call("media_player", "select_source", { entity_id: id, source: b.dataset.src })));
     const platform = this._config.remote
@@ -312,6 +373,21 @@ const STYLE = `
   .fnm { font-size: 12px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .fav.sent { border-color: var(--accent-color, #ff9900); }
   .fav:disabled { opacity: .45; cursor: default; }
+  .guide-row { margin-top: 10px; }
+  .guide-open { font: inherit; cursor: pointer; border-radius: 8px; padding: 7px 14px; font-size: 13px;
+                color: var(--primary-text-color); border: 1px solid var(--accent-color, #ff9900);
+                background: var(--secondary-background-color, #1c2126); }
+  .guide-open:focus-visible, .close:focus-visible { outline: 2px solid var(--accent-color, #ff9900); outline-offset: 1px; }
+  .modal { position: fixed; inset: 0; z-index: 20; background: color-mix(in srgb, #000 60%, transparent);
+           display: flex; align-items: flex-end; justify-content: center; }
+  .modal[hidden] { display: none; }
+  .sheet { width: min(720px, 100%); max-height: 90dvh; display: flex; flex-direction: column;
+           background: var(--card-background-color, #111); border-radius: 16px 16px 0 0; overflow: hidden; }
+  .bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px 8px 16px;
+         border-bottom: 1px solid var(--divider-color, #444); font-size: 13px; }
+  .close { font: inherit; cursor: pointer; border-radius: 12px; padding: 6px 14px; border: 1px solid var(--divider-color, #555);
+           background: none; color: var(--primary-text-color); }
+  .mbody { overflow: auto; padding-bottom: env(safe-area-inset-bottom, 0px); }
 `;
 
 // Guarded: the panel and a Lovelace resource can both load this module, and a
