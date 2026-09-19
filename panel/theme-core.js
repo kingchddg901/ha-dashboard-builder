@@ -25,7 +25,7 @@
  */
 
 import { TOKEN_GROUPS } from "./token-groups.js";
-import { PANEL_GROUPS, FRAMES } from "./panel-tokens.js";
+import { PANEL_GROUPS, FRAMES, NOT_DRAWN } from "./panel-tokens.js";
 import { BUILTIN_CONTROL_TYPES } from "../vendor/token-theme-kit/src/control-types.js";
 
 /** Every theme token group, in editor order: the mined vocabulary, then the panel's own. */
@@ -226,6 +226,24 @@ export function statusVerdicts(values = {}) {
       out.push({ key: k, level: "warn",
         message: `${v} is ${contrast(v, values.background).toFixed(2)}:1 on the background, too faint to read - the panel shows ${shown}` });
     }
+  }
+  return out;
+}
+
+/**
+ * A token-theme-kit validator: on each control the active frame does not draw
+ * with, say so - a setting that changes nothing should not pass for one that
+ * does. It reads the frame from the values it is given, so the notes follow the
+ * Frame control as it changes. Marked, never hidden: a value you set stays in
+ * view when a frame ignores it, and is still there when you switch back.
+ */
+export function drawnVerdicts(values = {}) {
+  const frame = FRAMES.find((f) => f.value === frameFor(values.frame));
+  const skips = new Set(frame?.skips || []);
+  const out = [];
+  for (const t of THEME_TOKENS) {
+    if (NOT_DRAWN.includes(t.key)) out.push({ key: t.key, level: "info", message: "Not used by this panel yet" });
+    else if (skips.has(t.key)) out.push({ key: t.key, level: "info", message: `Not used by the ${frame.label} frame` });
   }
   return out;
 }

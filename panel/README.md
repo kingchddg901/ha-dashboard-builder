@@ -59,22 +59,34 @@ Each token's value comes in layers, bottom to top:
 
 ### Frames
 
-`frame` is the master token. It picks how the panel draws its structure. The LCARS frame has
-elbows, pill tabs and a rail. The cockpit frame draws the same structure as instrument panels:
+`frame` is the master token. It picks how the panel draws its structure:
 
-- chamfered consoles
-- a scale on the top band
-- the time in a recessed readout
-- tabs as switches with indicator lamps
-- hazard-striped tools
-- tiles with a screw in each corner and light from above
-- square status lamps that glow
+- **LCARS**: elbows, pill tabs, a rail running into a band.
+- **Cockpit**, after an X-wing's:
+  - the top is a glare shield, one console plate with its lower corners cut away, with the time
+    and the panel's name in a recessed instrument cluster
+  - the rail is a separate side console, with its tabs as backlit keys with lamps and its tools
+    as hazard keys
+  - tiles and phone rows are faceted plates: two corners cut, with the edge drawn along the cuts
+    and a screw in each of the other two
 
 The frame goes on as an attribute (`data-frame`), and the cockpit's rules all select on it, so
 none of them reach LCARS. Colours still come from the tokens either way.
 
-A frame brings its own shape. Tokens with `byFrame` (tile, tab and button corners, the tile's
-bevel) take the active frame's value as their default. Switching **Frame** alone reshapes the
+**Each frame declares the tokens it does not draw with** (`FRAMES[].skips`), and the theme tab
+marks those controls "Not used by the Cockpit frame" rather than offering a setting that changes
+nothing. Controls are marked, not hidden, so a value you set stays in view when a frame ignores
+it. The mark is a kit verdict and follows the Frame control as it changes. `NOT_DRAWN` lists the
+ten mined LCARS tokens this panel draws with in no frame yet. Both lists were measured by setting
+each token in each frame and checking that nothing on screen changed. Tests keep the lists honest:
+a frame may not skip a token and also give it a default.
+
+Tokens are named for what they are, never for the frame that first used it (`chamfer`, not
+"Chamfer (cockpit frame)"), so the next frame to cut a corner reuses it. A test holds keys and
+labels to that.
+
+A frame brings its own shape. Tokens with `byFrame` (tab and button corners, the tile's bevel) take
+the active frame's value as their default. Switching **Frame** alone reshapes the
 panel, a hand-set value still beats it, and a reset returns to the frame you started from.
 
 The panel's own tokens cover what LCARS cannot say:

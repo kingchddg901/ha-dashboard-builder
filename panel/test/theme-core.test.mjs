@@ -13,10 +13,11 @@ import { readFileSync } from "node:fs";
 import { THEMES, ROLE_VARS } from "../themes.js";
 import { TOKEN_GROUPS } from "../token-groups.js";
 import { OWN_THEMES } from "../own-themes.js";
-import { FRAMES } from "../panel-tokens.js";
+import { FRAMES, NOT_DRAWN } from "../panel-tokens.js";
 import {
   parseColor, contrast, legibleOn, legibleStatus, MIN_STATUS_CONTRAST,
   THEME_GROUPS, THEME_TOKENS, activeFrame, frameFor, baseValues, groupsWithDefaults, paintVars, statusVerdicts, textPairs,
+  drawnVerdicts,
 } from "../theme-core.js";
 import { createThemeKit } from "../../vendor/token-theme-kit/src/kit.js";
 import { resetValues } from "../../vendor/token-theme-kit/src/reset.js";
@@ -195,6 +196,19 @@ test("a following token takes its leader's value until one is chosen", () => {
     "an unchosen follower is not written - CSS falls back to its leader");
 });
 
+// RED IF: a panel token is named for a frame ("Chamfer (cockpit frame)") - the
+// next frame to use it would either wear another frame's name or grow a twin.
+test("panel tokens are named for what they are, not for a frame", () => {
+  const frameWords = FRAMES.flatMap((f) => [f.value, f.label]).map((w) => w.toLowerCase());
+  for (const g of THEME_GROUPS.filter((g) => g.id.startsWith("panel-"))) {
+    for (const t of g.tokens) {
+      for (const w of frameWords) {
+        assert.ok(!t.key.toLowerCase().includes(w) && !t.label.toLowerCase().includes(w), `${t.key} / "${t.label}" names the ${w} frame`);
+      }
+    }
+  }
+});
+
 // RED IF: the frame alone does not reshape the panel, or choosing it leaks into
 // the base - then a reset would not return to the frame you started from.
 test("the frame is the master token: choosing it brings its shape, a reset takes it back", () => {
@@ -202,15 +216,15 @@ test("the frame is the master token: choosing it brings its shape, a reset takes
   const base = baseValues(THEME_TOKENS, { overrides: cockpit });
   assert.equal(base.frame, "lcars", "the base keeps the starting frame");
   assert.equal(activeFrame(base, cockpit), "cockpit");
-  assert.equal(base["tile-radius"], 4, "the editor shows the cockpit's corner as the default");
+  assert.equal(base["tab-radius"], 3, "the editor shows the cockpit's corner as the default");
   const vars = paintVars(THEME_TOKENS, { base, overrides: cockpit });
-  assert.equal(vars["--db-tile-radius"], "4px");
+  assert.equal(vars["--db-tab-radius"], "3px");
   assert.match(vars["--db-tile-shadow"], /inset/);
-  const own = paintVars(THEME_TOKENS, { base, overrides: { ...cockpit, "tile-radius": 9 } });
-  assert.equal(own["--db-tile-radius"], "9px", "a value set by hand beats the frame's");
+  const own = paintVars(THEME_TOKENS, { base, overrides: { ...cockpit, "tab-radius": 9 } });
+  assert.equal(own["--db-tab-radius"], "9px", "a value set by hand beats the frame's");
   const lcars = baseValues(THEME_TOKENS, {});
-  assert.equal(lcars["tile-radius"], 14);
-  assert.ok(!("--db-tile-radius" in paintVars(THEME_TOKENS, { base: lcars })), "the LCARS frame writes no shape");
+  assert.equal(lcars["tab-radius"], 0);
+  assert.ok(!("--db-tab-radius" in paintVars(THEME_TOKENS, { base: lcars })), "the LCARS frame writes no shape");
 });
 
 // RED IF: a starting theme names a token that does not exist (it silently does
@@ -231,4 +245,35 @@ test("the panel's own starting themes are sound", () => {
     }
   }
   assert.equal(OWN_THEMES["Black One"].frame, "cockpit");
+});
+
+
+// RED IF: a frame both skips a token and gives it a default (a dead value the
+// editor shows as if it mattered - the cockpit's tile corners were exactly
+// that), or a declaration names a token that does not exist.
+test("what a frame skips is declared cleanly", () => {
+  const keys = new Set(THEME_TOKENS.map((t) => t.key));
+  for (const k of NOT_DRAWN) assert.ok(keys.has(k), `NOT_DRAWN: no token ${k}`);
+  for (const f of FRAMES) {
+    for (const k of f.skips) {
+      assert.ok(keys.has(k), `${f.value} skips unknown token ${k}`);
+      assert.ok(!NOT_DRAWN.includes(k), `${k} is already drawn by no frame`);
+      const t = THEME_TOKENS.find((x) => x.key === k);
+      assert.ok(!(t.byFrame && f.value in t.byFrame), `${f.value} skips ${k} yet gives it a default`);
+    }
+  }
+  for (const k of NOT_DRAWN) assert.ok(!THEME_TOKENS.find((t) => t.key === k).byFrame, `${k}: a frame default on an undrawn token`);
+});
+
+// RED IF: the notes do not follow the frame - switching to the cockpit would
+// leave "Chamfer" marked unused and the tile corners looking live.
+test("the theme tab marks what the active frame does not draw with", () => {
+  const marked = (frame) => new Set(drawnVerdicts({ frame }).map((v) => v.key));
+  const lcars = marked("lcars");
+  const cockpit = marked("cockpit");
+  assert.ok(lcars.has("chamfer") && !cockpit.has("chamfer"));
+  assert.ok(cockpit.has("tile-radius") && !lcars.has("tile-radius"));
+  for (const k of NOT_DRAWN) assert.ok(lcars.has(k) && cockpit.has(k), `${k} unmarked`);
+  assert.ok(!lcars.has("frame") && !cockpit.has("frame"), "the frame control itself is always live");
+  assert.match(drawnVerdicts({ frame: "cockpit" }).find((v) => v.key === "chamfer" || v.key === "tile-radius").message, /Cockpit frame/);
 });
