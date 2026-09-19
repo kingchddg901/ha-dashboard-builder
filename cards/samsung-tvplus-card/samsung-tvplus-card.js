@@ -27,7 +27,7 @@
 
 import {
   loadLineup, airing, tuneCommand, tuneDuration, groupsOf, searchChannels,
-  toggleSaved, moveSaved, slotsFrom,
+  toggleSaved, moveSaved, slotsFrom, listForRemote,
 } from "./tvplus-core.js";
 import { subscribeSaved, writeSaved } from "./saved-list.js";
 import {
@@ -70,7 +70,8 @@ class SamsungTvPlusCard extends HTMLElement {
     if (config.channels != null && !Array.isArray(config.channels)) {
       throw new Error("samsung-tvplus-card: `channels` is a list of channel names");
     }
-    this._config = { region: "us", title: "Samsung TV Plus", list: "default", saved_for: "user", ...config };
+    this._config = { region: "us", title: "Samsung TV Plus", saved_for: "user", ...config };
+    this._config.list = config.list || listForRemote(config.remote);     // one list per TV unless named
     this._built = false;
     // A different list or scope is a different subscription.
     this._dropSubscription();

@@ -23,7 +23,7 @@
  * guide show as one-tap buttons - the same saved list, so reordering it in the
  * guide changes them here.
  *   favorites: 5        # how many (0 turns them off); default 5 on Samsung, else 0
- *   list: default       # which saved list, as in the guide card
+ *   list: big_tv        # which saved list; default: this TV's own, named after its remote
  *   saved_for: user     # or house, as in the guide card
  *
  * TV Plus guide: on the same remotes, a button opens the whole guide (saved
@@ -35,7 +35,7 @@
 import { describeEntity } from "../builder-debug-card/capability-core.js";
 import { layoutFor, axisFor } from "../appliance-card/control-core.js";
 import { platformKey, tvControls } from "./tv-core.js";
-import { loadLineup, tuneCommand, tuneDuration, favoritesFrom } from "../samsung-tvplus-card/tvplus-core.js";
+import { loadLineup, tuneCommand, tuneDuration, favoritesFrom, listForRemote } from "../samsung-tvplus-card/tvplus-core.js";
 import { subscribeSaved } from "../samsung-tvplus-card/saved-list.js";
 
 // TV Plus is Samsung's; only these remotes get favourites unless the card asks.
@@ -118,6 +118,9 @@ class TvCard extends HTMLElement {
     return this._config?.remote ? (this._hass?.entities?.[this._config.remote]?.platform ?? null) : null;
   }
 
+  /** This TV's saved list - its own, named after its remote, unless the card names one. */
+  _list() { return this._config.list || listForRemote(this._config.remote); }
+
   _favCount() {
     if (!this._config?.remote) return 0;
     const c = this._config.favorites;
@@ -130,7 +133,7 @@ class TvCard extends HTMLElement {
     if (!this._favCount() || !this._hass?.connection || !this.isConnected) return;
     if (!this._unsub && !this._favFailed) {
       this._unsub = subscribeSaved(this._hass,
-        { list: this._config.list, savedFor: this._config.saved_for }, (value) => {
+        { list: this._list(), savedFor: this._config.saved_for }, (value) => {
           this._favSaved = value; this._sig = null; this._render();
         });
       this._unsub.catch(() => { this._unsub = null; this._favFailed = true; this._sig = null; this._render(); });
@@ -171,7 +174,7 @@ class TvCard extends HTMLElement {
         const el = document.createElement("samsung-tvplus-card");
         const c = this._config;
         el.setConfig({ type: "custom:samsung-tvplus-card", title: "TV Plus guide", remote: c.remote,
-          media_player: c.media_player, list: c.list, saved_for: c.saved_for, key_gap_ms: c.key_gap_ms,
+          media_player: c.media_player, list: this._list(), saved_for: c.saved_for, key_gap_ms: c.key_gap_ms,
           channels: c.channels, notify: c.notify, remind_lead: c.remind_lead, region: c.region });
         el.hass = this._hass;
         this._guide = el;

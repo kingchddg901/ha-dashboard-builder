@@ -4,7 +4,7 @@ import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import {
   indexLineup, airing, tuneCommand, tuneDuration, KEY_GAP_MS, whatsOn, upcoming, loadLineup,
-  groupsOf, searchChannels, toggleSaved, moveSaved, savedKey, slotsFrom, favoritesFrom,
+  groupsOf, searchChannels, toggleSaved, moveSaved, savedKey, slotsFrom, favoritesFrom, listForRemote,
 } from "../tvplus-core.js";
 
 /**
@@ -180,6 +180,15 @@ test("favourites are the first saved channels, numbered from today's lineup", ()
   assert.deepEqual(f.map((x) => x.n), [1200, null, 3614, 1110, 1833]);
   assert.deepEqual(favoritesFrom(null, ix), []);
   assert.deepEqual(favoritesFrom(saved, ix, 0), []);
+});
+
+// RED IF: TVs share one list by default - the bedroom's favourites would be the
+// living room's. Chris asked for one list per TV (per room).
+test("each TV keeps its own list unless the card names one", () => {
+  assert.equal(listForRemote("remote.big_tv"), "big_tv");
+  assert.equal(listForRemote("remote.living_room_tv"), "living_room_tv");
+  assert.notEqual(savedKey(listForRemote("remote.big_tv")), savedKey(listForRemote("remote.bryan_s_tv")));
+  assert.equal(listForRemote(undefined), "default");
 });
 
 test("a list name becomes a safe storage key", () => {

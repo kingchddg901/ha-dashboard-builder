@@ -209,7 +209,18 @@ export function favoritesFrom(saved, index, count = 5) {
   return list.slice(0, Math.max(0, count)).map((name) => ({ name, n: index?.[name]?.n ?? null }));
 }
 
-/** The HA storage key for a named list. One list per user unless the card names another. */
+/**
+ * Which saved list a TV uses when the card does not name one: the TV's own,
+ * named after its remote ("remote.big_tv" -> "big_tv"). One list per TV - per
+ * room, in this house - so the bedroom's favourites are not the living room's.
+ * Cards that name the same `list` share one.
+ */
+export function listForRemote(remote) {
+  const id = String(remote || "").split(".")[1];
+  return id || "default";
+}
+
+/** The HA storage key for a named list. */
 export function savedKey(list = "default") {
   const id = String(list || "default").toLowerCase().replace(/[^a-z0-9_]+/g, "_").replace(/^_+|_+$/g, "") || "default";
   return `samsung_tvplus.saved.${id}`;

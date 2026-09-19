@@ -47,7 +47,7 @@ channels:
 |---|---|---|
 | `remote` | **required** | a `remote.*` entity for the TV, from core `samsungtv` or from `samsungtv_smart` (see below) |
 | `channels` | optional | the list to start from, until one is saved: channel **names**, not numbers (see below) |
-| `list` | optional | which saved list this card shows; cards with the same name share one (default `default`) |
+| `list` | optional | which saved list this card shows. Default: the TV's own, named after its remote (`remote.big_tv` → `big_tv`), so each TV keeps its own favourites. Cards naming the same list share it |
 | `notify` | optional | where reminders go (a notify service or a list). Default: the signed-in person's phones |
 | `media_player` | optional | the TV's media player, checked before tuning at the start. Default: the one on the remote's device |
 | `remind_lead` | optional | minutes before a show the reminder starts at: `0`, `5` (default), `10` or `15` |
