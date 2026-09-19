@@ -20,6 +20,7 @@ import { tvControls, tvSummary } from "../cards/tv-card/tv-core.js";
 import { readingOf, summary as readingSummary, robotGlance, relativeTime } from "../cards/readings-card/readings-core.js";
 import { lightNode, treeSummary, rowState } from "../cards/light-tree-card/light-tree-core.js";
 import { roomsFor, robotName, roomAcrossRobots, lastCleanedAcross } from "../cards/va-room-card/va-room-core.js";
+import { clockParts, hour12For } from "../cards/clock-card/clock-core.js";
 
 const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -143,6 +144,15 @@ export const RENDERERS = Object.freeze({
     // The saved list lives in HA's frontend storage, which a summary cannot read
     // synchronously - so the row says what the tile is, not a count it would guess.
     summary: () => ({ text: "saved channels · search the lineup", state: "none" }),
+  },
+  clock: {
+    label: "Clock", size: { w: 4, h: 3 }, noun: () => "clock",
+    load: () => import("../cards/clock-card/clock-card.js"), tag: "clock-card",
+    summary: (hass) => {
+      const p = clockParts(Date.now(), { timeZone: hass?.config?.time_zone || undefined,
+        hour12: hour12For(hass?.locale?.time_format) });
+      return { text: `${p.time}${p.ampm ? ` ${p.ampm}` : ""} · ${p.date}`, state: "none" };
+    },
   },
   glance: {
     label: "Glance", size: { w: 6, h: 4 }, noun: () => "glance",

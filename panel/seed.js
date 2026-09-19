@@ -29,6 +29,7 @@ export const SEED = Object.freeze({
         { id: "alfred-rooms", kind: "va-rooms", title: "Alfred", x: 0, y: 9, w: 4, h: 7, config: { vacuum: "vacuum.alfred" } },
         { id: "ivy-rooms", kind: "va-rooms", title: "Ivy", x: 4, y: 9, w: 4, h: 7, config: { vacuum: "vacuum.ivy" } },
         { id: "robin-rooms", kind: "va-rooms", title: "Robin", x: 8, y: 9, w: 4, h: 7, config: { vacuum: "vacuum.robin" } },
+        { id: "clock", kind: "clock", title: "Clock", x: 0, y: 16, w: 4, h: 3, config: {} },
       ],
     },
     {

@@ -120,6 +120,9 @@ number in the chain as a pause (200–2000 ms), so on `samsungtv_smart` the card
 every key, 1000 ms unless `key_gap_ms` says otherwise. Core `samsungtv` gets plain keys: it would
 send a number as a key, and it spaces keys itself.
 
+At 1000 ms, tuning through `samsungtv_smart` has been confirmed on the sets themselves: Big TV,
+and Bryan's TV (2026-09-19, alongside its power, volume and HDMI switching).
+
 ## Data source
 
 `https://i.mjh.nz/SamsungTVPlus/.channels.json` — 581 US channels with number, name, logo,
