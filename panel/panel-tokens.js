@@ -28,7 +28,7 @@
  * outline instead of rounding them.
  */
 export const FRAMES = Object.freeze([
-  { value: "lcars", label: "LCARS", skips: ["chamfer"] },
+  { value: "lcars", label: "LCARS", skips: ["chamfer", "greeble-density"] },
   { value: "cockpit", label: "Cockpit", skips: ["outer-radius", "inner-radius", "tile-radius", "tile-radius-start"] },
 ]);
 
@@ -69,6 +69,8 @@ export const PANEL_GROUPS = [
       { key: "tab-active-text", type: "color", cssVar: "--db-tab-active-text", follows: "ui-accent-text", label: "Active tab text" },
       { key: "tile-shadow", type: "raw", cssVar: "--db-tile-shadow", default: "none", byFrame: { cockpit: BEVEL },
         label: "Tile shadow and bevel" },
+      { key: "greeble-density", type: "number", input: "range", unit: "%", min: 0, max: 100, step: 5,
+        cssVar: "--db-greeble-density", default: 0, byFrame: { cockpit: 60 }, label: "Greeble density" },
     ],
   },
 ];

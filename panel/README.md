@@ -69,9 +69,22 @@ Each token's value comes in layers, bottom to top:
     as hazard keys
   - tiles and phone rows are faceted plates: two corners cut, with the edge drawn along the cuts
     and a screw in each of the other two
+  - greebles on the frame's plates, and metal grain on every plate (below)
 
 The frame goes on as an attribute (`data-frame`), and the cockpit's rules all select on it, so
 none of them reach LCARS. Colours still come from the tokens either way.
+
+**Greebles** (`cockpit-art.js`) are generated hardware: raised angular plates, hatches with
+stencilled part numbers, conduit with clamps, slanted ribs, hex bolts and vent slots. They sit on
+the shield and the side console, never on a tile's content. They are lit from one source above
+(a bright top edge, a dark underside) and never emit light. A lamp on a dashboard reads as data,
+and one that means nothing teaches you to ignore the ones that do. All the lighting is white or
+black at low alpha, so it falls correctly on any theme's plate colour; a test holds that.
+
+**Greeble density** (0–100%) sets how much hardware there is. The cockpit's default is 60%, and
+LCARS skips it. Each surface has a fixed seed and fixed slots, and density only decides which slots
+are shown. Raising it adds hardware in place, lowering it takes hardware away, nothing moves. A test
+compares positions, not slot numbers: slot numbers alone passed while every module slid sideways.
 
 **Each frame declares the tokens it does not draw with** (`FRAMES[].skips`), and the theme tab
 marks those controls "Not used by the Cockpit frame" rather than offering a setting that changes

@@ -27,6 +27,7 @@
 import { TOKEN_GROUPS } from "./token-groups.js";
 import { PANEL_GROUPS, FRAMES, NOT_DRAWN } from "./panel-tokens.js";
 import { BUILTIN_CONTROL_TYPES } from "../vendor/token-theme-kit/src/control-types.js";
+import { greebleArt } from "./cockpit-art.js";
 
 /** Every theme token group, in editor order: the mined vocabulary, then the panel's own. */
 export const THEME_GROUPS = Object.freeze([...TOKEN_GROUPS, ...PANEL_GROUPS]);
@@ -210,6 +211,18 @@ export function paintVars(tokens, { base = {}, preset = null, overrides = {} } =
     if (shown !== resolved[t.key]) out[t.cssVar] = shown;
   }
   return out;
+}
+
+/**
+ * Generated art the active frame draws with, as CSS variables - today the
+ * cockpit's greebles at the chosen density. A frame without generated art gets
+ * none, so nothing is written for it.
+ */
+export function frameArtVars(base = {}, overrides = {}) {
+  if (activeFrame(base, overrides) !== "cockpit") return {};
+  const pct = has(overrides, "greeble-density") ? overrides["greeble-density"] : base["greeble-density"];
+  const art = greebleArt((Number(pct) || 0) / 100);
+  return { "--db-greeble-strip": art.strip, "--db-greeble-corner": art.corner, "--db-greeble-column": art.column };
 }
 
 /**

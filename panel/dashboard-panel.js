@@ -35,6 +35,7 @@ import { THEMES } from "./themes.js";
 import { OWN_THEMES } from "./own-themes.js";
 import {
   THEME_GROUPS, THEME_TOKENS, activeFrame, baseValues, groupsWithDefaults, paintVars, statusVerdicts, textPairs, drawnVerdicts,
+  frameArtVars,
 } from "./theme-core.js";
 import { createThemeKit } from "../vendor/token-theme-kit/src/kit.js";
 import { haUserDataAdapter } from "../vendor/token-theme-kit/src/adapters/ha.js";
@@ -43,6 +44,7 @@ import { defineThemeKitEditor } from "../vendor/token-theme-kit/src/element.js";
 import { clockParts, hour12For, msToNextTick } from "../cards/clock-card/clock-core.js";
 import { discover, unplacedByArea, withStartingTiles } from "./discover-core.js";
 import { upgradeProperties } from "./upgrade-props.js";
+import { GRAIN } from "./cockpit-art.js";
 
 const STORE_KEY = "dashboard_builder.layout";
 const TAB_KEY = "dashboard_builder.tab";
@@ -192,7 +194,10 @@ class DashboardBuilderPanel extends HTMLElement {
    */
   _paintTheme() {
     for (const k of this._themeSet || []) this.style.removeProperty(k);
-    const vars = paintVars(THEME_TOKENS, { base: this._base, preset: PRESETS[this._theme] || null, overrides: this._overrides });
+    const vars = {
+      ...paintVars(THEME_TOKENS, { base: this._base, preset: PRESETS[this._theme] || null, overrides: this._overrides }),
+      ...frameArtVars(this._base, this._overrides),
+    };
     for (const [k, v] of Object.entries(vars)) this.style.setProperty(k, v);
     this._themeSet = Object.keys(vars);
     this.setAttribute("data-frame", activeFrame(this._base, this._overrides));
@@ -1004,7 +1009,7 @@ const STYLE = `
     --db-recess: color-mix(in srgb, #000 65%, var(--db-bg));
     --db-plate-lit: linear-gradient(180deg, color-mix(in srgb, var(--db-text) 6%, transparent), transparent 55%);
     --db-plate-edge: inset 0 1px 0 color-mix(in srgb, var(--db-text) 10%, transparent), inset 0 -1px 0 rgba(0, 0, 0, .6);
-    --db-grille: repeating-linear-gradient(90deg, rgba(0, 0, 0, .55) 0 3px, transparent 3px 7px);
+    --db-grain: ${GRAIN};
   }
   :host([data-frame="cockpit"]) .shell { row-gap: 8px;
     background-image:
@@ -1014,16 +1019,19 @@ const STYLE = `
 
   /* The glare shield: the elbow cell and the bar are one plate, cut away below. */
   :host([data-frame="cockpit"]) .elbow, :host([data-frame="cockpit"]) .bar {
-    background-color: var(--db-frame); background-image: var(--db-plate-lit); box-shadow: var(--db-plate-edge); }
+    background-color: var(--db-frame); background-image: var(--db-grain), var(--db-plate-lit); box-shadow: var(--db-plate-edge); }
+  :host([data-frame="cockpit"]) .elbow { background-image: var(--db-greeble-corner, none), var(--db-grain), var(--db-plate-lit); }
   :host([data-frame="cockpit"]) .elbow { border-top-left-radius: 0;
     clip-path: polygon(0 0, 100% 0, 100% 100%, calc(var(--db-c) * 2) 100%, 0 calc(100% - var(--db-c) * 2)); }
   :host([data-frame="cockpit"]) .elbow::after { display: none; }
   :host([data-frame="cockpit"]) .bar { align-items: center; gap: 12px; padding: 0 18px 0 6px;
     clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--db-c) * 2), calc(100% - var(--db-c) * 2) 100%, 0 100%); }
-  /* Either side of the cluster, a vent grille - structure, not a fake gauge. */
+  /* Either side of the cluster, generated hardware (cockpit-art.js) - lit, never
+     lighting anything; the Greeble density control decides how much. */
   :host([data-frame="cockpit"]) .band, :host([data-frame="cockpit"]) .cap {
-    flex: 1; width: auto; height: 12px; border-radius: 0; clip-path: none;
-    background: var(--db-grille); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .4); }
+    flex: 1; width: auto; height: 36px; border-radius: 0; clip-path: none;
+    background: var(--db-greeble-strip, none) 0 center / auto 36px repeat-x; }
+  :host([data-frame="cockpit"]) .cap { background-position: -300px center; }
   :host([data-frame="cockpit"]) .clock, :host([data-frame="cockpit"]) .title {
     background: var(--db-recess); box-shadow: inset 0 2px 4px rgba(0, 0, 0, .9), 0 0 0 1px var(--db-border);
     color: var(--db-active); text-shadow: 0 0 6px var(--db-glow); }
@@ -1032,7 +1040,7 @@ const STYLE = `
 
   /* The side console: its own plate below the shield, keys inset on it. */
   :host([data-frame="cockpit"]) .desk .rail { padding: 8px 6px 0; gap: 6px;
-    background-color: var(--db-frame); background-image: var(--db-plate-lit); box-shadow: var(--db-plate-edge);
+    background-color: var(--db-frame); background-image: var(--db-grain), var(--db-plate-lit); box-shadow: var(--db-plate-edge);
     clip-path: polygon(0 0, calc(100% - var(--db-c)) 0, 100% var(--db-c), 100% 100%, 0 100%); }
   /* The pinned tools carry the console's bottom margin themselves, so no tab shows below them. */
   :host([data-frame="cockpit"]) .desk .tools { background: var(--db-frame); box-shadow: 0 -6px 0 var(--db-frame); padding-bottom: 8px; }
@@ -1048,9 +1056,7 @@ const STYLE = `
   :host([data-frame="cockpit"]) .tab.tool {
     background-image: repeating-linear-gradient(-45deg, rgba(0, 0, 0, .6) 0 5px, transparent 5px 10px);
     background-size: 10px 100%; background-repeat: no-repeat; }
-  :host([data-frame="cockpit"]) .rail-fill { border-bottom-left-radius: 0; background: transparent;
-    background-image: repeating-linear-gradient(0deg, rgba(0, 0, 0, .45) 0 2px, transparent 2px 7px);
-    background-size: 60% 50%; background-position: center; background-repeat: no-repeat; }
+  :host([data-frame="cockpit"]) .rail-fill { border-bottom-left-radius: 0; background: var(--db-greeble-column, none) center top / 138px auto repeat-y; }
 
   /* Faceted plates. The tile is filled with the edge colour and cut; its
      ::before is the plate, cut the same way 1px in, so the edge runs along the
@@ -1064,7 +1070,7 @@ const STYLE = `
     background-image:
       radial-gradient(circle at calc(100% - 8px) 8px, var(--db-screw) 0 1.8px, transparent 2.4px),
       radial-gradient(circle at 8px calc(100% - 8px), var(--db-screw) 0 1.8px, transparent 2.4px),
-      var(--db-plate-lit);
+      var(--db-grain), var(--db-plate-lit);
     box-shadow: var(--db-plate-edge);
     clip-path: polygon(calc(var(--db-c) - .6px) 0, 100% 0, 100% calc(100% - var(--db-c) + .6px),
       calc(100% - var(--db-c) + .6px) 100%, 0 100%, 0 calc(var(--db-c) - .6px)); }
@@ -1077,7 +1083,7 @@ const STYLE = `
   /* Phone rows and the drop outline are cut like the tiles, not rounded. */
   :host([data-frame="cockpit"]) .row, :host([data-frame="cockpit"]) .ghost { border-radius: 0;
     clip-path: polygon(var(--db-c) 0, 100% 0, 100% calc(100% - var(--db-c)), calc(100% - var(--db-c)) 100%, 0 100%, 0 var(--db-c)); }
-  :host([data-frame="cockpit"]) .row { border: 0; box-shadow: var(--db-plate-edge); background-image: var(--db-plate-lit); }
+  :host([data-frame="cockpit"]) .row { border: 0; box-shadow: var(--db-plate-edge); background-image: var(--db-grain), var(--db-plate-lit); }
   :host([data-frame="cockpit"]) .mark { border-radius: 2px; }
   :host([data-frame="cockpit"]) .row.st-on .mark { box-shadow: 0 0 8px var(--db-active); }
   :host([data-frame="cockpit"]) .g-val, :host([data-frame="cockpit"]) .status { font-family: var(--db-mono); }
