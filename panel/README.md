@@ -10,7 +10,9 @@ The base everything else sits in. The panel owns the whole area and the render; 
     themes.js            the 24 mined LCARS themes as role -> colour, held to ../tokens/lcars/presets.json by a test
     token-groups.js      the theme tokens as token-theme-kit groups — generated (tools/gen-panel-tokens.py), held by a test
     panel-tokens.js      the panel's own tokens: surfaces, corners, and the frame — hand-written, same shape
-    own-themes.js        starting themes written for this panel (Black One), beside the 24 mined ones
+    own-themes.js        starting themes written for this panel, one per frame, beside the 24 mined ones
+    frame-styles.js      how each frame but LCARS draws the structure - one block per frame, scoped to it
+    cockpit-art.js       the cockpit's generated greebles and grain
     theme-core.js        where each token's value comes from, what the panel writes, readable status — no DOM, tested
     dashboard-panel.js   the element — the disposable half
     loader.js            the one stable file (see Deploy)
@@ -71,8 +73,26 @@ Each token's value comes in layers, bottom to top:
     and a screw in each of the other two
   - greebles on the frame's plates, and metal grain on every plate (below)
 
-The frame goes on as an attribute (`data-frame`), and the cockpit's rules all select on it, so
-none of them reach LCARS. Colours still come from the tokens either way.
+- **Blueprint**: line work on drafting blue. Outlines instead of fills, a dimension line for the
+  band, a drafting grid behind everything, dashed tools.
+- **Terminal**: a ship's computer on a phosphor screen. One hue, with brightness and inverse video
+  doing the work, scanlines, and a `>` on the tab you are on. Its theme breaks the one-hue rule for
+  errors on purpose, so a failure can be told from success at a glance.
+- **Braun**: Dieter Rams, and the first light frame. Warm grey plates and white panels. Tabs are
+  keys with a dot that takes the accent colour for what is on, and words are shown as written.
+- **HUD**: a holographic overlay. Tiles are drawn as corners only, tabs are cut at one corner (the
+  shared Chamfer), and the tools are amber.
+- **Glass**: calm and everyday. Frosted panels over a backdrop lit by the accent and tool colours,
+  with almost no chrome.
+- **Field notes**: e-ink paper for a daylight wall tablet, and the second light frame. Rules and
+  type, no fills, no boxes. The tab you are on is set in bold with a rule under it.
+
+Each frame has a starting theme of the same name (Black One for the cockpit) that passes the
+theme tab's own checks: text at least 4.5:1 on its colour, and status colours that need no lifting.
+
+The frame goes on as an attribute (`data-frame`). Every frame's rules select on it
+(`frame-styles.js`), so none reach another frame; a test holds that, and that every frame offered
+has its own block. Colours come from the tokens in every frame.
 
 **Greebles** (`cockpit-art.js`) are generated hardware: raised angular plates, hatches with
 stencilled part numbers, conduit with clamps, slanted ribs, hex bolts and vent slots. They sit on
@@ -104,9 +124,11 @@ only, never where a greeble sits (tested). LCARS draws nothing lit, so it skips 
 marks those controls "Not used by the Cockpit frame" rather than offering a setting that changes
 nothing. Controls are marked, not hidden, so a value you set stays in view when a frame ignores
 it. The mark is a kit verdict and follows the Frame control as it changes. `NOT_DRAWN` lists the
-ten mined LCARS tokens this panel draws with in no frame yet. Both lists were measured by setting
-each token in each frame and checking that nothing on screen changed. Tests keep the lists honest:
-a frame may not skip a token and also give it a default.
+ten mined LCARS tokens this panel draws with in no frame yet. Both lists are measured, not reasoned
+about. Each token was set to a loud value in each frame, in every state the panel can be in (desk,
+Edit, an open sheet, phone, phone Edit). A token counts as skipped only if nothing on screen
+changed, and every token not skipped changed something. Tests keep the lists honest: a frame may
+not skip a token and also give it a default.
 
 Tokens are named for what they are, never for the frame that first used it (`chamfer`, not
 "Chamfer (cockpit frame)"), so the next frame to cut a corner reuses it. A test holds keys and

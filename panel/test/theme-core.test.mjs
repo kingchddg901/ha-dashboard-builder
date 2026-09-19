@@ -14,6 +14,7 @@ import { THEMES, ROLE_VARS } from "../themes.js";
 import { TOKEN_GROUPS } from "../token-groups.js";
 import { OWN_THEMES } from "../own-themes.js";
 import { FRAMES, NOT_DRAWN } from "../panel-tokens.js";
+import { FRAME_BLOCKS } from "../frame-styles.js";
 import {
   parseColor, contrast, legibleOn, legibleStatus, MIN_STATUS_CONTRAST,
   THEME_GROUPS, THEME_TOKENS, activeFrame, frameFor, baseValues, groupsWithDefaults, paintVars, statusVerdicts, textPairs,
@@ -276,4 +277,16 @@ test("the theme tab marks what the active frame does not draw with", () => {
   for (const k of NOT_DRAWN) assert.ok(lcars.has(k) && cockpit.has(k), `${k} unmarked`);
   assert.ok(!lcars.has("frame") && !cockpit.has("frame"), "the frame control itself is always live");
   assert.match(drawnVerdicts({ frame: "cockpit" }).find((v) => v.key === "chamfer" || v.key === "tile-radius").message, /Cockpit frame/);
+});
+
+// RED IF: a frame is offered in the Frame control with no rules of its own - it
+// would silently draw as LCARS - or a block exists for a frame nobody can pick.
+test("every frame but LCARS draws with its own block, and only for itself", () => {
+  const offered = FRAMES.map((f) => f.value).filter((f) => f !== "lcars").sort();
+  assert.deepEqual(Object.keys(FRAME_BLOCKS).sort(), offered);
+  for (const [frame, css] of Object.entries(FRAME_BLOCKS)) {
+    const selects = [...css.matchAll(/data-frame="([a-z]+)"/g)].map((m) => m[1]);
+    assert.ok(selects.length > 0, `${frame}: no rules`);
+    assert.deepEqual([...new Set(selects)], [frame], `${frame}'s block reaches another frame`);
+  }
 });

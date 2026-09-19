@@ -23,13 +23,25 @@
 /**
  * The frames, and the tokens each one does NOT draw with - so the theme tab can
  * say so on the control rather than offer a setting that changes nothing. Every
- * other token, a frame uses. Measured from the stylesheet: LCARS never cuts a
- * corner; the cockpit has no elbow to round and cuts its tiles, rows and drop
- * outline instead of rounding them.
+ * other token, a frame uses. MEASURED, not reasoned: each token was set to a
+ * loud value in each frame, in every state (desk, Edit, an open sheet, phone,
+ * phone Edit), and a token is skipped only if nothing on screen changed. The
+ * greeble and light tokens drive generated art only the cockpit draws.
  */
 export const FRAMES = Object.freeze([
   { value: "lcars", label: "LCARS", skips: ["chamfer", "greeble-density", "light-angle", "light-intensity"] },
   { value: "cockpit", label: "Cockpit", skips: ["outer-radius", "inner-radius", "tile-radius", "tile-radius-start", "tile-shadow"] },
+  { value: "blueprint", label: "Blueprint", skips: ["ui-secondary-text", "ui-tertiary-text", "card-top", "card-top-text",
+    "outer-radius", "inner-radius", "chamfer", "greeble-density", "light-angle", "light-intensity"] },
+  { value: "terminal", label: "Terminal", skips: ["ui-secondary-text", "ui-tertiary-text", "card-top", "card-top-text",
+    "outer-radius", "inner-radius", "chamfer", "greeble-density", "light-angle", "light-intensity"] },
+  { value: "braun", label: "Braun", skips: ["outer-radius", "inner-radius", "chamfer", "greeble-density", "light-angle", "light-intensity"] },
+  { value: "hud", label: "HUD", skips: ["ui-secondary-text", "ui-tertiary-text", "card-top", "card-top-text",
+    "outer-radius", "inner-radius", "greeble-density", "light-angle", "light-intensity"] },
+  { value: "glass", label: "Glass", skips: ["ui-secondary-text", "ui-tertiary-text", "card-top", "card-top-text",
+    "outer-radius", "inner-radius", "chamfer", "greeble-density", "light-angle", "light-intensity"] },
+  { value: "fieldnotes", label: "Field notes", skips: ["ui-secondary-text", "ui-tertiary-text", "card-top", "card-top-text",
+    "outer-radius", "inner-radius", "tile-radius", "tile-radius-start", "chamfer", "tab-active", "tile-shadow", "greeble-density", "light-angle", "light-intensity"] },
 ]);
 
 /**
@@ -46,15 +58,15 @@ export const PANEL_GROUPS = [
     id: "panel-shape", label: "Panel shape", tokens: [
       { key: "frame", type: "select", cssVar: "--db-frame-style", options: FRAMES, default: "lcars", label: "Frame" },
       { key: "tile-radius", type: "number", unit: "px", min: 0, max: 40, step: 1, cssVar: "--db-tile-radius",
-        default: 14, label: "Tile corners, right" },
+        default: 14, byFrame: { blueprint: 0, terminal: 0, braun: 6, hud: 0, glass: 16 }, label: "Tile corners, right" },
       { key: "tile-radius-start", type: "number", unit: "px", min: 0, max: 40, step: 1, cssVar: "--db-tile-radius-start",
-        default: 0, label: "Tile corners, left" },
+        default: 0, byFrame: { braun: 6, glass: 16 }, label: "Tile corners, left" },
       { key: "tab-radius", type: "number", unit: "px", min: 0, max: 30, step: 1, cssVar: "--db-tab-radius",
-        default: 0, byFrame: { cockpit: 3 }, label: "Tab corners" },
+        default: 0, byFrame: { cockpit: 3, braun: 4, glass: 12 }, label: "Tab corners" },
       { key: "control-radius", type: "number", unit: "px", min: 0, max: 20, step: 1, cssVar: "--db-control-radius",
-        default: 20, byFrame: { cockpit: 3 }, label: "Button corners" },
+        default: 20, byFrame: { cockpit: 3, blueprint: 0, terminal: 0, braun: 4, hud: 0, glass: 12, fieldnotes: 0 }, label: "Button corners" },
       { key: "chamfer", type: "number", unit: "px", min: 0, max: 40, step: 1, cssVar: "--db-chamfer",
-        default: 14, label: "Chamfer" },
+        default: 14, byFrame: { hud: 10 }, label: "Chamfer" },
     ],
   },
   {
@@ -63,7 +75,8 @@ export const PANEL_GROUPS = [
       { key: "tile-border", type: "color", cssVar: "--db-tile-border", follows: "ui-primary", label: "Tile border" },
       { key: "tab-active", type: "color", cssVar: "--db-tab-active", follows: "ui-accent", label: "Active tab" },
       { key: "tab-active-text", type: "color", cssVar: "--db-tab-active-text", follows: "ui-accent-text", label: "Active tab text" },
-      { key: "tile-shadow", type: "raw", cssVar: "--db-tile-shadow", default: "none", label: "Tile shadow and bevel" },
+      { key: "tile-shadow", type: "raw", cssVar: "--db-tile-shadow", default: "none",
+        byFrame: { braun: "0 1px 2px rgba(0, 0, 0, 0.08)", glass: "0 10px 30px rgba(0, 0, 0, 0.25)" }, label: "Tile shadow and bevel" },
       { key: "greeble-density", type: "number", input: "range", unit: "%", min: 0, max: 100, step: 5,
         cssVar: "--db-greeble-density", default: 0, byFrame: { cockpit: 60 }, label: "Greeble density" },
     ],

@@ -44,7 +44,7 @@ import { defineThemeKitEditor } from "../vendor/token-theme-kit/src/element.js";
 import { clockParts, hour12For, msToNextTick } from "../cards/clock-card/clock-core.js";
 import { discover, unplacedByArea, withStartingTiles } from "./discover-core.js";
 import { upgradeProperties } from "./upgrade-props.js";
-import { GRAIN } from "./cockpit-art.js";
+import { FRAME_STYLES } from "./frame-styles.js";
 
 const STORE_KEY = "dashboard_builder.layout";
 const TAB_KEY = "dashboard_builder.tab";
@@ -987,122 +987,8 @@ const STYLE = `
   /* A phone on its side has little height to give; the sheet takes nearly all of it. */
   @media (max-height: 500px) { .sheet-body { max-height: calc(100dvh - 64px); } }
 
-  /* ---------------------------------------------------------- cockpit frame
-     A fighter's cockpit, not LCARS recoloured: no elbow, no band running into
-     the title. The top is a GLARE SHIELD - one console plate across the full
-     width, lower corners cut away, the time and the name housed together in a
-     recessed instrument cluster in the middle. The rail is a SIDE CONSOLE of its
-     own, its tabs backlit keys with a lamp. Tiles are FACETED PLATES: two
-     corners cut, the edge drawn along the cut, screws in the other two. Chosen
-     by the \`frame\` token; nothing here reaches the LCARS frame. Colours still
-     come from the tokens. */
-  :host([data-frame="cockpit"]) {
-    /* Controls sit on the tile's surface, a step above the ground, so the cards'
-       control fill and dividers are mixed from THAT surface - mixed from the
-       ground they land on the surface exactly and vanish. VA's Black One recipe:
-       warm text at ~8% for a control, ~17% for an edge. */
-    --secondary-background-color: color-mix(in srgb, var(--db-text) 8%, var(--db-surface));
-    --divider-color: color-mix(in srgb, var(--db-text) 17%, var(--db-surface));
-    --db-lamp-off: color-mix(in srgb, var(--db-text) 16%, var(--db-bg));
-    --db-screw: color-mix(in srgb, var(--db-text) 24%, var(--db-surface));
-    --db-glow: color-mix(in srgb, var(--db-active) 55%, transparent);
-    --db-recess: color-mix(in srgb, #000 65%, var(--db-bg));
-    /* One light (the Light tokens, painted as --db-lx/--db-ly, a unit vector toward
-       it, and --db-light-k, its strength): the plate's sheen falls from it, the
-       edge facing it catches it, the edge facing away is dark. */
-    --db-plate-lit: linear-gradient(calc(var(--db-light-deg, 0) * 1deg + 180deg),
-      color-mix(in srgb, var(--db-text) calc(var(--db-light-k, .6) * 10%), transparent), transparent 55%);
-    --db-plate-edge:
-      inset calc(var(--db-lx, 0) * -1px) calc(var(--db-ly, -1) * -1px) 0 color-mix(in srgb, var(--db-text) calc(var(--db-light-k, .6) * 17%), transparent),
-      inset calc(var(--db-lx, 0) * 1px) calc(var(--db-ly, -1) * 1px) 0 rgba(0, 0, 0, calc(var(--db-light-k, .6)));
-    --db-key-edge:
-      inset calc(var(--db-lx, 0) * -1px) calc(var(--db-ly, -1) * -1px) 0 color-mix(in srgb, var(--db-text) calc(var(--db-light-k, .6) * 15%), transparent),
-      inset calc(var(--db-lx, 0) * 2px) calc(var(--db-ly, -1) * 2px) 0 rgba(0, 0, 0, calc(var(--db-light-k, .6) * .75)),
-      calc(var(--db-lx, 0) * -1px) calc(var(--db-ly, -1) * -1px) 2px rgba(0, 0, 0, .6);
-    --db-grain: ${GRAIN};
-  }
-  :host([data-frame="cockpit"]) .shell { row-gap: 8px;
-    background-image:
-      linear-gradient(color-mix(in srgb, var(--db-text) 3.5%, transparent) 1px, transparent 1px),
-      linear-gradient(90deg, color-mix(in srgb, var(--db-text) 3.5%, transparent) 1px, transparent 1px);
-    background-size: 24px 24px; }
-
-  /* The glare shield: the elbow cell and the bar are one plate, cut away below. */
-  :host([data-frame="cockpit"]) .elbow, :host([data-frame="cockpit"]) .bar {
-    background-color: var(--db-frame); background-image: var(--db-grain), var(--db-plate-lit); box-shadow: var(--db-plate-edge); }
-  :host([data-frame="cockpit"]) .elbow { background-image: var(--db-greeble-corner, none), var(--db-grain), var(--db-plate-lit); }
-  :host([data-frame="cockpit"]) .elbow { border-top-left-radius: 0;
-    clip-path: polygon(0 0, 100% 0, 100% 100%, calc(var(--db-c) * 2) 100%, 0 calc(100% - var(--db-c) * 2)); }
-  :host([data-frame="cockpit"]) .elbow::after { display: none; }
-  :host([data-frame="cockpit"]) .bar { align-items: center; gap: 12px; padding: 0 18px 0 6px;
-    clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--db-c) * 2), calc(100% - var(--db-c) * 2) 100%, 0 100%); }
-  /* Either side of the cluster, generated hardware (cockpit-art.js) - lit, never
-     lighting anything; the Greeble density control decides how much. */
-  :host([data-frame="cockpit"]) .band, :host([data-frame="cockpit"]) .cap {
-    flex: 1; width: auto; height: 36px; border-radius: 0; clip-path: none;
-    background: var(--db-greeble-strip, none) 0 center / auto 36px repeat-x; }
-  :host([data-frame="cockpit"]) .cap { background-position: -300px center; }
-  :host([data-frame="cockpit"]) .clock, :host([data-frame="cockpit"]) .title {
-    background: var(--db-recess); box-shadow: inset 0 2px 4px rgba(0, 0, 0, .9), 0 0 0 1px var(--db-border);
-    color: var(--db-active); text-shadow: 0 0 6px var(--db-glow); }
-  :host([data-frame="cockpit"]) .clock { font-family: var(--db-mono); font-size: 17px; line-height: 30px; padding: 0 10px; }
-  :host([data-frame="cockpit"]) .title { font-size: 20px; line-height: 30px; padding: 0 14px; letter-spacing: .3em; font-weight: 600; }
-
-  /* The side console: its own plate below the shield, keys inset on it. */
-  :host([data-frame="cockpit"]) .desk .rail { padding: 8px 6px 0; gap: 6px;
-    background-color: var(--db-frame); background-image: var(--db-grain), var(--db-plate-lit); box-shadow: var(--db-plate-edge);
-    clip-path: polygon(0 0, calc(100% - var(--db-c)) 0, 100% var(--db-c), 100% 100%, 0 100%); }
-  /* The pinned tools carry the console's bottom margin themselves, so no tab shows below them. */
-  :host([data-frame="cockpit"]) .desk .tools { background: var(--db-frame); box-shadow: 0 -6px 0 var(--db-frame); padding-bottom: 8px; }
-  :host([data-frame="cockpit"]) .tab { position: relative; box-shadow: var(--db-key-edge); }
-  :host([data-frame="cockpit"]) .tab::before { content: ""; position: absolute; left: 10px; top: 10px; width: 16px; height: 4px;
-    border-radius: 1px; background: var(--db-lamp-off); }
-  :host([data-frame="cockpit"]) .tab.active::before { background: var(--db-active); box-shadow: 0 0 8px var(--db-active); }
-  :host([data-frame="cockpit"]) .tab.active {
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--db-active) 55%, transparent), 0 0 14px color-mix(in srgb, var(--db-active) 22%, transparent); }
-  :host([data-frame="cockpit"]) .phone .tab::before { left: 50%; top: auto; bottom: 4px; width: 18px; height: 3px; transform: translateX(-50%); }
-  :host([data-frame="cockpit"]) .tab.tool::before { display: none; }
-  :host([data-frame="cockpit"]) .tab.tool {
-    background-image: repeating-linear-gradient(-45deg, rgba(0, 0, 0, .6) 0 5px, transparent 5px 10px);
-    background-size: 10px 100%; background-repeat: no-repeat; }
-  :host([data-frame="cockpit"]) .rail-fill { border-bottom-left-radius: 0; background: var(--db-greeble-column, none) center top / 138px auto repeat-y; }
-
-  /* Faceted plates. The tile is filled with the edge colour and cut; its
-     ::before is the plate, cut the same way 1px in, so the edge runs along the
-     cuts too. A screw in each uncut corner, light from above, and the cards -
-     see-through in a tile - sit on it. */
-  :host([data-frame="cockpit"]) .tile { border: 0; border-radius: 0; box-shadow: none;
-    background: var(--db-border);
-    clip-path: polygon(var(--db-c) 0, 100% 0, 100% calc(100% - var(--db-c)), calc(100% - var(--db-c)) 100%, 0 100%, 0 var(--db-c)); }
-  :host([data-frame="cockpit"]) .tile::before { content: ""; position: absolute; inset: 1px; z-index: 0; pointer-events: none;
-    background-color: var(--db-surface);
-    background-image:
-      radial-gradient(circle at calc(100% - 8px) 8px, var(--db-screw) 0 1.8px, transparent 2.4px),
-      radial-gradient(circle at 8px calc(100% - 8px), var(--db-screw) 0 1.8px, transparent 2.4px),
-      var(--db-grain), var(--db-plate-lit);
-    box-shadow: var(--db-plate-edge);
-    clip-path: polygon(calc(var(--db-c) - .6px) 0, 100% 0, 100% calc(100% - var(--db-c) + .6px),
-      calc(100% - var(--db-c) + .6px) 100%, 0 100%, 0 calc(var(--db-c) - .6px)); }
-  :host([data-frame="cockpit"]) .tile > * { position: relative; z-index: 1; }
-  :host([data-frame="cockpit"]) .tile > .resize { position: absolute; }
-  :host([data-frame="cockpit"]) .editing .tile { background: var(--db-edit); }
-  :host([data-frame="cockpit"]) .tile-bar { font-size: 11px; letter-spacing: .14em; padding-left: calc(var(--db-c) + 4px);
-    border-bottom: 1px solid color-mix(in srgb, var(--db-active) 45%, transparent); }
-
-  /* Phone rows and the drop outline are cut like the tiles, not rounded. */
-  :host([data-frame="cockpit"]) .row, :host([data-frame="cockpit"]) .ghost { border-radius: 0;
-    clip-path: polygon(var(--db-c) 0, 100% 0, 100% calc(100% - var(--db-c)), calc(100% - var(--db-c)) 100%, 0 100%, 0 var(--db-c)); }
-  :host([data-frame="cockpit"]) .row { border: 0; box-shadow: var(--db-plate-edge); background-image: var(--db-grain), var(--db-plate-lit); }
-  :host([data-frame="cockpit"]) .mark { border-radius: 2px; }
-  :host([data-frame="cockpit"]) .row.st-on .mark { box-shadow: 0 0 8px var(--db-active); }
-  :host([data-frame="cockpit"]) .g-val, :host([data-frame="cockpit"]) .status { font-family: var(--db-mono); }
-  :host([data-frame="cockpit"]) .g-row.on .g-val { text-shadow: 0 0 6px var(--db-glow); }
-  :host([data-frame="cockpit"]) .sheet-bar { border-radius: 0;
-    clip-path: polygon(var(--db-c) 0, calc(100% - var(--db-c)) 0, 100% var(--db-c), 100% 100%, 0 100%, 0 var(--db-c)); }
-  /* On a phone the shield is the header row on its own. */
-  :host([data-frame="cockpit"]) .phone .bar { padding: 0 10px 0 6px; }
-  :host([data-frame="cockpit"]) .phone .title { font-size: 16px; letter-spacing: .2em; padding: 0 8px; }
-  :host([data-frame="cockpit"]) .phone .clock { font-size: 14px; padding: 0 6px; }
+  /* Every frame but LCARS draws with its own block - see ./frame-styles.js. */
+  ${FRAME_STYLES}
 `;
 
 if (!customElements.get("dashboard-builder-panel")) {
