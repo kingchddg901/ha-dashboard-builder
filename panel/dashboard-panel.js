@@ -818,6 +818,9 @@ const STYLE = `
     { outline: 2px solid var(--db-text); outline-offset: 2px; }
   .rail-fill { flex: 1; min-height: 20px; background: var(--db-frame); border-bottom-left-radius: var(--db-outer); }
   .tools { display: flex; flex-direction: column; gap: 5px; }
+  /* With more tabs than fit, the tabs scroll and the tools stay pinned at the
+     rail's foot. The shadow paints the rail's 5px gap over a tab scrolling under. */
+  .desk .tools { position: sticky; bottom: 0; z-index: 1; background: var(--db-bg); box-shadow: 0 -5px 0 var(--db-bg); }
   .theme-view { max-width: 760px; }
   .theme-slot { margin-top: 4px; }
 

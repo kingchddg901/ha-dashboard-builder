@@ -21,7 +21,7 @@ The base everything else sits in. The panel owns the whole area and the render; 
 
 | | desk (panel ≥ 700 px wide) | phone (narrower) |
 |---|---|---|
-| tabs | down the LCARS rail | a strip under the bar |
+| tabs | down the rail; with more than fit, they scroll and **Edit layout** / **Theme** stay pinned at its foot | a strip under the bar; **Edit** / **Theme** pinned at its end |
 | tiles | on a 12-column grid, 64 px rows | status rows, in the desk layout's reading order |
 | a tile's control | inside the tile | one tap deep, in a sheet |
 | editing | **Edit layout**: move, resize, send or copy to another tab, remove to the shelf, add / rename / remove tabs, theme, reset | **Edit layout**: send or copy to another tab, remove to the shelf, add from the shelf |
