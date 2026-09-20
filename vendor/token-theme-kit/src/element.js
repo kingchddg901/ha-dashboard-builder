@@ -36,6 +36,7 @@ export class ThemeKitEditor extends HTMLElement {
     this._previewTarget = null;
     this._unsub = null;
     this._verdictNodes = new Map();
+    this._resetNodes = new Map();
     this._inited = false;
     this.attachShadow({ mode: "open" });
   }
@@ -106,6 +107,16 @@ export class ThemeKitEditor extends HTMLElement {
   resetGroup(groupId) { return this._reset(groupKeys(this._kit.editorModel(this._values), groupId), "group"); }
   resetAll() { return this._reset(null, "all"); }
 
+  /**
+   * The part a token's reset button wears. Both the full render and the patch
+   * path read it from here: when only the render knew, a token edited in place
+   * kept an unmarked reset until something else forced a rebuild, and the
+   * editor quietly disagreed with itself about what was set.
+   */
+  _tokenResetPart(key) {
+    return isOverridden(this._values, key) ? "reset reset-token is-set" : "reset reset-token";
+  }
+
   _resetButton({ part, label, title, onClick }) {
     const b = document.createElement("button");
     b.type = "button";
@@ -120,6 +131,7 @@ export class ThemeKitEditor extends HTMLElement {
     const root = this.shadowRoot;
     root.textContent = "";
     this._verdictNodes.clear();
+    this._resetNodes.clear();
     const style = document.createElement("style");
     style.textContent = STYLE;
     root.appendChild(style);
@@ -159,14 +171,14 @@ export class ThemeKitEditor extends HTMLElement {
         // Rendered for every token, like the eufy card's, rather than only for
         // overridden ones: a control that appears and disappears as you edit
         // reflows the row under the cursor. Clearing nothing is a no-op.
-        wrap.appendChild(
-          this._resetButton({
-            part: isOverridden(this._values, c.key) ? "reset reset-token is-set" : "reset reset-token",
-            label: "↺",
-            title: `Reset ${c.label}`,
-            onClick: () => this.resetToken(c.key),
-          })
-        );
+        const resetBtn = this._resetButton({
+          part: this._tokenResetPart(c.key),
+          label: "↺",
+          title: `Reset ${c.label}`,
+          onClick: () => this.resetToken(c.key),
+        });
+        this._resetNodes.set(c.key, resetBtn);
+        wrap.appendChild(resetBtn);
         const verdicts = document.createElement("div");
         verdicts.className = "verdicts";
         this._verdictNodes.set(c.key, verdicts);
@@ -196,6 +208,9 @@ export class ThemeKitEditor extends HTMLElement {
       for (const c of group.controls) {
         const node = this._verdictNodes.get(c.key);
         if (node) this._fillVerdicts(node, c.verdicts);
+        // An edit makes a token set, so its reset has to say so now - the full
+        // render is exactly what this path avoids.
+        this._resetNodes.get(c.key)?.setAttribute("part", this._tokenResetPart(c.key));
       }
     }
   }
