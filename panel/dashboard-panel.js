@@ -43,6 +43,7 @@ import { cvdValidator } from "../vendor/token-theme-kit/src/plugins/cvd.js";
 import { defineThemeKitEditor } from "../vendor/token-theme-kit/src/element.js";
 import { clockParts, hour12For, msToNextTick } from "../cards/clock-card/clock-core.js";
 import { discover, unplacedByArea, withStartingTiles } from "./discover-core.js";
+import { sentence } from "../cards/readings-card/readings-core.js";
 import { upgradeProperties } from "./upgrade-props.js";
 import { FRAME_STYLES } from "./frame-styles.js";
 import { FRAMES } from "./panel-tokens.js";
@@ -601,8 +602,8 @@ class DashboardBuilderPanel extends HTMLElement {
     this._dash = dash;
     const saved = store.get(TAB_KEY);
     this._tab = dash.tabs.some((t) => t.id === saved) ? saved : dash.tabs[0].id;
-    this._status = failed ? `could not read the saved layout (${failed}) - showing the starting one`
-      : repaired.length ? `repaired: ${repaired.join("; ")}` : raw ? "" : "starting layout - edit to make it yours";
+    this._status = sentence(failed ? `could not read the saved layout (${failed}) - showing the starting one`
+      : repaired.length ? `repaired: ${repaired.join("; ")}` : raw ? "" : "starting layout - edit to make it yours");
     this._render();
   }
 
@@ -618,10 +619,16 @@ class DashboardBuilderPanel extends HTMLElement {
     }, 400);
   }
 
+  /**
+   * The status line. Messages are written as they read - "saved", "not added:
+   * ..." - and get their capital HERE, so a new message cannot forget it and no
+   * call site has to remember. `sentence` touches the first letter only, so an
+   * entity's own name and words like NOT survive.
+   */
   _say(text, bad = false) {
-    this._status = text;
+    this._status = sentence(text);
     const s = this.shadowRoot.querySelector(".status");
-    if (s) { s.textContent = text; s.classList.toggle("bad", bad); }
+    if (s) { s.textContent = this._status; s.classList.toggle("bad", bad); }
   }
 
   /** Apply a layout-core result: refused edits say why and change nothing. */

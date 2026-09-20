@@ -19,7 +19,7 @@
 import {
   roomsFor, savedSettings, startCalls, robotName, roomAcrossRobots, lastCleanedAcross,
 } from "./va-room-core.js";
-import { robotGlance, relativeTime } from "../readings-card/readings-core.js";
+import { robotGlance, relativeTime, sentence } from "../readings-card/readings-core.js";
 
 const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -85,7 +85,7 @@ class VaRoomCard extends HTMLElement {
   }
 
   _glance(vacuum) { return robotGlance(this._hass.states, vacuum.split(".")[1]); }
-  _status(g) { return !g.available ? "unavailable" : g.error ? `error: ${g.error}` : String(g.state).replace(/_/g, " "); }
+  _status(g) { return !g.available ? "Unavailable" : g.error ? `Error: ${g.error}` : sentence(g.state); }
 
   _render() {
     if (!this._hass || !this._config) return;
@@ -102,7 +102,7 @@ class VaRoomCard extends HTMLElement {
     if (byRoom) {
       title = this._config.title || this._config.room;
       const last = lastCleanedAcross(entries);
-      right = last ? `cleaned ${relativeTime(new Date(last.at))} by ${robotName(panels, last.vacuum, this._hass.states)}` : "not cleaned yet";
+      right = last ? `Cleaned ${relativeTime(new Date(last.at))} by ${robotName(panels, last.vacuum, this._hass.states)}` : "Not cleaned yet";
     } else {
       const name = this._config.title || robotName(panels, this._config.vacuum, this._hass.states);
       title = single ? `${name} · ${entries[0].room.name}` : name;
@@ -136,7 +136,7 @@ class VaRoomCard extends HTMLElement {
     }
     const key = keyOf(e);
     const open = this._selected === key;
-    const when = e.room.lastCleaned ? `cleaned ${relativeTime(new Date(e.room.lastCleaned))}` : "not cleaned yet";
+    const when = e.room.lastCleaned ? `Cleaned ${relativeTime(new Date(e.room.lastCleaned))}` : "Not cleaned yet";
     const label = byRoom ? robot : e.room.name;
     const aside = byRoom ? this._status(g) : when;
     const renamed = byRoom && e.room.name !== this._config.room ? ` <span class="alias">"${esc(e.room.name)}"</span>` : "";

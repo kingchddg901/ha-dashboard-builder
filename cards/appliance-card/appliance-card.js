@@ -343,28 +343,28 @@ class ApplianceCard extends HTMLElement {
             <div class="name">Light ${on ? "on" : "off"}</div>
             <div class="sub">
               ${level.supported ? `<span class="dot" style="background:${swatchOf(appear)}"></span>` : ""}
-              ${!level.supported ? "switches on and off only"
+              ${!level.supported ? "Switches on and off only"
         : level.state !== "off-unknown"
         ? `<button class="typed" title="Tap to type a level">${level.state === "lit"
-          ? `${level.pct}%` : `off · returns to ${level.restore}%`}</button>`
-        : level.state === "off-unknown" ? "off · level unknown" : `${level.pct}%`}${appear.from === "remembered"
+          ? `${level.pct}%` : `Off · returns to ${level.restore}%`}</button>`
+        : level.state === "off-unknown" ? "Off · level unknown" : `${level.pct}%`}${appear.from === "remembered"
         ? appear.mode === "temp" ? ` at ${Math.round(appear.kelvin)} K`
           : ` at hue ${Math.round(appear.hs[0])}°`
         : ""}</div>
             ${colourCapable ? `<div class="modes" role="group" aria-label="Light mode">
-              <button class="mode-white ${mode === "white" ? "on" : ""}">white</button>
-              <button class="mode-colour ${mode === "colour" ? "on" : ""}">colour</button>
+              <button class="mode-white ${mode === "white" ? "on" : ""}">White</button>
+              <button class="mode-colour ${mode === "colour" ? "on" : ""}">Colour</button>
             </div>` : ""}
             ${kelvin && mode === "white" ? `<div class="kel">
-              <span class="klabel">colour</span>
+              <span class="klabel">Colour</span>
               <input class="ktemp ${appear.mode === "unknown" ? "idle" : ""}" type="range"
                      min="${kelvin.min}" max="${kelvin.max}" step="10"
                      value="${appear.kelvin ?? Math.round((kelvin.min + kelvin.max) / 2)}"
                      aria-label="Colour temperature">
               <span class="sub"><span class="kvalue">${appear.mode === "unknown" ? "—"
         : `${Math.round(appear.kelvin ?? 0)} K`}</span>
-                <span class="src">${appear.from === "remembered" ? "remembered"
-          : appear.mode === "unknown" ? "unknown" : `${kelvin.min}–${kelvin.max} measured`}</span></span>
+                <span class="src">${appear.from === "remembered" ? "Remembered"
+          : appear.mode === "unknown" ? "Unknown" : `${kelvin.min}–${kelvin.max} measured`}</span></span>
             </div>` : ""}
           </div>
         </div>
@@ -398,8 +398,8 @@ class ApplianceCard extends HTMLElement {
         ${fader("b", "B", m.b)}
         ${fader("s", "SAT", Math.round(m.saturation * 100))}
         ${fader("p", "POWER", m.power)}
-        <div class="trap" hidden>near white - the white emitters give about twelve times the
-          light <button class="to-white">use white</button></div>
+        <div class="trap" hidden>Near white - the white emitters give about twelve times the
+          light <button class="to-white">Use white</button></div>
       </div>`;
   }
 
@@ -424,10 +424,10 @@ class ApplianceCard extends HTMLElement {
         <div class="slots">${slots.map(cell).join("")}</div>
         <div class="phead">
           ${saving
-        ? `<span class="hint">tap a slot to save the light as it is now</span>
-             <button class="psave cancel">cancel</button>`
-        : `<span class="hint">${slots.some(Boolean) ? "tap to apply" : "no saved colours yet"}</span>
-             <button class="psave">save</button>`}
+        ? `<span class="hint">Tap a slot to save the light as it is now</span>
+             <button class="psave cancel">Cancel</button>`
+        : `<span class="hint">${slots.some(Boolean) ? "Tap to apply" : "No saved colours yet"}</span>
+             <button class="psave">Save</button>`}
         </div>
         ${this._saveNote ? `<div class="pnote">${esc(this._saveNote)}</div>` : ""}
       </div>`;

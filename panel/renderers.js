@@ -17,7 +17,7 @@
 import { describeEntity } from "../cards/builder-debug-card/capability-core.js";
 import { applianceSummary } from "../cards/appliance-card/control-core.js";
 import { tvControls, tvSummary } from "../cards/tv-card/tv-core.js";
-import { readingOf, summary as readingSummary, robotGlance, relativeTime } from "../cards/readings-card/readings-core.js";
+import { readingOf, summary as readingSummary, robotGlance, relativeTime, sentence } from "../cards/readings-card/readings-core.js";
 import { lightNode, treeSummary, rowState } from "../cards/light-tree-card/light-tree-core.js";
 import { roomsFor, robotName, roomAcrossRobots, lastCleanedAcross } from "../cards/va-room-card/va-room-core.js";
 import { clockParts, hour12For } from "../cards/clock-card/clock-core.js";
@@ -89,7 +89,7 @@ function glanceHtml(hass, cfg) {
   return `<div class="glance">
     ${readings.map((r) => row(r.name, r.line, ABSENT.has(r.reading.kind) ? r.reading.kind : "")).join("")}
     ${robots.map((r) => row(r.name,
-      r.error ? `error: ${r.error}` : r.available ? String(r.state).replace(/_/g, " ") : "unavailable",
+      r.error ? `Error: ${r.error}` : r.available ? sentence(r.state) : "Unavailable",
       r.error ? "err" : r.available ? (r.running ? "on" : "") : "unavailable")).join("")}
   </div>`;
 }
@@ -116,7 +116,7 @@ export const RENDERERS = Object.freeze({
     summary: (hass, cfg) => {
       const g = robotGlance(hass?.states || {}, String(cfg.vacuum || "").split(".")[1]);
       const picked = roomsFor(hass?.states || {}, cfg.vacuum).filter((r) => r.selected).map((r) => r.name);
-      const status = !g.available ? "unavailable" : g.error ? `error: ${g.error}` : String(g.state).replace(/_/g, " ");
+      const status = !g.available ? "Unavailable" : g.error ? `Error: ${g.error}` : sentence(g.state);
       return { text: `${robotName(hass?.panels, cfg.vacuum, hass?.states)}: ${status}${picked.length ? ` · ${picked.join(", ")} selected` : ""}`,
         state: !g.available ? "unavailable" : g.running ? "on" : "off" };
     },
@@ -131,7 +131,7 @@ export const RENDERERS = Object.freeze({
       const last = lastCleanedAcross(entries);
       const who = (v) => robotName(hass?.panels, v, states);
       const text = busy.length ? `${busy.map((e) => who(e.vacuum)).join(", ")} running`
-        : last ? `cleaned ${relativeTime(new Date(last.at))} by ${who(last.vacuum)}` : "not cleaned yet";
+        : last ? `Cleaned ${relativeTime(new Date(last.at))} by ${who(last.vacuum)}` : "Not cleaned yet";
       return { text, state: busy.length ? "on" : "off" };
     },
   },
@@ -145,7 +145,7 @@ export const RENDERERS = Object.freeze({
     load: () => import("../cards/samsung-tvplus-card/samsung-tvplus-card.js"), tag: "samsung-tvplus-card",
     // The saved list lives in HA's frontend storage, which a summary cannot read
     // synchronously - so the row says what the tile is, not a count it would guess.
-    summary: () => ({ text: "saved channels · search the lineup", state: "none" }),
+    summary: () => ({ text: "Saved channels · search the lineup", state: "none" }),
   },
   clock: {
     label: "Clock", size: { w: 4, h: 3 }, noun: () => "clock",

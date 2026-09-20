@@ -47,10 +47,17 @@ export const WEATHER_WORDS = Object.freeze({
   windy: "Windy", "windy-variant": "Windy",
 });
 
-const humanise = (slug) => {
-  const s = String(slug).replace(/_/g, " ").trim();
+/**
+ * A machine's word as a sentence: underscores out, first letter up, and NOTHING
+ * else touched - `HDMI 2`, `72 °F` and `OK` must survive unchanged, which title
+ * case would not manage. Text that a person wrote gets its capital from the
+ * author instead; this is only for slugs and states arriving from HA.
+ */
+export const sentence = (slug) => {
+  const s = String(slug ?? "").replace(/_/g, " ").trim();
   return s ? s[0].toUpperCase() + s.slice(1) : s;
 };
+const humanise = sentence;
 
 /** Units that sit against the number rather than a space away from it. */
 const TIGHT_UNITS = new Set(["%", "°"]);
@@ -72,9 +79,14 @@ export function relativeTime(date, now = new Date()) {
   const s = Math.round((date.getTime() - now.getTime()) / 1000);
   const a = Math.abs(s);
   if (a < 45) return "just now";
-  const [n, u] = a < 3600 ? [Math.round(a / 60), "min"] : a < 86400 ? [Math.round(a / 3600), "h"]
-    : [Math.round(a / 86400), "d"];
-  return s > 0 ? `in ${n} ${u}` : `${n} ${u} ago`;
+  // Words in full, and singular when there is one of them. "7 d ago" reads as
+  // an abbreviation the reader has to expand; a dashboard is read at a glance
+  // and from across a room, where "7 days ago" costs four characters and no
+  // thought. The unit agrees with the number for the same reason.
+  const [n, u] = a < 3600 ? [Math.round(a / 60), "minute"] : a < 86400 ? [Math.round(a / 3600), "hour"]
+    : [Math.round(a / 86400), "day"];
+  const unit = n === 1 ? u : `${u}s`;
+  return s > 0 ? `in ${n} ${unit}` : `${n} ${unit} ago`;
 }
 
 /**

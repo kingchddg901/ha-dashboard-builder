@@ -46,6 +46,26 @@ The grid rules, and why:
   unavailable row is inert, and an entity the layout names but HA does not have reads as
   unavailable, never as "off".
 
+### The words on screen
+
+Two rules, so text reads the same wherever it comes from:
+
+- **A line starts with a capital; the rest of the line does not.** "Off · returns to 96%", not
+  "Off · Returns To 96%" and not "off · returns to 96%". Sentence case, never title case — a state
+  that reads `HDMI 2`, `OK` or `72 °F` has to survive untouched, and title case mangles all three.
+- **Machine words go through `sentence()`** (`cards/readings-card/readings-core.js`): underscores
+  out, first letter up, nothing else altered. It is for slugs and states arriving from HA — `docked`
+  becomes "Docked". Text a person wrote gets its capital from whoever wrote it, and the panel's
+  status line capitalises in `_say()`, so no call site has to remember.
+
+Relative times are written out and agree with their number: "7 days ago", "1 hour ago", "in 2 days",
+"just now". The abbreviated form ("7 d ago") read as something to decode.
+
+`test/imports.test.mjs` guards the mechanical half of this: any file that calls a shared helper and
+forgets to import it fails the suite. There is no linter here, `node --check` sees only syntax, and
+the suite never mounts a card — so before that test, a helper called inside a render method stayed
+invisible until the browser threw and the tile drew as an error.
+
 ### What it offers to add
 
 In **Edit layout**, the shelf lists what Home Assistant has that is not on the dashboard yet,

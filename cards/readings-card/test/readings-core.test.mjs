@@ -11,7 +11,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 import {
-  readingOf, summary, precisionFor, relativeTime, robotGlance, BINARY_WORDS, WEATHER_WORDS,
+  readingOf, summary, precisionFor, relativeTime, sentence, robotGlance, BINARY_WORDS, WEATHER_WORDS,
 } from "../readings-core.js";
 
 const fx = JSON.parse(readFileSync(new URL("./readings.fixture.json", import.meta.url), "utf8"));
@@ -98,8 +98,34 @@ test("a timestamp reads relative to now", () => {
   const when = new Date(fx.states[id].state);
   const r = readingOf(fx.states[id], { now: new Date(when.getTime() - 13 * 3600e3) });
   assert.equal(r.kind, "timestamp");
-  assert.equal(r.text, "in 13 h");
-  assert.equal(relativeTime(new Date(0), new Date(12 * 60e3)), "12 min ago");
+  assert.equal(r.text, "in 13 hours");
+  assert.equal(relativeTime(new Date(0), new Date(12 * 60e3)), "12 minutes ago");
+});
+
+// RED IF: a unit is abbreviated again ("7 d ago"), or a unit disagrees with its
+// number ("1 days ago"). The first is what sent this pass off: "cleaned 7 d ago
+// by Robo Rock Ivy" reads as something to decode rather than to read.
+test("relative time is written out, and agrees with its number", () => {
+  const at = (ms) => relativeTime(new Date(0), new Date(ms));
+  assert.equal(at(24 * 3600e3), "1 day ago");
+  assert.equal(at(7 * 24 * 3600e3), "7 days ago");
+  assert.equal(at(3600e3), "1 hour ago");
+  assert.equal(at(60e3), "1 minute ago");
+  assert.equal(at(30e3), "just now");
+  assert.equal(relativeTime(new Date(48 * 3600e3), new Date(0)), "in 2 days");
+});
+
+// RED IF: the sentence helper starts title-casing or lower-casing the rest of
+// the words. The states it is given include HDMI inputs, OK and unit symbols,
+// and every one of those is wrong in any case but its own.
+test("a machine's word becomes a sentence, and nothing else changes", () => {
+  assert.equal(sentence("docked"), "Docked");
+  assert.equal(sentence("not_cleaned_yet"), "Not cleaned yet");
+  assert.equal(sentence("HDMI 2"), "HDMI 2");
+  assert.equal(sentence("OK"), "OK");
+  assert.equal(sentence("72 °F"), "72 °F");
+  assert.equal(sentence(""), "");
+  assert.equal(sentence(null), "");
 });
 
 test("an enum keeps its options and humanises its value", () => {
