@@ -87,6 +87,36 @@ export function noiseField(r, { octaves = 3, cells = 4, size = GRID } = {}) {
 /* ------------------------------------------------------------ hardware */
 
 /**
+ * The plate's own edges, as places corrosion can start.
+ *
+ * A panel rusts where it MEETS something - the seam against what it is bolted
+ * to - and that needs no hardware, only the shape of the plate. Weighted down
+ * the gravity vector and into the corners, because that is where water sits
+ * and grime collects, and biased to the margins, which is also where the text
+ * is not: edge damage buys the most story for the least legibility.
+ */
+export function edgeAnchors(seed, count = 7, gravity = 90) {
+  const r = seeded(seed + 7331);
+  const rad = (gravity * Math.PI) / 180;
+  const low = { x: 0.5 + Math.cos(rad) * 0.5, y: 0.5 + Math.sin(rad) * 0.5 };   // the plate's low side
+  const out = [];
+  for (let i = 0; i < count; i++) {
+    const side = r();
+    const t = r();
+    let p;
+    if (side < 0.34) p = { x: t, y: 0.02 + r() * 0.05 };                        // top
+    else if (side < 0.68) p = { x: t, y: 0.93 + r() * 0.05 };                   // bottom
+    else if (side < 0.84) p = { x: 0.02 + r() * 0.05, y: t };                   // left
+    else p = { x: 0.93 + r() * 0.05, y: t };                                    // right
+    // Pull a share of them towards the low side, so the story has a direction.
+    const pull = r() * 0.5;
+    out.push({ id: `edge${i}`, kind: "edge",
+      x: clamp01(p.x + (low.x - p.x) * pull * 0.3), y: clamp01(p.y + (low.y - p.y) * pull) });
+  }
+  return out;
+}
+
+/**
  * The fittings on this plate, in normalized coordinates.
  *
  * Fixed slots, exactly as the greebles work: the position and kind of every
@@ -278,18 +308,18 @@ export const LOOK = Object.freeze({
 export const HISTORIES = Object.freeze({
   none: [],
   "hangar-queen": [
-    { process: "oxidation", at: ["bolt", "seam"] },
+    { process: "oxidation", at: ["edge", "bolt", "seam"] },
   ],
   "engine-room": [
     { process: "heat", at: ["vent"], intensity: 0.5 },
     { process: "soot", at: ["vent"], amount: 0.45 },
-    { process: "oxidation", at: ["seam", "bolt"] },
+    { process: "oxidation", at: ["edge", "seam", "bolt"] },
   ],
   "battle-scarred": [
     { process: "heat", at: ["vent"], intensity: 0.35 },
     { process: "impact", at: [{ x: 0.72, y: 0.41 }], severity: 0.6 },
     { process: "heat", at: ["exposed"], intensity: 0.7 },
-    { process: "oxidation", at: ["bolt", "seam"] },
+    { process: "oxidation", at: ["edge", "bolt", "seam"] },
     { process: "soot", at: ["exposed", "vent"], amount: 0.3 },
   ],
 });
@@ -325,7 +355,7 @@ function where(at, hw, state) {
 export function materialArt({ history = "none", seed = 1, hardware = 1,
   wearDensity = 0.4, wearProgress = 0.4, gravity = 90, events = null } = {}) {
   const list = Array.isArray(events) ? events : (HISTORIES[history] || HISTORIES.none);
-  const hw = anchors(seed, hardware);
+  const hw = [...anchors(seed, hardware), ...edgeAnchors(seed, 7, gravity)];
   const state = { exposed: field(), heated: field(), damaged: field() };
   const layers = [];
   list.forEach((ev, i) => {
