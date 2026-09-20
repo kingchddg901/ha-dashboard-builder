@@ -182,7 +182,18 @@ class TvCard extends HTMLElement {
         modal.querySelector(".mbody").innerHTML = `<div class="srcline">The guide could not load: ${esc(e.message)}</div>`;
       }
     }
-    if (this._guide) modal.querySelector(".mbody").replaceChildren(this._guide);
+    // Ask the host first. A panel has one sheet of its own, in the right place
+    // in the DOM; this card's overlay is fixed-positioned inside a tile, which
+    // a containing block anywhere above it turns into a box inside the tile.
+    // Nothing listening (a plain Lovelace card) means the card draws its own.
+    if (this._guide) {
+      const asked = this.dispatchEvent(new CustomEvent("db-open-modal", {
+        bubbles: true, composed: true, cancelable: true,
+        detail: { title: this._config.title, element: this._guide, onClose: () => { this._hostedGuide = false; } },
+      }));
+      if (!asked) { this._hostedGuide = true; return; }
+      modal.querySelector(".mbody").replaceChildren(this._guide);
+    }
     // The guide names itself; the bar says which TV it will tune.
     modal.querySelector(".mt").textContent = this._config.title;
     modal.hidden = false;

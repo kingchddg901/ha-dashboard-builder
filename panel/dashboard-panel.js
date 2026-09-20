@@ -54,6 +54,8 @@ import {
   DEVICE_KEY, DEVICE_TOKENS_KEY, accountPick, readPick, writePick, resolveTheme, isLocked, readDraft, writeDraft,
 } from "./device-theme.js";
 
+/** What a card dispatches to ask the panel to host its modal (see `_onModalAsk`). */
+const MODAL_EVENT = "db-open-modal";
 const STORE_KEY = "dashboard_builder.layout";
 const TAB_KEY = "dashboard_builder.tab";
 const THEME_KEY = "dashboard_builder.theme";
@@ -86,6 +88,7 @@ class DashboardBuilderPanel extends HTMLElement {
     this._els = new Map();       // tile id -> { sig, el, error }
     this._sheetId = null;
     this._status = "";
+    this._hosted = null;         // a card's modal the panel is showing instead (MODAL_EVENT)
     this._narrow = false;
     this._asCard = false;
     this._resetArmed = null;
@@ -97,7 +100,7 @@ class DashboardBuilderPanel extends HTMLElement {
     this._themeOpen = false;
     this._library = emptyLibrary();   // your saved themes (theme-library.js)
     this._lib = { mode: null, msg: "", target: null, deleteArmed: false };   // the theme tab's library panel
-    this._onKey = (e) => { if (e.key === "Escape" && this._sheetId) this._closeSheet(); };
+    this._onKey = (e) => { if (e.key === "Escape" && (this._sheetId || this._hosted)) this._closeSheet(); };
   }
 
   /* ---------------------------------------------------- Home Assistant API */
@@ -120,10 +123,46 @@ class DashboardBuilderPanel extends HTMLElement {
   setConfig(config) { this._asCard = true; this._cardConfig = config || {}; }
   getCardSize() { return 12; }
 
+  /**
+   * A card that wants a modal asks for one instead of drawing its own.
+   *
+   * A card's own overlay is `position: fixed`, which escapes nothing once any
+   * ancestor makes itself a containing block - inside Home Assistant the TV
+   * Plus guide came out INSIDE the remote tile, scrollbar and all. And on a
+   * phone the tile is already in the panel's sheet, so a second overlay drew a
+   * second Close bar under the first. One owner fixes both: the panel has a
+   * sheet, and the sheet is a child of the panel, not of a tile.
+   *
+   * The card calls `preventDefault()`'s answer: if the event was cancelled the
+   * panel took it, and if nothing answered the card draws its own - which is
+   * what happens when the card is used as a plain Lovelace card with no panel
+   * around it.
+   */
+  _onModalAsk(e) {
+    const d = e.detail || {};
+    if (!d.element) return;
+    e.preventDefault();
+    this._hosted = { title: d.title || "", element: d.element, onClose: d.onClose || null,
+      wasSheetId: this._sheetId };
+    this._sheetId = null;
+    this._showHosted();
+  }
+
+  _showHosted() {
+    const h = this._hosted;
+    const sheet = this.shadowRoot.querySelector(".sheet");
+    if (!h || !sheet) return;
+    sheet.hidden = false;
+    sheet.querySelector(".sheet-title").textContent = h.title;
+    sheet.querySelector(".sheet-body").replaceChildren(h.element);
+    sheet.querySelector(".close").focus({ preventScroll: true });
+  }
+
   connectedCallback() {
     // On an uncached load HA sets hass/panel/narrow before this class exists;
     // replay them through the setters, or the panel never renders (upgrade-props.js).
     upgradeProperties(this);
+    this.addEventListener(MODAL_EVENT, this._onModalAsk);
     if (!this._ro && typeof ResizeObserver !== "undefined") {
       this._ro = new ResizeObserver(() => this._measure());
       this._ro.observe(this);
@@ -700,6 +739,7 @@ class DashboardBuilderPanel extends HTMLElement {
     if (this._themeOpen) this._mountThemeEditor();
     else if (phone) this._fillRows(tab); else this._fillGrid(tab);
     if (this._sheetId) this._openSheet(this._sheetId);
+    else if (this._hosted) this._showHosted();
     this._wire(tab);
     this._measure();
   }
@@ -943,9 +983,16 @@ class DashboardBuilderPanel extends HTMLElement {
   }
 
   _closeSheet() {
+    const hosted = this._hosted;
+    this._hosted = null;
     this._sheetId = null;
     const sheet = this.shadowRoot.querySelector(".sheet");
     if (sheet) { sheet.hidden = true; sheet.querySelector(".sheet-body").replaceChildren(); }
+    if (!hosted) return;
+    hosted.onClose?.();
+    // On a phone the guide was opened from a tile's own sheet; closing it goes
+    // back there rather than all the way out to the dashboard.
+    if (hosted.wasSheetId) this._openSheet(hosted.wasSheetId);
   }
 
   /* --------------------------------------------------------------- wire */
