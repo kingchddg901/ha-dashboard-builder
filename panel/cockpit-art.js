@@ -183,6 +183,58 @@ export const GRAIN = uri(`<svg xmlns="http://www.w3.org/2000/svg" width="160" he
   + `<feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .09 0"/></filter>`
   + `<rect width="160" height="160" filter="url(#g)"/></svg>`);
 
+const tileCache = new Map();
+
+/**
+ * Hardware on a PLATE rather than along a run - what a tile carries.
+ *
+ * Fittings belong at the margins of a panel, which is where they are in life
+ * (a plate is bolted round its edges) and also where the text is not, so the
+ * hardware costs nothing to read. The middle is left clear on purpose.
+ *
+ * Returns the art AND the footprints, in normalized coordinates, because the
+ * weathering hangs off them: corrosion starts where a part meets the plate,
+ * and a part that is bolted down PROTECTS what is under it. Same fixed-slot
+ * rule as the runs - position and kind come from the seed alone, `density`
+ * only decides which slots are there.
+ */
+export function tileGreebles(seed, density = 0.6, lightIn = {}) {
+  const d = Math.max(0, Math.min(1, Math.round(density * 100) / 100));
+  const angle = Math.round((((Number(lightIn.angle) || 0) % 360) + 360) % 360);
+  const intensity = Math.round((lightIn.intensity ?? 0.6) * 100) / 100;
+  const key = `${seed}|${d}|${angle}|${intensity}`;
+  if (tileCache.has(key)) return tileCache.get(key);
+  const light = lightOf({ angle, intensity });
+  const r = seeded(seed);
+  const W = 240;
+  const H = 160;
+  const parts = [];
+  let body = "";
+  // Six slots round the margin: three along the bottom, one each side, one top
+  // right. Fixed places, so hardware appears and disappears without moving.
+  const slots = [
+    { x: 14, y: H - 22, h: 18 }, { x: 92, y: H - 22, h: 18 }, { x: 170, y: H - 22, h: 18 },
+    { x: 8, y: 30, h: 16 }, { x: W - 66, y: 12, h: 16 }, { x: W - 58, y: 74, h: 16 },
+  ];
+  for (const [i, s] of slots.entries()) {
+    // Two tries: a module names its own width and returns nothing when it does
+    // not fit, and at one try most slots came back empty - so the density
+    // control had almost nothing left to decide.
+    const m = module(r, s.x, s.h, Math.min(86, W - 8 - s.x))
+      || module(r, s.x, s.h, Math.min(86, W - 8 - s.x));
+    const keep = r();
+    if (!m || keep >= d) continue;
+    body += `<g transform="translate(0 ${n(s.y)})">`
+      + m.shapes.map((sh) => draw(sh, light)).join("") + (m.text || "") + "</g>";
+    parts.push({ id: `t${i}`, kind: m.width > 50 ? "seam" : "bolt",
+      x: (s.x + m.width / 2) / W, y: (s.y + s.h / 2) / H,
+      w: m.width / W, h: s.h / H });
+  }
+  const art = { uri: parts.length ? uri(svg(W, H, body)) : null, parts, W, H };
+  tileCache.set(key, art);
+  return art;
+}
+
 const cache = new Map();
 
 /**

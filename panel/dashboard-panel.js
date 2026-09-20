@@ -48,6 +48,7 @@ import { upgradeProperties } from "./upgrade-props.js";
 import { FRAME_STYLES } from "./frame-styles.js";
 import { FRAMES } from "./panel-tokens.js";
 import { materialArt, maskUri, cropOffset, LOOK } from "./material-art.js";
+import { tileGreebles } from "./cockpit-art.js";
 import {
   readLibrary, listThemes, saveAs, updateTheme, removeTheme, exportTheme, ingestTheme, fileNameFor, emptyLibrary, USER_PREFIX,
 } from "./theme-library.js";
@@ -75,7 +76,7 @@ const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 /** What each process is tinted when nothing has chosen a colour for it. */
-const WEAR_TINTS = Object.freeze({ rust: "#8a4622", soot: "#120e0c", heat: "#4a3a52", bare: "#b9b3ab" });
+const WEAR_TINTS = Object.freeze({ rust: "#8a4622", scale: "#5e2c12", soot: "#120e0c", heat: "#4a3a52", bare: "#b9b3ab" });
 
 /** A tile's id as a number, so its scars follow the tile and not its place on the grid. */
 const hashSeed = (id) => {
@@ -329,7 +330,17 @@ class DashboardBuilderPanel extends HTMLElement {
    * when you move it. The whole ship re-rolls only if the theme's history
    * changes, which is why the cache key holds both.
    */
-  _wearHtml(tile) { return this._wearOn(tile.id, "tile-wear"); }
+  _wearHtml(tile) {
+    const v = { ...this._base, ...(this._overrides || {}) };
+    // Only the cockpit bolts hardware to its panels; the other frames are not
+    // built out of plates, so a tile there is a tile.
+    const wants = activeFrame(this._base, this._overrides) === "cockpit";
+    const g = wants
+      ? tileGreebles(hashSeed(tile.id), Number(v["greeble-density"] ?? 60) / 100,
+        { angle: Number(v["light-angle"] ?? 0), intensity: Number(v["light-intensity"] ?? 60) / 100 })
+      : null;
+    return this._wearOn(tile.id, "tile-wear", { fittings: g?.parts || null, hardwareUri: g?.uri || null });
+  }
 
   /**
    * The frame's own chrome wears too.
@@ -342,15 +353,16 @@ class DashboardBuilderPanel extends HTMLElement {
    */
   _chromeWear(name) { return this._wearOn(`chrome:${name}`, `chrome-wear ${name}-wear`); }
 
-  _wearOn(id, cls) {
+  _wearOn(id, cls, { fittings = null, hardwareUri = null } = {}) {
     const v = { ...this._base, ...(this._overrides || {}) };
     const history = v["wear-history"] || "none";
-    if (history === "none") return "";
-    const key = `${id}|${cls}|${history}|${v["wear-density"]}|${v["wear-progress"]}|${v["greeble-density"]}`;
+    if (history === "none" && !hardwareUri) return "";
+    const key = `${id}|${cls}|${history}|${v["wear-density"]}|${v["wear-progress"]}|${v["greeble-density"]}`
+      + `|${v["light-angle"]}|${v["light-intensity"]}|${hardwareUri ? "hw" : ""}`;
     this._wearCache = this._wearCache || new Map();
     if (!this._wearCache.has(key)) {
       const seed = hashSeed(id);
-      const art = materialArt({ history, seed,
+      const art = materialArt({ history, seed, fittings,
         hardware: Number(v["greeble-density"] ?? 60) / 100,
         wearDensity: Number(v["wear-density"] ?? 0.4),
         wearProgress: Number(v["wear-progress"] ?? 0.4),
@@ -369,8 +381,17 @@ class DashboardBuilderPanel extends HTMLElement {
         // span itself would blur the flat tint and then hard-clip it.
         return l.blur ? `<span class="wear-blur" style="filter:blur(${l.blur}px)">${inner}</span>` : inner;
       }).join("");
-      this._wearCache.set(key, spans
-        ? `<div class="${cls}" style="--wear-crop:${cropOffset(seed)}">${spans}</div>` : "");
+      // The hardware goes UNDER the weathering, because the weathering came
+      // after it: a plate is built, then it lives. When a mount/unmount event
+      // exists the part will move to its own place in this order - the paint
+      // order is the event order.
+      // No double quotes inside url(): this is an inline style ATTRIBUTE, and
+      // the quotes the generator wraps its data URI in close it, leaving
+      // `background-image: url("")`. Percent-encoded, it needs no quoting.
+      const hw = hardwareUri
+        ? `<span class="wear-hardware" style="background-image:${hardwareUri.replace(/"/g, "")}"></span>` : "";
+      this._wearCache.set(key, hw || spans
+        ? `<div class="${cls}" style="--wear-crop:${cropOffset(seed)}">${hw}${spans}</div>` : "");
     }
     return this._wearCache.get(key);
   }
@@ -1392,6 +1413,9 @@ const STYLE = `
   .chrome-wear .wear-layer { mask-size: auto 100%; -webkit-mask-size: auto 100%;
     mask-repeat: repeat-x; -webkit-mask-repeat: repeat-x; }
   .tile-wear .wear-blur, .chrome-wear .wear-blur { position: absolute; inset: 0; }
+  /* The plate's own fittings, under everything that has happened to it since. */
+  .wear-hardware { position: absolute; inset: 0; background-repeat: no-repeat;
+    background-size: 100% 100%; opacity: .85; }
   .tile-wear .wear-layer, .chrome-wear .wear-layer { position: absolute; inset: 0;
     mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;
     /* cover, never stretch: a wide tile crops its damage instead of pulling

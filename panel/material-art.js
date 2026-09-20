@@ -184,6 +184,28 @@ function exposedSites(f, limit = 6) {
 }
 
 /**
+ * How each kind of site corrodes. Not a style choice - it is the difference
+ * between the places a plate actually goes:
+ *
+ *   edge     the sheet meets the world. Thin, clean, hugging the margin.
+ *   bolt     a fastening. A halo, contained, about the size of the fitting.
+ *   vent     an opening. Like a bolt, a little wider, and soot starts here too.
+ *   chip     a knock in the coating near something else. Small.
+ *   seam     two pieces joined - a weld, a lap, a bimetallic pair. Water gets
+ *            UNDER the coating and the rust grows in layers that lift: SCALE.
+ *            Thicker, harder-edged, and drawn as its own layer.
+ *   exposed  bare metal an earlier event made. Rusts readily, like a seam.
+ */
+const SITE = Object.freeze({
+  edge: { r: 0.07, k: 0.8, shape: 2.4 },
+  bolt: { r: 0.06, k: 1, shape: 1.5 },
+  vent: { r: 0.08, k: 0.85, shape: 1.3 },
+  chip: { r: 0.035, k: 0.9, shape: 1.6 },
+  seam: { r: 0.09, k: 1.2, shape: 0.9, scale: true },
+  exposed: { r: 0.08, k: 1.15, shape: 1, scale: true },
+});
+
+/**
  * The processes. Each reads the surface state, writes what it leaves behind,
  * and returns its own mask. Order is decided by the history, never here.
  *
@@ -231,37 +253,52 @@ const PROCESS = {
    * three deep blooms and a light speckle everywhere are different plates, and
    * one slider cannot tell them apart.
    */
-  oxidation(state, r, { at, density = 0.4, progress = 0.4, stray = 0.2, roughness = 0.5 }) {
-    const mask = field();
+  oxidation(state, r, { at, density = 0.4, progress = 0.4, stray = 0.2 }) {
+    const clean = field();
+    const scale = field();
     const sites = [];
-    for (const p of at) if (r() < density) sites.push({ x: p.x, y: p.y, w: 1 });
+    for (const p of at) if (r() < density) sites.push({ x: p.x, y: p.y, kind: p.kind || "bolt" });
     // Bare metal is not a nudge, it is the best site on the plate: wherever an
     // earlier event took the coating off, corrosion STARTS there and grows.
-    // Adding the exposed field to the mask afterwards instead made the
-    // difference about 5%, which is not what "prefers bare metal" means.
-    for (const p of exposedSites(state.exposed)) sites.push({ x: p.x, y: p.y, w: 1.15 });
-    // A few marks that belong to no fitting at all - neglect, not telemetry.
-    // Any wear at all leaves at least one, or a low setting draws literally
-    // nothing and the control reads as broken until it is halfway across.
-    const strays = density > 0
-      ? Math.max(1, Math.round(sites.length * stray + density * 3))
-      : 0;
-    for (let i = 0; i < strays; i++) sites.push({ x: r(), y: r(), w: 0.7 });
-    // Progress makes a site both WIDER and DEEPER. Widening alone made "far
-    // gone" mean "bigger and just as faint", so a few advanced blooms and a
-    // light speckle came out at the same weight per patch.
+    for (const p of exposedSites(state.exposed)) sites.push({ x: p.x, y: p.y, kind: "exposed" });
+    /*
+     * A sheet of steel does not rust from the middle of itself. It rusts where
+     * the world gets in: at an edge, at a fastening, and worst of all at a
+     * SEAM, where an unsealed joint or a chipped coating lets water underneath
+     * and the rust grows in layers that lift. So a stray mark is a chipped
+     * coating NEAR something, not spontaneous corrosion in open field - the
+     * earlier version scattered blooms anywhere and read as stained cloth.
+     */
+    // Any wear at all has to show somewhere, or the control reads as broken
+    // until it is half way across. The first site is a FEATURE, though - the
+    // most vulnerable place on the plate goes first, never open field.
+    if (!sites.length && density > 0 && at.length) {
+      const first = at[Math.floor(r() * at.length)];
+      sites.push({ x: first.x, y: first.y, kind: first.kind || "bolt" });
+    }
+    const strays = density > 0 ? Math.max(1, Math.round(sites.length * stray + density * 2)) : 0;
+    for (let i = 0; i < strays && sites.length; i++) {
+      const host = sites[Math.floor(r() * sites.length)];
+      sites.push({ x: clamp01(host.x + (r() - 0.5) * 0.22), y: clamp01(host.y + (r() - 0.5) * 0.22),
+        kind: "chip" });
+    }
+    // Each kind of site corrodes in its own way. Edges go thin and clean, a
+    // fastening haloes, and a seam builds scale: thicker, harder-edged, and
+    // drawn as its own layer so it can be a different colour and sit on top.
     for (const s of sites) {
-      deposit(mask, s.x, s.y, 0.06 + progress * 0.22, s.w * (0.4 + 0.6 * progress), 1.2);
+      const k = SITE[s.kind] || SITE.bolt;
+      const into = k.scale ? scale : clean;
+      deposit(into, s.x, s.y, k.r * (0.5 + progress), k.k * (0.4 + 0.6 * progress), k.shape);
     }
-    // Break the discs into islands: without this it is a field of soft dots.
+    // Break the discs into islands - without this it is a field of soft dots.
+    // Scale breaks harder, which is what makes it read as crust and not stain.
     const n = noiseField(r, { cells: 6, octaves: 3 });
-    const cut = 0.52 - roughness * 0.18;
-    for (let i = 0; i < mask.length; i++) {
-      const edge = clamp01((n[i] - cut) * 3 + 0.5);
-      mask[i] = clamp01(mask[i] * (0.35 + 0.9 * edge));
-      state.damaged[i] = Math.max(state.damaged[i], mask[i] * 0.6);
+    for (let i = 0; i < clean.length; i++) {
+      clean[i] = clamp01(clean[i] * (0.35 + 0.9 * clamp01((n[i] - 0.44) * 3 + 0.5)));
+      scale[i] = clamp01(scale[i] * (0.15 + 1.5 * clamp01((n[i] - 0.5) * 6 + 0.5)));
+      state.damaged[i] = Math.max(state.damaged[i], Math.max(clean[i], scale[i]) * 0.6);
     }
-    return mask;
+    return { oxidation: clean, scale };
   },
 
   /* Soot. Runs with gravity, not with the light: it streaks DOWN from vents
@@ -292,6 +329,9 @@ export const LOOK = Object.freeze({
   heat: { tint: "heat", blend: "multiply", opacity: 0.55, blur: 2 },
   impact: { tint: "bare", blend: "normal", opacity: 0.9, blur: 0 },
   oxidation: { tint: "rust", blend: "normal", opacity: 0.8, blur: 0.5 },
+  // Scale is the crust at a seam: darker, harder, and NOT blurred - the hard
+  // edge is the whole point of it against the soft blooms around it.
+  scale: { tint: "scale", blend: "normal", opacity: 0.95, blur: 0 },
   soot: { tint: "soot", blend: "multiply", opacity: 0.7, blur: 1.5 },
 });
 
@@ -353,9 +393,14 @@ function where(at, hw, state) {
  * with `mask` a GRID x GRID field of 0..1 for the caller to paint.
  */
 export function materialArt({ history = "none", seed = 1, hardware = 1,
-  wearDensity = 0.4, wearProgress = 0.4, gravity = 90, events = null } = {}) {
+  wearDensity = 0.4, wearProgress = 0.4, gravity = 90, events = null, fittings = null } = {}) {
   const list = Array.isArray(events) ? events : (HISTORIES[history] || HISTORIES.none);
-  const hw = [...anchors(seed, hardware), ...edgeAnchors(seed, 7, gravity)];
+  // `fittings` is the hardware somebody else drew - the greebles ON this plate,
+  // with their real positions. Corrosion should start where a part MEETS the
+  // plate, and it can only do that if it is told where the parts are. Without
+  // them the generator invents its own, which is the stand-in, not the point.
+  const hw = [...(Array.isArray(fittings) && fittings.length ? fittings : anchors(seed, hardware)),
+    ...edgeAnchors(seed, 7, gravity)];
   const state = { exposed: field(), heated: field(), damaged: field() };
   const layers = [];
   list.forEach((ev, i) => {
@@ -364,11 +409,17 @@ export function materialArt({ history = "none", seed = 1, hardware = 1,
     const r = seeded(seed + (i + 1) * 7919);       // per-event stream
     const at = where(ev.at, hw, state);
     if (!at.length) return;
-    const mask = fn(state, r, { ...ev, at, density: ev.density ?? wearDensity,
+    const made = fn(state, r, { ...ev, at, density: ev.density ?? wearDensity,
       progress: ev.progress ?? wearProgress, gravity });
-    let any = false;
-    for (let k = 0; k < mask.length; k++) if (mask[k] > 0.02) { any = true; break; }
-    if (any) layers.push({ process: ev.process, mask, ...LOOK[ev.process] });
+    // A process can leave more than one KIND of mark - oxidation leaves clean
+    // rust and, at a seam, scale. Each becomes its own layer so it can carry
+    // its own colour and hardness.
+    const marks = made instanceof Float64Array ? { [ev.process]: made } : made;
+    for (const [name, mask] of Object.entries(marks)) {
+      let any = false;
+      for (let k = 0; k < mask.length; k++) if (mask[k] > 0.02) { any = true; break; }
+      if (any) layers.push({ process: name, mask, ...LOOK[name] });
+    }
   });
   return { layers, state, anchors: hw };
 }

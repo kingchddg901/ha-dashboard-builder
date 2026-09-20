@@ -19,6 +19,22 @@ import { seeded } from "../cockpit-art.js";
 
 const sum = (f) => f.reduce((a, b) => a + b, 0);
 const maskOf = (art, process) => art.layers.find((l) => l.process === process)?.mask;
+/**
+ * All the rust on a plate. Oxidation leaves two KINDS of mark - clean rust
+ * where the world gets at an edge or a bolt, and scale where it gets under a
+ * seam - so a claim about "how much rust" has to count both or it moves when
+ * a site changes which kind it makes.
+ */
+const rust = (art) => art.layers.filter((l) => l.process === "oxidation" || l.process === "scale")
+  .reduce((total, l) => total + sum(l.mask), 0);
+const rustMask = (art) => {
+  const out = new Float64Array(GRID * GRID);
+  for (const l of art.layers) {
+    if (l.process !== "oxidation" && l.process !== "scale") continue;
+    for (let i = 0; i < out.length; i++) out[i] = Math.max(out[i], l.mask[i]);
+  }
+  return out;
+};
 const diff = (a, b) => {
   let d = 0;
   for (let i = 0; i < a.length; i++) d += Math.abs(a[i] - b[i]);
@@ -58,7 +74,7 @@ test("adding an event leaves the earlier events untouched", () => {
 // and comes out heavier than the same oxidation run before the strike.
 test("order is the story: rust after a strike is not rust before it", () => {
   const strike = { process: "impact", at: [{ x: 0.5, y: 0.5 }], severity: 0.7 };
-  const rust = { process: "oxidation", at: ["bolt"], density: 0.3, progress: 0.3 };
+  const rustEvent = { process: "oxidation", at: ["bolt"], density: 0.3, progress: 0.3 };
   // A filler event with the same INDEX as the strike, so the oxidation runs on
   // the same seed stream in both plates. Comparing [strike, rust] against
   // [rust, strike] looked like it tested this and did not: moving the rust to
@@ -66,10 +82,10 @@ test("order is the story: rust after a strike is not rust before it", () => {
   // nothing to do with exposure. The ablation said so - deleting the line that
   // reads `exposed` left the test green.
   const filler = { process: "heat", at: [{ x: 0.05, y: 0.05 }], intensity: 0.2 };
-  const after = materialArt({ seed: 9, events: [strike, rust] });
-  const clean = materialArt({ seed: 9, events: [filler, rust] });
-  const rustAfter = sum(maskOf(after, "oxidation"));
-  const rustClean = sum(maskOf(clean, "oxidation"));
+  const after = materialArt({ seed: 9, events: [strike, rustEvent] });
+  const clean = materialArt({ seed: 9, events: [filler, rustEvent] });
+  const rustAfter = rust(after);
+  const rustClean = rust(clean);
   assert.ok(rustAfter > rustClean * 1.15,
     `rust over bare metal (${rustAfter.toFixed(1)}) must exceed rust on an intact plate (${rustClean.toFixed(1)})`);
 });
@@ -130,14 +146,79 @@ test("how many sites and how far each got are independent", () => {
     }
     return blocks.size;
   };
-  const deep = maskOf(at(0.15, 0.95), "oxidation");       // a few sites, far gone
-  const wide = maskOf(at(0.95, 0.15), "oxidation");       // many sites, barely started
+  const deep = rustMask(at(0.15, 0.95));       // a few sites, far gone
+  const wide = rustMask(at(0.95, 0.15));       // many sites, barely started
   assert.ok(spread(wide) > spread(deep),
     `many shallow sites must touch more of the plate (${spread(wide)}) than a few deep ones (${spread(deep)})`);
-  assert.ok(sum(deep) / spread(deep) > sum(wide) / spread(wide),
-    "and a deep site must be heavier where it is than a shallow one");
+  // Weight per touched block was not enough: with progress still widening the
+  // radius, "deep" stayed heavier per block even when it had stopped getting
+  // darker, and the ablation that removed severity entirely left this green.
+  // Peak is no good either - deposits clamp at 1, so both saturate. What does
+  // separate them is what SHARE of the marked area is heavy.
+  const heavyShare = (m) => {
+    let marked = 0;
+    let heavy = 0;
+    for (const v of m) { if (v > 0.05) marked++; if (v > 0.6) heavy++; }
+    return marked ? heavy / marked : 0;
+  };
+  // The factor is MEASURED, not chosen: as written the two differ by 7.7x
+  // (0.42 against 0.055), and with severity removed - progress widening a site
+  // but no longer deepening it - they differ by 2.3x. Four sits between them
+  // with room on both sides, so this fails when severity stops being a control
+  // and passes without being brittle.
+  assert.ok(heavyShare(deep) > heavyShare(wide) * 4,
+    `a far-gone site must be mostly HEAVY (${heavyShare(deep).toFixed(3)}) `
+    + `where a barely started one is mostly faint (${heavyShare(wide).toFixed(3)})`);
   assert.equal(at(0, 0.95).layers.length, 0, "no wear at all leaves nothing");
-  assert.ok(sum(maskOf(at(0.05, 0.3), "oxidation")) > 0, "but any wear at all leaves a mark");
+  assert.ok(rust(at(0.05, 0.3)) > 0, "but any wear at all leaves a mark");
+});
+
+// RED IF: rust appears in open field. A sheet of steel does not corrode from
+// the middle of itself - it corrodes where the world gets in: an edge, a
+// fastening, a seam. Scattering blooms anywhere is what made the first version
+// read as stained cloth rather than as steel, so every mark has to be traceable
+// to a feature (or to a chip beside one).
+test("a plate rusts at its features, never out of its middle", () => {
+  // Bolts ONLY, and few of them. With the edges in the list as well there are
+  // features all round the margin and nearly anywhere is "near" something, so
+  // the check passed even when the strays were scattered at random: it had no
+  // room left to be wrong in.
+  const art = materialArt({ seed: 21, hardware: 0.35, wearDensity: 1, wearProgress: 0.5,
+    events: [{ process: "oxidation", at: ["bolt"] }] });
+  const features = art.anchors.filter((f) => f.kind === "bolt");
+  assert.ok(features.length >= 2 && features.length <= 8,
+    `few enough fittings that open field exists (${features.length})`);
+  const mask = rustMask(art);
+  let far = 0;
+  let marked = 0;
+  for (let i = 0; i < mask.length; i++) {
+    if (mask[i] < 0.25) continue;
+    marked++;
+    const x = (i % GRID) / GRID;
+    const y = Math.floor(i / GRID) / GRID;
+    // "Near" allows a bloom to have grown outward and a chip to sit beside its
+    // host; it does not allow a mark in the middle of nowhere.
+    if (!features.some((f) => Math.hypot(f.x - x, f.y - y) < 0.22)) far++;
+  }
+  assert.ok(marked > 20, `the plate is rusted at all (${marked} cells)`);
+  assert.equal(far, 0, `${far} of ${marked} rusted cells are nowhere near a feature`);
+});
+
+// RED IF: a seam corrodes like a bolt. Water gets UNDER a joint and the rust
+// grows in layers that lift - scale - so a seam has to leave its own harder,
+// heavier mark, drawn as its own layer with its own colour.
+test("a seam makes scale, an edge does not", () => {
+  const seam = materialArt({ seed: 3, wearDensity: 1, wearProgress: 0.6,
+    events: [{ process: "oxidation", at: [{ x: 0.5, y: 0.5, kind: "seam" }] }] });
+  const edge = materialArt({ seed: 3, wearDensity: 1, wearProgress: 0.6,
+    events: [{ process: "oxidation", at: [{ x: 0.5, y: 0.5, kind: "edge" }] }] });
+  assert.ok(maskOf(seam, "scale"), "a seam leaves scale");
+  assert.ok(!maskOf(edge, "scale"), "an edge leaves clean rust, not scale");
+  // and scale is the harder mark: less of the plate, more weight where it is
+  const scale = maskOf(seam, "scale");
+  const clean = maskOf(edge, "oxidation");
+  const peak = (m) => m.reduce((a, b) => Math.max(a, b), 0);
+  assert.ok(peak(scale) > peak(clean), `scale ${peak(scale).toFixed(2)} vs clean ${peak(clean).toFixed(2)}`);
 });
 
 // RED IF: the legibility gate stops biting. This is the measure that decides
