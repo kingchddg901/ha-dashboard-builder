@@ -142,7 +142,7 @@ class VaRoomCard extends HTMLElement {
     const renamed = byRoom && e.room.name !== this._config.room ? ` <span class="alias">"${esc(e.room.name)}"</span>` : "";
     const head = single ? "" : `<button type="button" class="row ${open ? "sel" : ""}" data-act="select"
         data-key="${esc(key)}" aria-expanded="${open}">
-        <span class="nm">${esc(label)}${renamed}${e.room.selected ? ` <span class="badge">selected</span>` : ""}</span>
+        <span class="nm">${esc(label)}${renamed}${e.room.selected ? ` <span class="badge">Selected</span>` : ""}</span>
         <span class="lc">${esc(aside)}</span></button>`;
     if (!open) return head;
     const settings = savedSettings(e.room.attrs);

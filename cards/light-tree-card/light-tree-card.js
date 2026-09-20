@@ -102,11 +102,12 @@ class LightTreeCard extends HTMLElement {
     const kids = node.members.length;
     const p = kids ? promise(node) : null;
     const canDim = kids ? p.dimmable > 0 : node.dimmable;
-    const value = node.missing ? "not in HA" : st === "unavailable" ? "unavailable" : st === "unknown" ? "?"
-      : st === "off" ? "off" : canDim && node.level != null ? `${node.level}%` : "on";
+    // The row's own reading, so it starts with a capital like any other line.
+    const value = node.missing ? "Not in HA" : st === "unavailable" ? "Unavailable" : st === "unknown" ? "?"
+      : st === "off" ? "Off" : canDim && node.level != null ? `${node.level}%` : "On";
     const sub = kids
       ? `${litCount(node).lit} of ${litCount(node).total} lit${p.onOffOnly.length ? ` · ${p.onOffOnly.length} on/off only` : ""}`
-      : !node.dimmable && !node.missing ? "on/off only" : "";
+      : !node.dimmable && !node.missing ? "On/off only" : "";
     const lvl = st === "on" ? (canDim && node.level != null ? node.level : 100) : 0;
     const lit = node.rgb ? `rgb(${node.rgb.join(",")})` : "var(--accent-color, #ff9900)";
     return `<div class="row st-${st} ${canDim ? "dim" : "flat"}" role="treeitem" style="--depth:${depth}"

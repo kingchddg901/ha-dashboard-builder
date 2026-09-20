@@ -97,9 +97,9 @@ export function sourceState(record) {
  * guessed - the same rule as the source picker, in the smallest shape.
  */
 export function tvSummary(c) {
-  if (!c?.available) return "unavailable";
-  if (!c.on) return "off";
-  const parts = [c.power.confirmed ? "on" : "on (assumed)"];
+  if (!c?.available) return "Unavailable";
+  if (!c.on) return "Off";
+  const parts = [c.power.confirmed ? "On" : "On (assumed)"];
   if (c.source.kind === "exact") parts.push(c.source.current);
   if (c.volume.confirmed) parts.push(c.volume.muted ? `${c.volume.level}% muted` : `${c.volume.level}%`);
   return parts.join(" · ");

@@ -59,6 +59,20 @@ const swatchOf = (a) => a.mode === "color" && a.hs
 const esc = (v) => String(v).replace(/[&<>"]/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
+/**
+ * Who decided how many speeds there are, in words - except `percentage_step`,
+ * which stays spelled exactly as Home Assistant spells it. It is the name of
+ * the attribute the integration reported, so it is an identifier a reader can
+ * go and look up; prettifying it to "Percentage step" would send them hunting
+ * for something that does not exist. The other two are our own words, not HA's,
+ * so they are written as words.
+ */
+const SPEED_SOURCE = Object.freeze({
+  declared: "you set this",
+  percentage_step: "from percentage_step",
+  none: "no step reported",
+});
+
 class ApplianceCard extends HTMLElement {
   constructor() {
     super();
@@ -314,9 +328,9 @@ class ApplianceCard extends HTMLElement {
           <div class="txt">
             <div class="name">Fan ${on ? "on" : "off"}</div>
             <div class="sub">${speed.kind === "notches"
-        ? `speed ${speed.index || "—"} of ${speed.count}${on ? "" : " · resumes here"}`
+        ? `Speed ${speed.index || "—"} of ${speed.count}${on ? "" : " · resumes here"}`
         : `${speed.current ?? "—"}%`}
-              <span class="src">${esc(speed.source)}</span>
+              <span class="src">${esc(SPEED_SOURCE[speed.source] || speed.source)}</span>
             </div>
             ${dir ? `<button class="dir">${dir === "reverse" ? "↑ pull warm air up" : "↓ push cool air down"}</button>` : ""}
           </div>

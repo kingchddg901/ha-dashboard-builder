@@ -51,6 +51,9 @@ test("a declared entity that is missing makes the row unavailable, and says so",
 
 test("a TV row is the TV core's summary", () => {
   const s = RENDERERS.tv.summary(hass, { media_player: "media_player.big_tv_2" });
-  assert.equal(s.text, "off");
+  // `text` is read by a person and is sentence case; `state` is a marker the
+  // row styles itself with, and stays a lower-case token. RED IF they are
+  // conflated - capitalising the marker would silently drop the row's styling.
+  assert.equal(s.text, "Off");
   assert.equal(s.state, "off");
 });

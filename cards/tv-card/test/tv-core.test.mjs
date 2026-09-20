@@ -91,16 +91,16 @@ test("an unavailable set is flagged, not treated as off", () => {
 
 // RED IF: an ambiguous source is put in the glance as though it were known.
 test("the TV's glance leaves out a source it cannot name", () => {
-  assert.equal(tvSummary(tvControls(onRecord)), "on · 22%");
+  assert.equal(tvSummary(tvControls(onRecord)), "On · 22%");
   const hdmi = { ...onRecord, raw: { ...onRecord.raw, source: "HDMI" } };
-  assert.equal(tvSummary(tvControls(hdmi)), "on · HDMI · 22%");
+  assert.equal(tvSummary(tvControls(hdmi)), "On · HDMI · 22%");
 });
 
 test("the TV's glance says muted, off and unavailable plainly", () => {
   const muted = { ...onRecord, raw: { ...onRecord.raw, is_volume_muted: true } };
-  assert.equal(tvSummary(tvControls(muted)), "on · 22% muted");
-  assert.equal(tvSummary(tvControls(offRecord)), "off");
-  assert.equal(tvSummary(tvControls({ state: "unavailable", raw: {} })), "unavailable");
+  assert.equal(tvSummary(tvControls(muted)), "On · 22% muted");
+  assert.equal(tvSummary(tvControls(offRecord)), "Off");
+  assert.equal(tvSummary(tvControls({ state: "unavailable", raw: {} })), "Unavailable");
 });
 
 /* ------------------------------------------------------------- android tv */
@@ -135,14 +135,14 @@ test("Android TV's assumed_state covers playback, not power", () => {
   assert.equal(c.transport.confirmed, false);
   assert.equal(c.volume.level, 72);
   assert.equal(c.volume.confirmed, true);
-  assert.equal(tvSummary(c), "on · 72%");
+  assert.equal(tvSummary(c), "On · 72%");
 });
 
 // RED IF: an unknown platform's assumed_state is trusted as observed.
 test("elsewhere, assumed_state is read conservatively", () => {
   const c = tvControls({ ...android, platform: "some_ir_blaster" });
   assert.equal(c.power.confirmed, false);
-  assert.equal(tvSummary(c), "on (assumed) · 72%");
+  assert.equal(tvSummary(c), "On (assumed) · 72%");
 });
 
 test("Android TV offers volume steps but no source picker, and names its app", () => {

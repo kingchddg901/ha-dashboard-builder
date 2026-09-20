@@ -210,7 +210,7 @@ class TvCard extends HTMLElement {
           ${f.n == null ? "disabled" : ""} aria-label="Tune ${esc(f.name)}${f.n == null ? " (not in the lineup)" : ` (${f.n})`}">
           <span class="fno">${f.n ?? "—"}</span><span class="fnm">${esc(f.name)}</span></button>`).join("")}
     </div>
-    <div class="srcline">${this._favSending ? `sending ${esc(this._favSending)} · the set doesn't confirm channel changes` : ""}</div>`;
+    <div class="srcline">${this._favSending ? `Sending ${esc(this._favSending)} · the set doesn't confirm channel changes` : ""}</div>`;
   }
 
   _render() {
@@ -232,14 +232,14 @@ class TvCard extends HTMLElement {
     if (sig === this._sig) return;
     this._sig = sig;
 
-    const stateWord = !c.available ? "unavailable" : !c.on ? "off"
-      : c.power.confirmed ? "on" : "on (assumed)";
+    const stateWord = !c.available ? "Unavailable" : !c.on ? "Off"
+      : c.power.confirmed ? "On" : "On (assumed)";
     const src = c.source;
     const srcLine = !c.on ? "" : src.kind === "exact" ? src.current
       : src.kind === "ambiguous" ? `${esc(src.list.join(" or "))} - the set can't say which` : "";
     // No source picker (Android TV has none): say which app is running instead,
     // as the package id it really is - HA gives no display name for it.
-    const appLine = c.on && !c.source.canSelect && c.app ? `running ${esc(c.app)}` : "";
+    const appLine = c.on && !c.source.canSelect && c.app ? `Running ${esc(c.app)}` : "";
 
     // Built once, so the guide's pop-up survives every repaint of the card.
     if (!this.shadowRoot.querySelector(".content")) {
@@ -294,12 +294,12 @@ class TvCard extends HTMLElement {
               <span></span><button class="k" data-k="DOWN" aria-label="Down">▼</button><span></span>
             </div>
             <div class="navrow">
-              <button class="k small" data-k="BACK">back</button>
-              <button class="k small" data-k="HOME">home</button>
-              <button class="k small" data-k="MENU">menu</button>
-              <button class="k small" data-k="GUIDE">guide</button>
+              <button class="k small" data-k="BACK">Back</button>
+              <button class="k small" data-k="HOME">Home</button>
+              <button class="k small" data-k="MENU">Menu</button>
+              <button class="k small" data-k="GUIDE">Guide</button>
             </div>
-            <div class="sent">${this._lastKey ? `sent ${esc(this._lastKey)} <span class="dim">· the set doesn't confirm keys</span>` : "&nbsp;"}</div>
+            <div class="sent">${this._lastKey ? `Sent ${esc(this._lastKey)} <span class="dim">· the set doesn't confirm keys</span>` : "&nbsp;"}</div>
           </div>` : ""}
         </div>
       </ha-card>`;
