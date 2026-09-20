@@ -129,7 +129,10 @@ const COCKPIT = `
     box-shadow: var(--db-plate-edge);
     clip-path: polygon(calc(var(--db-c) - .6px) 0, 100% 0, 100% calc(100% - var(--db-c) + .6px),
       calc(100% - var(--db-c) + .6px) 100%, 0 100%, 0 calc(var(--db-c) - .6px)); }
-  :host([data-frame="cockpit"]) .tile > * { position: relative; z-index: 1; }
+  /* Content sits above the plate the tile draws in ::before. NOT the wear
+     layer, which belongs under the content and over the plate - without the
+     exclusion this rule lifted it to z-index 1 and it covered the tile. */
+  :host([data-frame="cockpit"]) .tile > *:not(.tile-wear) { position: relative; z-index: 1; }
   :host([data-frame="cockpit"]) .tile > .resize { position: absolute; }
   :host([data-frame="cockpit"]) .editing .tile { background: var(--db-edit); }
   :host([data-frame="cockpit"]) .tile-bar { font-size: 11px; letter-spacing: .14em; padding-left: calc(var(--db-c) + 4px);

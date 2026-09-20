@@ -47,6 +47,7 @@ import { sentence } from "../cards/readings-card/readings-core.js";
 import { upgradeProperties } from "./upgrade-props.js";
 import { FRAME_STYLES } from "./frame-styles.js";
 import { FRAMES } from "./panel-tokens.js";
+import { materialArt, maskUri, cropOffset, LOOK } from "./material-art.js";
 import {
   readLibrary, listThemes, saveAs, updateTheme, removeTheme, exportTheme, ingestTheme, fileNameFor, emptyLibrary, USER_PREFIX,
 } from "./theme-library.js";
@@ -73,6 +74,15 @@ const GAP = 8;
 const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+/** What each process is tinted when nothing has chosen a colour for it. */
+const WEAR_TINTS = Object.freeze({ rust: "#8a4622", soot: "#120e0c", heat: "#4a3a52", bare: "#b9b3ab" });
+
+/** A tile's id as a number, so its scars follow the tile and not its place on the grid. */
+const hashSeed = (id) => {
+  let h = 0x811c9dc5;
+  for (const ch of String(id)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 0x01000193) >>> 0; }
+  return h % 100000;
+};
 const store = {
   get(k) { try { return window.localStorage.getItem(k); } catch { return null; } },
   set(k, v) { try { window.localStorage.setItem(k, v); } catch { /* private window - fine */ } },
@@ -310,6 +320,46 @@ class DashboardBuilderPanel extends HTMLElement {
     for (const [k, v] of Object.entries(vars)) this.style.setProperty(k, v);
     this._themeSet = Object.keys(vars);
     this.setAttribute("data-frame", activeFrame(this._base, this._overrides));
+  }
+
+  /**
+   * This tile's weathering, as a stack of tinted masks.
+   *
+   * Seeded by the tile's ID, never its position - a tile carries its scars
+   * when you move it. The whole ship re-rolls only if the theme's history
+   * changes, which is why the cache key holds both.
+   */
+  _wearHtml(tile) {
+    const v = { ...this._base, ...(this._overrides || {}) };
+    const history = v["wear-history"] || "none";
+    if (history === "none") return "";
+    const key = `${tile.id}|${history}|${v["wear-density"]}|${v["wear-progress"]}|${v["greeble-density"]}`;
+    this._wearCache = this._wearCache || new Map();
+    if (!this._wearCache.has(key)) {
+      const seed = hashSeed(tile.id);
+      const art = materialArt({ history, seed,
+        hardware: Number(v["greeble-density"] ?? 60) / 100,
+        wearDensity: Number(v["wear-density"] ?? 0.4),
+        wearProgress: Number(v["wear-progress"] ?? 0.4),
+        gravity: 90 });
+      const spans = art.layers.map((l) => {
+        const uri = maskUri(l.mask, { seed: seed + l.process.length });
+        if (!uri) return "";
+        // Every tint carries its own fallback: paintVars only writes a token
+        // that a theme, a preset or a frame actually chose, so an untouched
+        // colour resolves to NOTHING and the layer paints transparent.
+        const tint = `var(--db-wear-${l.tint}, ${WEAR_TINTS[l.tint]})`;
+        const inner = `<span class="wear-layer" style="background:${tint};`
+          + `-webkit-mask-image:url(${uri});mask-image:url(${uri});`
+          + `mix-blend-mode:${l.blend};opacity:${l.opacity}"></span>`;
+        // Blur goes on a WRAPPER: CSS runs filter before mask, so blurring the
+        // span itself would blur the flat tint and then hard-clip it.
+        return l.blur ? `<span class="wear-blur" style="filter:blur(${l.blur}px)">${inner}</span>` : inner;
+      }).join("");
+      this._wearCache.set(key, spans
+        ? `<div class="tile-wear" style="--wear-crop:${cropOffset(seed)}">${spans}</div>` : "");
+    }
+    return this._wearCache.get(key);
   }
 
   /** A theme's values by the name the theme key stores: built in, or "user:<id>" from your library. */
@@ -825,6 +875,7 @@ class DashboardBuilderPanel extends HTMLElement {
         const bar = this._edit || (r && r.html) || !r;
         return `<section class="tile ${bar ? "has-bar" : ""}" data-id="${esc(t.id)}"
             style="grid-column:${t.x + 1} / span ${t.w}; grid-row:${t.y + 1} / span ${t.h}">
+          ${this._wearHtml(t)}
           ${bar ? `<div class="tile-bar"><span class="tile-title">${esc(t.title || t.id)}</span>
             ${this._edit ? `<button class="grab" aria-label="Move ${esc(t.title)}">Move</button>
               <select class="to-tab" aria-label="Send to another tab">
@@ -1314,6 +1365,23 @@ const STYLE = `
           border: 1px solid var(--db-border); box-shadow: var(--db-shadow);
           border-radius: var(--db-radius-start) var(--db-radius) var(--db-radius) var(--db-radius-start);
           overflow: hidden; background: var(--db-surface); }
+  /* What happened to this plate (material-art.js). A positioned layer under
+     positioned content - NOT z-index:-1, which would put it behind the tile's
+     own background and only work while some ancestor happens to make a
+     stacking context. Nothing here needs to slide between the tile and its
+     fill, so nothing here needs that trick. */
+  .tile-wear { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+               border-radius: inherit; }
+  .tile-wear .wear-blur { position: absolute; inset: 0; }
+  .tile-wear .wear-layer { position: absolute; inset: 0;
+    mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;
+    /* cover, never stretch: a wide tile crops its damage instead of pulling
+       round blooms into ellipses. The crop starts where this tile's seed says,
+       so twelve tiles are not one tile twelve times. */
+    mask-size: cover; -webkit-mask-size: cover;
+    mask-position: var(--wear-crop, center); -webkit-mask-position: var(--wear-crop, center);
+    mask-mode: luminance; -webkit-mask-source-type: luminance; }
+  .tile-bar, .tile-body { position: relative; z-index: 1; }
   .tile-bar { display: flex; align-items: center; gap: 6px; padding: 4px 6px 4px 10px; flex: none;
               background: var(--db-tile-bar); color: var(--db-tile-bar-text); text-transform: uppercase;
               letter-spacing: .05em; font-size: 13px; }

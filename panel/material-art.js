@@ -49,7 +49,10 @@ const field = () => new Float64Array(GRID * GRID);
 /* --------------------------------------------------------------- noise */
 
 /** Value noise from a seeded stream: a coarse lattice, smoothed, a few octaves. */
-export function noiseField(r, { octaves = 3, cells = 4 } = {}) {
+export function noiseField(r, { octaves = 3, cells = 4, size = GRID } = {}) {
+  const GRID = size;                        // shadowed on purpose: the same lattice at any scale
+  const idx = (x, y) => y * GRID + x;
+  const field = () => new Float64Array(GRID * GRID);
   const out = field();
   let amp = 1;
   let total = 0;
@@ -355,6 +358,63 @@ export function composite(layers) {
     for (let i = 0; i < out.length; i++) out[i] = clamp01(out[i] + l.mask[i] * l.opacity);
   }
   return out;
+}
+
+/**
+ * A field as a mask image the browser can use.
+ *
+ * White reveals, black hides, so the field IS the alpha of a luminance mask.
+ * Drawn on a canvas because a field is pixels; the greebles are SVG because
+ * they are shapes. In Node there is no canvas and no painting to do, so this
+ * returns null and the tests stay on the fields, where the logic is.
+ */
+export function maskUri(mask, { size = 256, seed = 1, detail = 0.85 } = {}) {
+  if (typeof document === "undefined" || !document.createElement) return null;
+  const c = document.createElement("canvas");
+  c.width = size;
+  c.height = size;
+  const ctx = c.getContext("2d");
+  if (!ctx) return null;
+  // The history runs on a coarse field because that is all the physics needs.
+  // Painting it straight would stretch 64 cells over a 350px tile, and every
+  // bloom edge becomes a soft gradient - airbrushed cloud, not corrosion. So
+  // the field is upsampled and multiplied by FINE noise at paint scale, which
+  // is where the crust, the islands and the pitting actually live.
+  const fine = noiseField(seeded(seed + 31337), { cells: 16, octaves: 4, size });
+  const img = ctx.createImageData(size, size);
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const fx = (x / size) * (GRID - 1);
+      const fy = (y / size) * (GRID - 1);
+      const x0 = Math.floor(fx);
+      const y0 = Math.floor(fy);
+      const tx = fx - x0;
+      const ty = fy - y0;
+      const a = mask[y0 * GRID + x0];
+      const b = mask[y0 * GRID + Math.min(GRID - 1, x0 + 1)];
+      const cc = mask[Math.min(GRID - 1, y0 + 1) * GRID + x0];
+      const d = mask[Math.min(GRID - 1, y0 + 1) * GRID + Math.min(GRID - 1, x0 + 1)];
+      const base = (a + (b - a) * tx) + ((cc + (d - cc) * tx) - (a + (b - a) * tx)) * ty;
+      const n = fine[y * size + x];
+      // Crust: the detail eats into the edge, so a bloom breaks up where it is
+      // thin and stays solid where it is deep.
+      const v = clamp01(base * (1 - detail + detail * 2 * n) - (1 - base) * 0.15);
+      const px = (y * size + x) * 4;
+      const g = Math.round(v * 255);
+      img.data[px] = g;
+      img.data[px + 1] = g;
+      img.data[px + 2] = g;
+      img.data[px + 3] = 255;
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+  return c.toDataURL("image/png");
+}
+
+/** Where this plate's crop of its masks starts - so twelve tiles are not one tile twelve times. */
+export function cropOffset(seed) {
+  const r = seeded(seed + 104729);
+  return `${Math.round(r() * 100)}% ${Math.round(r() * 100)}%`;
 }
 
 /** Box-blur a field by `cells`, then the range of what is left. */

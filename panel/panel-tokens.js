@@ -90,6 +90,33 @@ export const PANEL_GROUPS = [
     ],
   },
   {
+    /*
+     * What happened to this surface. The history is ORDERED events (see
+     * material-art.js) - the theme picks a named one, and a storyboard editor
+     * could later feed the same generator an arbitrary list without changing
+     * a token. Coverage and severity are separate because "three deep blooms"
+     * and "a light speckle everywhere" are different plates.
+     */
+    id: "panel-wear",
+    label: "Wear",
+    tokens: [
+      { key: "wear-history", type: "select", cssVar: "--db-wear-history", default: "none",
+        options: [
+          { value: "none", label: "Factory fresh" },
+          { value: "hangar-queen", label: "Hangar queen" },
+          { value: "engine-room", label: "Engine room" },
+          { value: "battle-scarred", label: "Battle scarred" },
+        ], label: "History" },
+      { key: "wear-density", type: "number", min: 0, max: 1, step: 0.05, cssVar: "--db-wear-density",
+        default: 0.4, label: "How much corroded" },
+      { key: "wear-progress", type: "number", min: 0, max: 1, step: 0.05, cssVar: "--db-wear-progress",
+        default: 0.4, label: "How far it got" },
+      { key: "wear-rust", type: "color", cssVar: "--db-wear-rust", default: "#8a4622", label: "Corrosion" },
+      { key: "wear-soot", type: "color", cssVar: "--db-wear-soot", default: "#120e0c", label: "Soot" },
+      { key: "wear-heat", type: "color", cssVar: "--db-wear-heat", default: "#4a3a52", label: "Heat stain" },
+    ],
+  },
+  {
     /* One light for everything a frame draws as lit - greebles, plate bevels,
        key bevels - so nothing is lit from two directions at once. */
     id: "panel-light", label: "Light", tokens: [

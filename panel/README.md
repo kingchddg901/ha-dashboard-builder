@@ -239,6 +239,43 @@ in edit mode: a few small buttons' corners grow by 0–2.5px and become full pil
 black, burnt-oxide markings and mustard for caution. Its colours come from VA's theme, made opaque
 where VA layers them at low alpha. It picks the cockpit frame.
 
+### Wear — what happened to this plate
+
+A surface is four separable things: **geometry** (what hardware exists — the greebles), **material**
+(what it is made of), **history** (what happened to it, in order) and **lighting** (how we see it).
+The first and last were already here; `material-art.js` is the history.
+
+It is an *ordered list of events*, because the order is the story. Heat then impact then rust is a
+different plate from impact then heat then rust: the strike takes the coating off, so a later
+oxidation event finds bare metal to start on, and a later heat event cooks steel where it would
+otherwise have discoloured paint. Each event reads the surface the ones before it left — `exposed`,
+`heated`, `damaged`, as coarse fields — and writes what it leaves behind. Those fields never leave
+the generator: CSS composites for display and never hands back an intermediate, so the history runs
+where the intermediates are just arrays, and only the per-event masks come out.
+
+Three questions, three controls, because one slider cannot answer them:
+
+| token | the question |
+|---|---|
+| `greeble-density` | how much hardware exists |
+| `wear-density` | how much of it corroded |
+| `wear-progress` | how far each one got |
+
+Hardware is a fixed slot set that density keeps a share of, so turning it down and back up returns
+the same fittings — and the wear hanging off them returns too, instead of drifting somewhere a bolt
+has never been. Seeds are per plate **and per event**, so adding a fifth event never re-rolls the
+first four, and a tile is seeded by its **id**, never its position, so it carries its scars when you
+move it. Coordinates are normalized and the mask is painted `cover`, so a tile that resizes re-crops
+its damage rather than stretching round blooms into ellipses.
+
+The history runs on a coarse field because that is all it needs; the mask is then upsampled and
+multiplied by fine noise at paint scale, which is where the crust and the pitting live. Painted
+straight, 64 cells over a 350px tile is an airbrushed cloud.
+
+The gate is legibility, not swing: `legibilityRange` blurs the composite to the size of a letter
+first, because a thin bright vein is dramatic and harmless while a broad mottle at the same swing
+eats a glyph.
+
 ### The tile shows through the card
 
 Inside a tile or a sheet, `--ha-card-background` is transparent. So the tile's surface, and the
