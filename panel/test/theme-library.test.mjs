@@ -92,6 +92,23 @@ test("an import never claims to be built in, and a name clash is marked", () => 
   assert.ok(!("author_url" in got.theme), "only http(s) links survive");
 });
 
+// RED IF: a colour's alpha is dropped instead of composed. This is the bug
+// Vacuum Agent hit from the other side: `#ffffff14` is a faint wash in the
+// theme it came from, and dropping the alpha makes it SOLID WHITE here - a
+// surface that reads as a rendering fault rather than an import one. The panel
+// paints flat tokens and its contrast checks parse no alpha, so the colour is
+// composed over the theme's own background and reported as changed.
+test("an imported colour with alpha is composed over the theme's background", () => {
+  const got = ingestTheme({
+    theme: { name: "Wash", tokens: { background: "#000000", "tile-surface": "#ffffff14",
+      "ui-accent": "rgba(255,0,0,0.5)", "tile-border": "#ffffff" } },
+  }, { tokens: THEME_TOKENS });
+  assert.equal(got.theme.tokens["tile-surface"], "#141414", "8% white over this theme's own black");
+  assert.equal(got.theme.tokens["ui-accent"], "#800000");
+  assert.equal(got.theme.tokens["tile-border"], "#ffffff", "a solid colour is untouched");
+  assert.deepEqual(got.clamped, ["tile-surface", "ui-accent"], "and the reader is told which changed");
+});
+
 // RED IF: a Vacuum Agent export is half-imported - its --evcc-* keys mean
 // nothing here, so it must be refused whole, saying why.
 test("a VA theme export is refused as nothing usable", () => {

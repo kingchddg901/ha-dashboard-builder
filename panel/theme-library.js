@@ -22,6 +22,7 @@
  */
 
 import { parseColor } from "./theme-core.js";
+import { flatten, alphaOf } from "./va-theme.js";
 
 export const EXPORT_KIND = "dashboard-builder-theme";
 export const EXPORT_VERSION = 1;
@@ -97,11 +98,22 @@ export function exportTheme({ name, tokens, source = "manual", author, author_ur
   return { ok: true, kind: EXPORT_KIND, version: EXPORT_VERSION, exported_at: now.toISOString(), theme };
 }
 
-/** One value through the gate for its token: [value, "ok" | "clamped"] or null to drop it. */
-function admit(decl, value) {
+/**
+ * One value through the gate for its token: [value, "ok" | "clamped"] or null.
+ *
+ * A colour is stored flat, so one that arrives with alpha is COMPOSED over the
+ * theme's own background rather than having its alpha dropped. Dropping it was
+ * the old behaviour and it is worse than it sounds: `#ffffff14`, a faint wash
+ * in whoever's theme this is, arrived here as SOLID WHITE. Vacuum Agent hit the
+ * same thing from the other side and bakes the alpha into the hex instead; this
+ * panel paints solid tokens and checks their contrast with a parser that has no
+ * alpha, so composing is the form that keeps those checks honest.
+ */
+function admit(decl, value, over) {
   if (decl.type === "color") {
-    const c = typeof value === "string" ? parseColor(value) : null;
-    return c ? [hex(c), "ok"] : null;
+    if (typeof value !== "string") return null;
+    const flat = flatten(value, undefined, over || "#000000");
+    return flat ? [flat, alphaOf(value) < 1 ? "clamped" : "ok"] : null;
   }
   if (decl.type === "number" || decl.type === "size") {
     const n = typeof value === "number" ? value : typeof value === "string" && value.trim() ? Number(value) : NaN;
@@ -141,9 +153,11 @@ export function ingestTheme(payload, { tokens, names = [] } = {}) {
   const clean = {};
   const dropped = [];
   const clamped = [];
+  // What a translucent colour is composed over: the theme's own ground.
+  const over = typeof src.tokens.background === "string" ? src.tokens.background : "#000000";
   for (const [key, value] of Object.entries(src.tokens)) {
     const decl = byKey.get(key);
-    const got = decl ? admit(decl, value) : null;
+    const got = decl ? admit(decl, value, over) : null;
     if (!got) { dropped.push(key); continue; }
     clean[key] = got[0];
     if (got[1] === "clamped") clamped.push(key);

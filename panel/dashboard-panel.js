@@ -53,6 +53,7 @@ import {
 import {
   DEVICE_KEY, DEVICE_TOKENS_KEY, accountPick, readPick, writePick, resolveTheme, isLocked, readDraft, writeDraft,
 } from "./device-theme.js";
+import { readVaTheme } from "./va-theme.js";
 
 /** What a card dispatches to ask the panel to host its modal (see `_onModalAsk`). */
 const MODAL_EVENT = "db-open-modal";
@@ -480,6 +481,13 @@ class DashboardBuilderPanel extends HTMLElement {
   async _addImported(text) {
     const names = [...listThemes(this._library).map((t) => t.name), ...Object.keys(PRESETS)];
     const got = ingestTheme(text, { tokens: THEME_TOKENS, names });
+    // A Vacuum Agent theme speaks another vocabulary, so the gate above refuses
+    // it whole - rightly, it cannot be half-imported. It CAN be read, though:
+    // the colours cross, the frame does not. See va-theme.js.
+    if (!got.ok && ["wrong_kind", "nothing_usable", "invalid_tokens"].includes(got.reason)) {
+      const va = readVaTheme(text, { tokens: THEME_TOKENS });
+      if (va.ok) return this._addVaTheme(va);
+    }
     if (!got.ok) {
       const why = { not_json: "that isn't JSON", invalid_payload: "that isn't a theme", wrong_kind: "that is another program's theme",
         missing_name: "the theme has no name", invalid_tokens: "the theme has no settings",
@@ -493,6 +501,16 @@ class DashboardBuilderPanel extends HTMLElement {
     const notes = [got.dropped.length ? `${got.dropped.length} setting(s) left out: ${got.dropped.join(", ")}` : "",
       got.clamped.length ? `brought into range: ${got.clamped.join(", ")}` : ""].filter(Boolean).join("; ");
     this._libDone(`Imported "${got.theme.name}" into your themes${notes ? ` - ${notes}` : ""}.`);
+  }
+
+  /** A theme read from Vacuum Agent: saved like any other, with what it left behind. */
+  async _addVaTheme(va) {
+    const { lib } = saveAs(this._library, { ...va.theme, source: "community" }, { alsoTaken: Object.keys(PRESETS) });
+    if (!(await this._saveLibrary(lib))) return;
+    const notes = [`${va.landed.length} setting(s) read`,
+      va.flattened.length ? `${va.flattened.length} flattened onto the background` : "",
+      va.leftBehind.length ? `${va.leftBehind.length} left behind (Vacuum Agent's own)` : ""].filter(Boolean).join("; ");
+    this._libDone(`Read "${va.theme.name}" from Vacuum Agent - ${notes}. Its frame is this panel's, not the theme's.`);
   }
 
   _wireThemeLibrary() {
