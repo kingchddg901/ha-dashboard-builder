@@ -331,14 +331,23 @@ const PROCESS = {
 };
 
 /** How each process is drawn: the tint it wears, how it sits on what is under it. */
+/*
+ * Where each mark's colour comes FROM, not just what it is. Bare metal is a
+ * property of the SUBSTRATE - steel, aluminium and brass do not look the same
+ * where a strike opens them, and an impact should never decide that. Scale is
+ * a property of the AGENT - oxidation scale is not sulphur scale is not salt
+ * crust, even when they share a shape. Only the process controls (how much, how
+ * far) belong to "wear"; giving wear the colours too would make it the drawer
+ * everything gets tipped into.
+ */
 export const LOOK = Object.freeze({
-  heat: { tint: "heat", blend: "multiply", opacity: 0.55, blur: 2 },
-  impact: { tint: "bare", blend: "normal", opacity: 0.9, blur: 0, detail: 0.3 },
-  oxidation: { tint: "rust", blend: "normal", opacity: 0.8, blur: 0.5 },
+  heat: { tint: "heat-stain", blend: "multiply", opacity: 0.55, blur: 2 },
+  impact: { tint: "substrate-exposed", blend: "normal", opacity: 0.9, blur: 0, detail: 0.3 },
+  oxidation: { tint: "oxidation-clean", blend: "normal", opacity: 0.8, blur: 0.5 },
   // Scale is the crust at a seam: darker, harder, and NOT blurred - the hard
   // edge is the whole point of it against the soft blooms around it.
-  scale: { tint: "scale", blend: "normal", opacity: 0.95, blur: 0, detail: 0.95 },
-  soot: { tint: "soot", blend: "multiply", opacity: 0.7, blur: 1.5 },
+  scale: { tint: "oxidation-scale", blend: "normal", opacity: 0.95, blur: 0, detail: 0.95 },
+  soot: { tint: "soot-stain", blend: "multiply", opacity: 0.7, blur: 1.5 },
 });
 
 /* ------------------------------------------------------------ histories */

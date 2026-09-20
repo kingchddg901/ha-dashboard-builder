@@ -13,7 +13,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import {
-  materialArt, anchors, composite, legibilityRange, noiseField, HISTORIES, GRID,
+  materialArt, anchors, composite, legibilityRange, noiseField, HISTORIES, GRID, LOOK,
 } from "../material-art.js";
 import { seeded } from "../cockpit-art.js";
 
@@ -219,6 +219,25 @@ test("a seam makes scale, an edge does not", () => {
   const clean = maskOf(edge, "oxidation");
   const peak = (m) => m.reduce((a, b) => Math.max(a, b), 0);
   assert.ok(peak(scale) > peak(clean), `scale ${peak(scale).toFixed(2)} vs clean ${peak(clean).toFixed(2)}`);
+});
+
+// RED IF: a colour is owned by "wear" again. Bare metal belongs to the
+// SUBSTRATE - steel, aluminium and brass do not look the same where a strike
+// opens them - and scale belongs to the AGENT, because oxidation scale is not
+// sulphur scale even when they share a shape. Only how much and how far belong
+// to wear. Without this the wear namespace becomes the drawer every new colour
+// gets tipped into, and the decomposition quietly dies.
+test("every mark's colour is named for what owns it, not for wear", () => {
+  const owners = ["substrate-", "oxidation-", "soot-", "heat-"];
+  for (const [process, look] of Object.entries(LOOK)) {
+    assert.ok(look.tint, `${process} has a tint`);
+    assert.ok(!look.tint.startsWith("wear-"), `${process} takes its colour from wear-*: ${look.tint}`);
+    assert.ok(owners.some((o) => look.tint.startsWith(o)),
+      `${process}'s tint "${look.tint}" names no owner`);
+  }
+  // and the substrate's BASE is not duplicated here - the plate already wears
+  // it as tile-surface, and two names for one colour drift apart.
+  assert.ok(!Object.values(LOOK).some((l) => l.tint === "substrate-base"));
 });
 
 // RED IF: the legibility gate stops biting. This is the measure that decides

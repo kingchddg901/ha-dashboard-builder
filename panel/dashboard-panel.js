@@ -76,7 +76,10 @@ const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 /** What each process is tinted when nothing has chosen a colour for it. */
-const WEAR_TINTS = Object.freeze({ rust: "#8a4622", scale: "#5e2c12", soot: "#120e0c", heat: "#4a3a52", bare: "#b9b3ab" });
+const WEAR_TINTS = Object.freeze({
+  "substrate-exposed": "#b9b3ab", "oxidation-clean": "#8a4622", "oxidation-scale": "#5e2c12",
+  "soot-stain": "#120e0c", "heat-stain": "#4a3a52",
+});
 
 /** A tile's id as a number, so its scars follow the tile and not its place on the grid. */
 const hashSeed = (id) => {
@@ -373,7 +376,7 @@ class DashboardBuilderPanel extends HTMLElement {
         // Every tint carries its own fallback: paintVars only writes a token
         // that a theme, a preset or a frame actually chose, so an untouched
         // colour resolves to NOTHING and the layer paints transparent.
-        const tint = `var(--db-wear-${l.tint}, ${WEAR_TINTS[l.tint]})`;
+        const tint = `var(--db-${l.tint}, ${WEAR_TINTS[l.tint]})`;
         const inner = `<span class="wear-layer" style="background:${tint};`
           + `-webkit-mask-image:url(${uri});mask-image:url(${uri});`
           + `mix-blend-mode:${l.blend};opacity:${l.opacity}"></span>`;

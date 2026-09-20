@@ -111,11 +111,20 @@ export const PANEL_GROUPS = [
         default: 0.4, label: "How much corroded" },
       { key: "wear-progress", type: "number", min: 0, max: 1, step: 0.05, cssVar: "--db-wear-progress",
         default: 0.4, label: "How far it got" },
-      { key: "wear-rust", type: "color", cssVar: "--db-wear-rust", default: "#8a4622", label: "Corrosion" },
-      { key: "wear-scale", type: "color", cssVar: "--db-wear-scale", default: "#5e2c12", label: "Scale at seams" },
-      { key: "wear-bare", type: "color", cssVar: "--db-wear-bare", default: "#b9b3ab", label: "Bare metal" },
-      { key: "wear-soot", type: "color", cssVar: "--db-wear-soot", default: "#120e0c", label: "Soot" },
-      { key: "wear-heat", type: "color", cssVar: "--db-wear-heat", default: "#4a3a52", label: "Heat stain" },
+      /* The colours belong to what they describe, not to "wear". Bare metal is
+         the SUBSTRATE showing through - steel, aluminium and brass differ, and
+         an impact must not decide it. Scale belongs to the AGENT: oxidation
+         scale is not sulphur scale, even sharing a shape. The substrate's BASE
+         colour is not repeated here - that is `tile-surface`, which the plate
+         already wears. */
+      { key: "substrate-exposed", type: "color", cssVar: "--db-substrate-exposed", default: "#b9b3ab",
+        label: "Substrate, exposed" },
+      { key: "oxidation-clean", type: "color", cssVar: "--db-oxidation-clean", default: "#8a4622",
+        label: "Oxidation" },
+      { key: "oxidation-scale", type: "color", cssVar: "--db-oxidation-scale", default: "#5e2c12",
+        label: "Oxidation scale" },
+      { key: "soot-stain", type: "color", cssVar: "--db-soot-stain", default: "#120e0c", label: "Soot" },
+      { key: "heat-stain", type: "color", cssVar: "--db-heat-stain", default: "#4a3a52", label: "Heat stain" },
     ],
   },
   {
