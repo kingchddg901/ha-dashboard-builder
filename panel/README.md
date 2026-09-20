@@ -261,10 +261,15 @@ Both are per HA user: the starting theme under `dashboard_builder.theme`, your c
 
 ### Two people, one account
 
-Per HA user is not per person when a household shares one login: a theme picked on the phone
-lands on the wall tablet too. **Only on this device** (in the theme tab's button row) keeps this
-browser's look to itself. The other devices keep showing the shared theme, which the gallery marks
-`shared` so it is still visible from a locked browser.
+Per HA user is not per person when a household shares one login: a theme picked on the phone lands
+on the wall tablet too. The theme tab's button row starts with the scope this browser is using —
+**Shared** or **This device** — and the gallery's hint says which one a tap will change. Pick
+**This device** and this browser keeps its own look; the others carry on with the shared theme,
+which the gallery marks `shared` so it stays visible from a locked browser.
+
+The scope is a switch rather than a button you press afterwards, and that is the whole point: as
+"Only on this device", choosing a theme first had already changed it for everyone, and the lock
+then pinned a decision that had leaked. Answer the scope question first and the trap is gone.
 
 While a browser is locked, picking a theme changes that browser and nothing else, and your token
 changes go to its own draft — the shared draft is left exactly as it is for whoever is still

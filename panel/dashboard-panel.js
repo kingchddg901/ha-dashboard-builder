@@ -386,6 +386,9 @@ class DashboardBuilderPanel extends HTMLElement {
       <div class="lib-actions">${this._libActionsInner()}</div>
       ${panel}
       ${L.msg ? `<div class="lib-msg">${esc(L.msg)}</div>` : ""}
+      <span class="hint">${isLocked(this._pick)
+        ? "<b>This device</b> is picked, so choosing a theme below changes this browser and nothing else."
+        : "<b>Shared</b> is picked, so choosing a theme below changes it for everyone on this Home Assistant account."}</span>
       <span class="hint">Pick a theme to use it whole - frame, colours and all. What you change below is a draft on top of
         it: <b>Save</b> keeps it in your own theme, <b>Save as new</b> makes a theme of it, <b>Discard</b> drops it.
         Export and Download give the theme as a file to share; Import and Upload add one to your themes.
@@ -405,8 +408,17 @@ class DashboardBuilderPanel extends HTMLElement {
       ? `<span class="lib-draft">On this device only: ${esc(active)}${draft ? ", edited" : ""}</span>`
       : draft ? `<span class="lib-draft">Unsaved changes to ${esc(active)}</span>`
         : `<span class="lib-draft">Using ${esc(active)}</span>`;
+    /* The scope is a SWITCH, not an action on the theme you already picked.
+       As a single "Only on this device" button it read as something you press
+       after choosing - and choosing first had already changed the theme for
+       everyone on the account. Here the two scopes sit side by side with the
+       live one marked, so the question is answered before a theme is picked
+       and the gallery's hint says which one a tap will change. */
     return `${lead}
-      <button class="btn lib-lock">${locked ? "Share with the account" : "Only on this device"}</button>
+      <span class="lib-scope" role="group" aria-label="This theme applies to">
+        <button class="btn scope-shared${locked ? "" : " on"}" aria-pressed="${!locked}">Shared</button>
+        <button class="btn scope-device${locked ? " on" : ""}" aria-pressed="${locked}">This device</button>
+      </span>
       ${isUser && draft ? `<button class="btn lib-save">Save</button>` : ""}
       <button class="btn lib-saveas">Save as new</button>
       ${draft ? `<button class="btn lib-discard">Discard</button>` : ""}
@@ -510,7 +522,8 @@ class DashboardBuilderPanel extends HTMLElement {
   _wireLibActions() {
     const r = this.shadowRoot;
     const on = (sel, fn) => r.querySelector(`.lib-actions ${sel}`)?.addEventListener("click", fn);
-    on(".lib-lock", () => this._setLock(!isLocked(this._pick)));
+    on(".scope-shared", () => { if (isLocked(this._pick)) this._setLock(false); });
+    on(".scope-device", () => { if (!isLocked(this._pick)) this._setLock(true); });
     on(".lib-discard", () => { this._setOverrides({}); this._refreshTheme(); this._libDone("Changes discarded."); });
     on(".lib-save", async () => {
       const id = (this._theme || "").slice(USER_PREFIX.length);
@@ -1301,6 +1314,9 @@ const STYLE = `
   .btn { border: 0; border-radius: var(--db-ctl-r); padding: 6px 14px; cursor: pointer; font-size: 13px; text-transform: uppercase;
          letter-spacing: .04em; background: var(--db-tab); color: var(--db-tab-text); }
   .btn.reset { background: #000000; color: #ffffff; outline: 1px solid #ffffff; }
+  .lib-scope { display: inline-flex; gap: 2px; }
+  .lib-scope .btn { background: var(--db-tile-surface); color: var(--db-text); opacity: .8; }
+  .lib-scope .btn.on { background: var(--db-tab-active); color: var(--db-tab-active-text); opacity: 1; }
   .btn:disabled { opacity: .4; cursor: default; }
   .tab-move { display: inline-flex; gap: 6px; }
   .hint { opacity: .75; font-size: 12px; }
