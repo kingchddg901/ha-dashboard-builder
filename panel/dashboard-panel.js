@@ -329,14 +329,27 @@ class DashboardBuilderPanel extends HTMLElement {
    * when you move it. The whole ship re-rolls only if the theme's history
    * changes, which is why the cache key holds both.
    */
-  _wearHtml(tile) {
+  _wearHtml(tile) { return this._wearOn(tile.id, "tile-wear"); }
+
+  /**
+   * The frame's own chrome wears too.
+   *
+   * Without this the hull is factory fresh while every panel screwed to it is
+   * rusted - which is exactly the seam showing: wear hung off the tiles, and
+   * the greebles up on the glare shield are the hardware it should have been
+   * hanging off all along. Each surface has its own seed, so the bar and the
+   * elbow are not the same stain twice.
+   */
+  _chromeWear(name) { return this._wearOn(`chrome:${name}`, `chrome-wear ${name}-wear`); }
+
+  _wearOn(id, cls) {
     const v = { ...this._base, ...(this._overrides || {}) };
     const history = v["wear-history"] || "none";
     if (history === "none") return "";
-    const key = `${tile.id}|${history}|${v["wear-density"]}|${v["wear-progress"]}|${v["greeble-density"]}`;
+    const key = `${id}|${cls}|${history}|${v["wear-density"]}|${v["wear-progress"]}|${v["greeble-density"]}`;
     this._wearCache = this._wearCache || new Map();
     if (!this._wearCache.has(key)) {
-      const seed = hashSeed(tile.id);
+      const seed = hashSeed(id);
       const art = materialArt({ history, seed,
         hardware: Number(v["greeble-density"] ?? 60) / 100,
         wearDensity: Number(v["wear-density"] ?? 0.4),
@@ -357,7 +370,7 @@ class DashboardBuilderPanel extends HTMLElement {
         return l.blur ? `<span class="wear-blur" style="filter:blur(${l.blur}px)">${inner}</span>` : inner;
       }).join("");
       this._wearCache.set(key, spans
-        ? `<div class="tile-wear" style="--wear-crop:${cropOffset(seed)}">${spans}</div>` : "");
+        ? `<div class="${cls}" style="--wear-crop:${cropOffset(seed)}">${spans}</div>` : "");
     }
     return this._wearCache.get(key);
   }
@@ -781,13 +794,13 @@ class DashboardBuilderPanel extends HTMLElement {
     root.innerHTML = `
       <style>${STYLE}</style>
       <div class="shell ${phone ? "phone" : "desk"} ${this._edit ? "editing" : ""}">
-        <div class="elbow">${menu && !phone ? menuBtn : ""}</div>
+        <div class="elbow">${this._chromeWear("elbow")}${menu && !phone ? menuBtn : ""}</div>
         <header class="bar">
           ${menu && phone ? menuBtn : ""}
-          <div class="band"></div>
+          <div class="band">${this._chromeWear("band")}</div>
           ${this._clockHtml()}
           <h1 class="title">${esc(this._cardConfig?.title || this._panel?.config?.title || "House")}</h1>
-          <div class="cap"></div>
+          <div class="cap">${this._chromeWear("cap")}</div>
         </header>
         <nav class="rail" aria-label="Tabs">
           ${tabs.map((t) => { const on = t.id === tab.id && !this._themeOpen;
@@ -1370,10 +1383,16 @@ const STYLE = `
      own background and only work while some ancestor happens to make a
      stacking context. Nothing here needs to slide between the tile and its
      fill, so nothing here needs that trick. */
-  .tile-wear { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
-               border-radius: inherit; }
-  .tile-wear .wear-blur { position: absolute; inset: 0; }
-  .tile-wear .wear-layer { position: absolute; inset: 0;
+  .tile-wear, .chrome-wear { position: absolute; inset: 0; z-index: 0; pointer-events: none;
+               overflow: hidden; border-radius: inherit; }
+  .band, .cap { position: relative; }
+  /* A band is ten times wider than it is tall. Covering it would blow one
+     corner of the mask up to fill it, so the grime repeats at its own height
+     instead - the same cadence the greeble strip already repeats at. */
+  .chrome-wear .wear-layer { mask-size: auto 100%; -webkit-mask-size: auto 100%;
+    mask-repeat: repeat-x; -webkit-mask-repeat: repeat-x; }
+  .tile-wear .wear-blur, .chrome-wear .wear-blur { position: absolute; inset: 0; }
+  .tile-wear .wear-layer, .chrome-wear .wear-layer { position: absolute; inset: 0;
     mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;
     /* cover, never stretch: a wide tile crops its damage instead of pulling
        round blooms into ellipses. The crop starts where this tile's seed says,
