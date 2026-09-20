@@ -368,7 +368,7 @@ class DashboardBuilderPanel extends HTMLElement {
         wearProgress: Number(v["wear-progress"] ?? 0.4),
         gravity: 90 });
       const spans = art.layers.map((l) => {
-        const uri = maskUri(l.mask, { seed: seed + l.process.length });
+        const uri = maskUri(l.mask, { seed: seed + l.process.length, detail: l.detail ?? 0.85 });
         if (!uri) return "";
         // Every tint carries its own fallback: paintVars only writes a token
         // that a theme, a preset or a frame actually chose, so an untouched

@@ -112,6 +112,8 @@ export const PANEL_GROUPS = [
       { key: "wear-progress", type: "number", min: 0, max: 1, step: 0.05, cssVar: "--db-wear-progress",
         default: 0.4, label: "How far it got" },
       { key: "wear-rust", type: "color", cssVar: "--db-wear-rust", default: "#8a4622", label: "Corrosion" },
+      { key: "wear-scale", type: "color", cssVar: "--db-wear-scale", default: "#5e2c12", label: "Scale at seams" },
+      { key: "wear-bare", type: "color", cssVar: "--db-wear-bare", default: "#b9b3ab", label: "Bare metal" },
       { key: "wear-soot", type: "color", cssVar: "--db-wear-soot", default: "#120e0c", label: "Soot" },
       { key: "wear-heat", type: "color", cssVar: "--db-wear-heat", default: "#4a3a52", label: "Heat stain" },
     ],

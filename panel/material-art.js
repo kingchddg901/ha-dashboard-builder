@@ -230,13 +230,19 @@ const PROCESS = {
   impact(state, r, { at, severity = 0.5 }) {
     const mask = field();
     for (const p of at) {
-      deposit(mask, p.x, p.y, 0.05 + severity * 0.08, 1, 0.55);
+      // A tight core with a steep wall. The old shoulder (0.55) spread the hit
+      // into a pale cloud - a strike happens in an instant and leaves an EDGE,
+      // which is what tells it apart from everything else on the plate.
+      deposit(mask, p.x, p.y, 0.04 + severity * 0.06, 1, 3.2);
       const n = 2 + Math.floor(severity * 4);       // spall around the hit
       for (let k = 0; k < n; k++) {
         deposit(mask, clamp01(p.x + (r() - 0.5) * 0.18), clamp01(p.y + (r() - 0.5) * 0.18),
-          0.02 + r() * 0.03, 0.5 + r() * 0.5, 0.7);
+          0.015 + r() * 0.02, 0.5 + r() * 0.5, 2.6);
       }
     }
+    // Cut it: above the line it is bare metal, below it is nothing. Gradients
+    // are for things that grow, and a gouge did not grow.
+    for (let i = 0; i < mask.length; i++) mask[i] = mask[i] > 0.28 ? clamp01(mask[i] * 1.5) : mask[i] * 0.15;
     for (let i = 0; i < mask.length; i++) {
       state.exposed[i] = Math.max(state.exposed[i], mask[i]);
       state.damaged[i] = Math.max(state.damaged[i], mask[i]);
@@ -327,11 +333,11 @@ const PROCESS = {
 /** How each process is drawn: the tint it wears, how it sits on what is under it. */
 export const LOOK = Object.freeze({
   heat: { tint: "heat", blend: "multiply", opacity: 0.55, blur: 2 },
-  impact: { tint: "bare", blend: "normal", opacity: 0.9, blur: 0 },
+  impact: { tint: "bare", blend: "normal", opacity: 0.9, blur: 0, detail: 0.3 },
   oxidation: { tint: "rust", blend: "normal", opacity: 0.8, blur: 0.5 },
   // Scale is the crust at a seam: darker, harder, and NOT blurred - the hard
   // edge is the whole point of it against the soft blooms around it.
-  scale: { tint: "scale", blend: "normal", opacity: 0.95, blur: 0 },
+  scale: { tint: "scale", blend: "normal", opacity: 0.95, blur: 0, detail: 0.95 },
   soot: { tint: "soot", blend: "multiply", opacity: 0.7, blur: 1.5 },
 });
 

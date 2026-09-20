@@ -272,6 +272,10 @@ The history runs on a coarse field because that is all it needs; the mask is the
 multiplied by fine noise at paint scale, which is where the crust and the pitting live. Painted
 straight, 64 cells over a 350px tile is an airbrushed cloud.
 
+Six colours are art-directable: corrosion, scale at seams, bare metal, soot and heat stain. Each
+mark also says how much paint-scale detail it wants - a strike is cut hard and barely textured,
+because a gouge happens in an instant and leaves an EDGE, while scale is all texture.
+
 The gate is legibility, not swing: `legibilityRange` blurs the composite to the size of a letter
 first, because a thin bright vein is dramatic and harmless while a broad mottle at the same swing
 eats a glyph.
