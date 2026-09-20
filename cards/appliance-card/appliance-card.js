@@ -684,7 +684,7 @@ class ApplianceCard extends HTMLElement {
 const STYLE = `
   .presets { padding: 8px 0 4px; border-top: 1px solid var(--divider-color, #333); }
   .slots { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
-  .slot { position: relative; aspect-ratio: 1; min-height: 34px; border-radius: 8px; cursor: pointer;
+  .slot { position: relative; aspect-ratio: 1; min-height: 34px; border-radius: var(--db-ctl-r, 8px); cursor: pointer;
           border: 1px solid rgba(255,255,255,.18); background: var(--sw, transparent); padding: 0; }
   .slot.empty { border-style: dashed; border-color: var(--divider-color, #555); background: none;
                 color: var(--secondary-text-color); font-size: 16px; }
@@ -693,13 +693,13 @@ const STYLE = `
                color: rgba(0,0,0,.62); font-variant-numeric: tabular-nums; }
   .phead { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
   .phead .hint { flex: 1; font-size: 11px; color: var(--secondary-text-color); }
-  .psave { font: inherit; font-size: 11px; padding: 3px 12px; border-radius: 4px; cursor: pointer;
+  .psave { font: inherit; font-size: 11px; padding: 3px 12px; border-radius: var(--db-ctl-r, 4px); cursor: pointer;
            border: 1px solid var(--accent-color, #ff9900); background: none;
            color: var(--primary-text-color); }
   .psave.cancel { border-color: var(--divider-color, #555); color: var(--secondary-text-color); }
   .pnote { font-size: 11px; color: var(--warning-color, #ffa726); margin-top: 4px; }
   .modes { display: flex; gap: 4px; margin-top: 7px; }
-  .modes button { font: inherit; font-size: 11px; padding: 2px 9px; border-radius: 4px; cursor: pointer;
+  .modes button { font: inherit; font-size: 11px; padding: 2px 9px; border-radius: var(--db-ctl-r, 4px); cursor: pointer;
                   border: 1px solid var(--divider-color, #555); background: none;
                   color: var(--secondary-text-color); }
   .modes button.on { border-color: var(--accent-color, #ff9900); color: var(--primary-text-color); }
@@ -726,7 +726,7 @@ const STYLE = `
   .trap { font-size: 11px; color: var(--warning-color, #ffa726); display: flex; gap: 8px;
           align-items: center; flex-wrap: wrap; }
   .trap[hidden] { display: none; }
-  .trap button { font: inherit; font-size: 11px; cursor: pointer; padding: 1px 8px; border-radius: 4px;
+  .trap button { font: inherit; font-size: 11px; cursor: pointer; padding: 1px 8px; border-radius: var(--db-ctl-r, 4px);
                  border: 1px solid currentColor; background: none; color: inherit; }
   :host { display: block; }
   ha-card { padding: 10px 12px 12px; display: block; }
@@ -752,7 +752,7 @@ const STYLE = `
          font-variant-numeric: tabular-nums; }
   .src { opacity: .6; font-size: 10.5px; }
 
-  .power { flex: none; width: 42px; height: 42px; border-radius: 50%; cursor: pointer;
+  .power { flex: none; width: 42px; height: 42px; border-radius: var(--db-key-r, 50%); cursor: pointer;
            font-size: 17px; line-height: 1; border: 1px solid var(--divider-color, #555);
            background: var(--secondary-background-color, #222); color: var(--primary-text-color); }
   .block.on .power { background: var(--primary-text-color, #eee); color: var(--card-background-color, #111);
@@ -763,10 +763,10 @@ const STYLE = `
 
   /* Vertical by default - height is the axis a phone has to spare. */
   .track { flex: none; width: 54px; display: flex; flex-direction: column-reverse; gap: 3px; }
-  .seg { flex: 1; min-height: 26px; cursor: pointer; border-radius: 4px; font-size: 10px;
+  .seg { flex: 1; min-height: 26px; cursor: pointer; border-radius: var(--db-ctl-r, 4px); font-size: 10px;
          border: 1px solid var(--divider-color, #555); background: var(--secondary-background-color, #1c2126);
          color: var(--secondary-text-color); }
-  .seg.lit { background: var(--accent-color, #ff9900); border-color: transparent; color: #111; font-weight: 600; }
+  .seg.lit { background: var(--accent-color, #ff9900); border-color: transparent; color: var(--text-primary-color, #111); font-weight: 600; }
   .bar { position: relative; border-radius: 6px; overflow: hidden; min-height: 96px;
          border: 1px solid var(--divider-color, #555); background: var(--secondary-background-color, #1c2126); }
   .fill { position: absolute; left: 0; right: 0; bottom: 0; height: var(--v);

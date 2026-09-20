@@ -300,6 +300,19 @@ standard variables (`--primary-text-color`, `--accent-color`, `--divider-color` 
 inside the panel those point at the LCARS roles. Outside the panel the same cards keep HA's theme.
 A pop-up a tile opens is inside the panel too, so it follows.
 
+**Shape needed one more step.** HA's variables carry colour and nothing else, so a frame stopped at
+the card's edge: a cockpit tile still held pill-shaped buttons, because the card had written `8px`
+into its own stylesheet. This panel's own cards therefore also read three shape variables —
+`--db-ctl-r` for a control, `--db-radius` for a card-sized surface, `--db-key-r` for a round key —
+each with the card's old value as its fallback, so a card in a plain Lovelace dashboard looks
+exactly as it did. A card from anywhere else still only needs HA's variables; these are an opt-in,
+not a requirement.
+
+`key-radius` ("Round button corners") is the token behind the third. A radius past half the key
+reads as a circle, which is what LCARS wants and what every frame got before the token existed;
+the cockpit sets 3 for a square cap, Braun 8, Terminal and HUD 0. It is the one shape token the
+panel's own probe cannot measure, because the panel does not draw it — the cards do.
+
 22 of the 24 themes share one accent, `#ff7700`. So inside the tiles a theme shows mostly in
 borders, dividers and the tinted backgrounds. The sliders and buttons stay orange.
 

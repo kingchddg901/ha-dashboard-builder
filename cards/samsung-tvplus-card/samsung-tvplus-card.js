@@ -569,7 +569,7 @@ SamsungTvPlusCard.styles = `
   .hd { display:flex; align-items:center; gap:8px; padding:2px 12px 8px 16px; }
   .t { font-size:16px; font-weight:600; }
   .sub { margin-left:auto; font-size:11px; color:var(--warning-color,#f5a623); }
-  .hb, .tb, .ib, .cat, .chip { font:inherit; cursor:pointer; border-radius:8px; color:var(--primary-text-color);
+  .hb, .tb, .ib, .cat, .chip { font:inherit; cursor:pointer; border-radius:var(--db-ctl-r, 8px); color:var(--primary-text-color);
                         border:1px solid var(--divider-color,#555); background:var(--secondary-background-color,#1c2126); }
   .hb { padding:5px 12px; font-size:12.5px; }
   .hd .hb:first-of-type { margin-left:auto; }
@@ -578,7 +578,7 @@ SamsungTvPlusCard.styles = `
   .hb:focus-visible, .tb:focus-visible, .ib:focus-visible, .cat:focus-visible, .row:focus-visible, .q:focus-visible
     { outline:2px solid var(--accent-color,#ff9900); outline-offset:1px; }
   .searchbar { display:flex; gap:8px; padding:0 12px 8px 16px; }
-  .q { flex:1; min-width:0; font:inherit; font-size:15px; padding:8px 10px; border-radius:8px;
+  .q { flex:1; min-width:0; font:inherit; font-size:15px; padding:8px 10px; border-radius:var(--db-ctl-r, 8px);
        border:1px solid var(--divider-color,#555); background:var(--card-background-color,#111);
        color:var(--primary-text-color); }
   .cats { display:flex; gap:6px; overflow-x:auto; padding:0 12px 8px 16px; scrollbar-width:thin; }

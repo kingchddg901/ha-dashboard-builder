@@ -16,6 +16,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -65,6 +66,45 @@ test("every shared helper a file calls is imported by that file", () => {
     }
   }
   assert.deepEqual(missing, [], missing.join("\n"));
+});
+
+// RED IF: a module does not parse or does not load. The suite tests cores, and
+// nothing imports the ELEMENTS, so a broken panel or card reached the browser
+// twice in one day: a helper used without importing it, and a back-tick typed
+// inside the CSS template literal, which ended the string and made the rest of
+// the file nonsense. `node --check` misses the second - it parses as a script,
+// and the browser parses as a module. Actually importing catches both.
+test("every panel and card module parses and loads as a module", async () => {
+  const saved = { ...globalThis };
+  const el = () => ({ style: { setProperty() {}, removeProperty() {} }, classList: { add() {}, remove() {}, toggle() {} },
+    setAttribute() {}, removeAttribute() {}, getAttribute: () => null, appendChild: (c) => c, append() {},
+    replaceChildren() {}, addEventListener() {}, removeEventListener() {}, querySelector: () => null,
+    querySelectorAll: () => [], remove() {}, focus() {}, attachShadow() { return el(); } });
+  globalThis.HTMLElement = class { constructor() { this.isConnected = false; } attachShadow() { return el(); }
+    addEventListener() {} removeEventListener() {} dispatchEvent() { return true; }
+    setAttribute() {} getAttribute() { return null; } };
+  globalThis.customElements = { define() {}, get: () => undefined, whenDefined: async () => {} };
+  globalThis.document = { createElement: () => el(), addEventListener() {}, removeEventListener() {},
+    documentElement: el(), body: el() };
+  globalThis.window = { innerWidth: 1280, innerHeight: 800, addEventListener() {}, removeEventListener() {},
+    localStorage: { getItem: () => null, setItem() {} }, matchMedia: () => ({ matches: false, addEventListener() {} }) };
+  globalThis.CustomEvent = class { constructor(t, i) { this.type = t; Object.assign(this, i); } };
+  globalThis.ResizeObserver = class { observe() {} disconnect() {} };
+  globalThis.getComputedStyle = () => ({ getPropertyValue: () => "" });
+  globalThis.CSS = { escape: (s) => s };
+  try {
+    const failed = [];
+    for (const file of files) {
+      // loader.js FETCHES current.json as it loads - that is its whole job, so
+      // it cannot be imported off the box. Its own guard is db31/race.html.
+      if (path.basename(file) === "loader.js") continue;
+      try { await import(pathToFileURL(file).href); } catch (e) { failed.push(`${path.relative(ROOT, file)}: ${e.message}`); }
+    }
+    assert.deepEqual(failed, [], failed.join("\n"));
+  } finally {
+    for (const k of ["HTMLElement", "customElements", "document", "window", "CustomEvent", "ResizeObserver",
+      "getComputedStyle", "CSS"]) { if (!(k in saved)) delete globalThis[k]; else globalThis[k] = saved[k]; }
+  }
 });
 
 // RED IF: the check above is looking at nothing - an empty file list or an

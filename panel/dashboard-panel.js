@@ -1201,13 +1201,25 @@ const STYLE = `
     --db-radius-start: var(--db-tile-radius-start, 0px);
     --db-tab-r: var(--db-tab-radius, 0px);
     --db-ctl-r: var(--db-control-radius, 20px);
+    --db-key-r: var(--db-key-radius, 50px);
     --db-shadow: var(--db-tile-shadow, none);
     --db-c: var(--db-chamfer, 14px);
     --db-mono: ui-monospace, "Cascadia Mono", Consolas, "Roboto Mono", monospace;
     /* The tiles' cards read Home Assistant's standard variables. Pointing those
        at the LCARS roles here themes every tile - and every pop-up a tile opens -
-       with no change to the cards; outside the panel they keep HA's theme. */
+       with no change to the cards; outside the panel they keep HA's theme.
+
+       HA's variables carry COLOUR and nothing else, so a frame stopped at the
+       card's edge: a cockpit tile held pill-shaped buttons because the card had
+       written 8px into its own stylesheet. This panel's own cards may therefore
+       also read three SHAPE variables - --db-ctl-r for a control, --db-radius
+       for a card-sized surface, --db-key-r for a round key - each with the
+       card's old value as the fallback, so a card in a plain Lovelace dashboard
+       is exactly what it was. A card from anywhere else still only needs HA's
+       variables; these are an opt-in, not a requirement.
+       (No back-ticks in here: this whole block is inside a template literal.) */
     --primary-text-color: var(--db-text);
+    --text-primary-color: var(--db-active-text);        /* HA's name for text ON the accent */
     --secondary-text-color: color-mix(in srgb, var(--db-text) 62%, var(--db-bg));
     --accent-color: var(--db-active);
     --card-background-color: var(--db-surface);

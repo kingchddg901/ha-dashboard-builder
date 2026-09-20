@@ -65,6 +65,14 @@ export const PANEL_GROUPS = [
         default: 0, byFrame: { cockpit: 3, braun: 4, glass: 12 }, label: "Tab corners" },
       { key: "control-radius", type: "number", unit: "px", min: 0, max: 20, step: 1, cssVar: "--db-control-radius",
         default: 20, byFrame: { cockpit: 3, blueprint: 0, terminal: 0, braun: 4, hud: 0, glass: 12, fieldnotes: 0 }, label: "Button corners" },
+      /* The round keys inside the cards - a light's power, a TV's. A radius
+         past half the key reads as a circle, which is what LCARS wants and what
+         every frame got before this token existed; a cockpit wants a square
+         key cap instead. Drawn by the cards, not by the panel, which is why it
+         is the one shape token the panel's own probe cannot see. */
+      { key: "key-radius", type: "number", unit: "px", min: 0, max: 50, step: 1, cssVar: "--db-key-radius",
+        default: 50, byFrame: { cockpit: 3, blueprint: 0, terminal: 0, braun: 8, hud: 0, glass: 16, fieldnotes: 2 },
+        label: "Round button corners" },
       { key: "chamfer", type: "number", unit: "px", min: 0, max: 40, step: 1, cssVar: "--db-chamfer",
         default: 14, byFrame: { hud: 10 }, label: "Chamfer" },
     ],

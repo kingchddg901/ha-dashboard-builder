@@ -259,9 +259,9 @@ const STYLE = `
   .detail { display: flex; flex-direction: column; gap: 10px; padding: 8px 14px 12px;
             background: var(--secondary-background-color, #1c2126); }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-  .chip { font-size: 12px; padding: 3px 9px; border-radius: 8px; border: 1px solid var(--divider-color, #555); }
+  .chip { font-size: 12px; padding: 3px 9px; border-radius: var(--db-ctl-r, 8px); border: 1px solid var(--divider-color, #555); }
   .acts { display: flex; gap: 8px; }
-  .tb { font: inherit; cursor: pointer; border-radius: 8px; color: var(--primary-text-color); padding: 8px 12px;
+  .tb { font: inherit; cursor: pointer; border-radius: var(--db-ctl-r, 8px); color: var(--primary-text-color); padding: 8px 12px;
         font-size: 13px; border: 1px solid var(--divider-color, #555); background: var(--card-background-color, #111); }
   .tb.start { flex: 1; font-weight: 600; border-color: var(--accent-color, #ff9900); }
   .tb:disabled { opacity: .45; cursor: default; }
@@ -269,10 +269,10 @@ const STYLE = `
            display: flex; align-items: flex-end; justify-content: center; }
   .modal[hidden] { display: none; }
   .sheet { width: min(640px, 100%); max-height: 90dvh; display: flex; flex-direction: column;
-           background: var(--card-background-color, #111); border-radius: 16px 16px 0 0; overflow: hidden; }
+           background: var(--card-background-color, #111); border-radius: var(--db-radius, 16px 16px 0 0); overflow: hidden; }
   .bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px 8px 16px;
          border-bottom: 1px solid var(--divider-color, #444); font-size: 13px; }
-  .close { font: inherit; cursor: pointer; border-radius: 12px; padding: 6px 14px; border: 1px solid var(--divider-color, #555);
+  .close { font: inherit; cursor: pointer; border-radius: var(--db-ctl-r, 12px); padding: 6px 14px; border: 1px solid var(--divider-color, #555);
            background: none; color: var(--primary-text-color); }
   .body { overflow: auto; padding-bottom: env(safe-area-inset-bottom, 0px); }
 `;
